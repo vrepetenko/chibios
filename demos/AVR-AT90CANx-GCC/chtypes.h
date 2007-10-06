@@ -17,11 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * @addtogroup Core
- * @{
- */
-
 #ifndef _CHTYPES_H_
 #define _CHTYPES_H_
 
@@ -30,24 +25,23 @@
  */
 #define BOOL        char
 #define BYTE8       unsigned char
-#define SBYTE8      char
-#define WORD16      short
-#define UWORD16     unsigned short
-#define LONG32      int
-#define ULONG32     unsigned int
+#define SBYTE8      signed char
+#define WORD16      int
+#define UWORD16     unsigned int
+#define LONG32      long
+#define ULONG32     unsigned long
+#define PTR_EQ      int
 
-typedef BYTE8       t_tmode;    /* Thread mode flags, BYTE8 is ok. */
-typedef BYTE8       t_tstate;   /* Thread state, BYTE8 is ok. */
-typedef ULONG32     t_prio;     /* Priority, use the fastest unsigned type. */
-typedef LONG32      t_msg;      /* Message, use signed pointer equivalent.*/
-typedef LONG32      t_eventid;  /* Event Id, use fastest signed.*/
-typedef ULONG32     t_eventmask;/* Event Mask, recommended fastest unsigned.*/
-typedef ULONG32     t_time;     /* Time, recommended fastest unsigned.*/
-typedef LONG32      t_cnt;      /* Counter, recommended fastest signed.*/
-typedef ULONG32     t_size;     /* Size, use unsigned pointer equivalent.*/
+typedef BYTE8       t_tmode;
+typedef BYTE8       t_tstate;
+typedef BYTE8       t_prio;
+typedef WORD16      t_msg;
+typedef BYTE8       t_eventid;
+typedef BYTE8       t_eventmask;
+typedef UWORD16     t_time;
+typedef SBYTE8      t_cnt;
+typedef UWORD16     t_size;
 
 #define INLINE      inline
 
 #endif /* _CHTYPES_H_ */
-
-/** @} */

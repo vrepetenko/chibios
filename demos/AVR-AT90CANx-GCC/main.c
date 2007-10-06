@@ -19,57 +19,12 @@
 
 #include <ch.h>
 
-#include "lpc214x.h"
-#include "lpc214x_serial.h"
-#include "buzzer.h"
-
 static BYTE8 waThread1[UserStackSize(32)];
 
 static t_msg Thread1(void *arg) {
 
   while (TRUE) {
-    IO0CLR = 0x00000800;
-    chThdSleep(200);
-    IO0SET = 0x00000C00;
     chThdSleep(800);
-    IO0CLR = 0x00000400;
-    chThdSleep(200);
-    IO0SET = 0x00000C00;
-    chThdSleep(800);
-  }
-  return 0;
-}
-
-static BYTE8 waThread2[UserStackSize(32)];
-
-static t_msg Thread2(void *arg) {
-
-  while (TRUE) {
-    IO0CLR = 0x80000000;
-    chThdSleep(200);
-    IO0SET = 0x80000000;
-    chThdSleep(300);
-  }
-  return 0;
-}
-
-static BYTE8 waThread3[UserStackSize(64)];
-
-static t_msg Thread3(void *arg) {
-  t_msg TestThread(void *p);
-  
-  while (TRUE) {
-  	if (!(IO0PIN & 0x00018000)) {
-      TestThread(&COM1);
-      PlaySound(500, 100);
-  	}
-  	else {
-      if (!(IO0PIN & 0x00008000)) // Button 1
-        PlaySound(1000, 100);
-      if (!(IO0PIN & 0x00010000)) // Button 2
-        chFDDWrite(&COM1, (BYTE8 *)"Hello World!\r\n", 14);
-  	}
-    chThdSleep(500);
   }
   return 0;
 }
@@ -78,8 +33,6 @@ int main(int argc, char **argv) {
 
   chSysInit();
   chThdCreate(NORMALPRIO, 0, waThread1, sizeof(waThread1), Thread1, NULL);
-  chThdCreate(NORMALPRIO, 0, waThread2, sizeof(waThread2), Thread2, NULL);
-  chThdCreate(NORMALPRIO, 0, waThread3, sizeof(waThread3), Thread3, NULL);
   chSysPause();
   return 0;
 }

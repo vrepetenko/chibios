@@ -6,6 +6,10 @@
 ./license.txt          - GPL3 license file.
 ./src/                 - ChibiOS/RT portable kernel source files.
 ./src/include/         - ChibiOS/RT include files.
+./src/lib/             - ChibiOS/RT library code that can be included into
+                         user applications but is not part of the core system.
+                         The code in this directory is meant to be portable,
+                         generic and architecture indipendent.
 ./src/templates/       - ChibiOS/RT non portable source templates, new ports
                          are started by copying the templates into a new
                          directory under ./demos/.
@@ -23,15 +27,27 @@ Win32-MinGW         - ChibiOS/RT simulator and demo into a WIN32 process,
                       MinGW version.
 Win32-MSVS          - ChibiOS/RT simulator and demo into a WIN32 process,
                       Visual Studio 7 or any later version should work.
-LPC214x-GCC         - ChibiOS/RT port for ARM7 LPC2148, the demo targets the
+ARM7-LPC214x-GCC    - ChibiOS/RT port for ARM7 LPC2148, the demo targets the
                       Olimex LPC-P2148 board. This port can be easily modified
                       for any processor into the LPC2000 family or other
                       boards. The demo can be compiled using YAGARTO or any
                       other GCC-based ARM toolchain.
+AVR-AT90CANx-GCC    - Port on AVER AT90CAN128, not complete yet.
 
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 0.3.2 ***
+- Modified the chSysInit() to give the idle thread absolute priority, the
+  priority is then lowered to the minimum value into the chSysPause(). This
+  is done in order to ensure that the initializations performed into the
+  main() procedure are performed before any thread starts.
+- Added chThdSetPriority() new API.
+- Added a generic events generator timer to the library code.
+- Modified the ARM7-LPC214x-GCC demo to show the use of the event timer.
+- Added the "#ifdef __cplusplus" stuff to the header files.
+- Removed an obsolete definition in ./src/templates/chtypes.h.
 
 *** 0.3.1 ***
 - Test program added to the demos. Telnet the MinGW and MSVS demos and type

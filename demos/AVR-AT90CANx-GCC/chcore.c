@@ -17,37 +17,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * @addtogroup Core
- * @{
- */
-
 #include <ch.h>
 
-/*
- * This file is just a template, it contains the function prototypes and the
- * doxigen documentation. The implementation of the following functions is
- * architecture/compiler specific.
- */
-
-/**
- * This function implements the idle thread infinite loop. The function should
- * put the processor in the lowest power mode capable to serve interrupts.
- * The priority is internally set to the minimum system value so that this
- * thread is executed only if there are no other ready threads in the system.
- */
 void chSysPause(void) {
 
   chThdSetPriority(IDLEPRIO);
 
-  while (TRUE)
-    ;
+  asm volatile (
+  "ldi     r18, 1       \n\t"   // SE bit
+  "out     0x33, r18"           // SMCR
+  );
+  while (TRUE) {
+    asm volatile ("sleep");
+  }
 }
 
-/**
- * Abonormal system termination handler. Invoked by the ChibiOS/RT when an
- * abnormal unrecoverable condition is met.
- */
 void chSysHalt(void) {
 
   chSysLock();
@@ -55,10 +39,3 @@ void chSysHalt(void) {
   while (TRUE)
     ;
 }
-
-/**
- * Context switch.
- */
-void chSysSwitchI(Context *oldp, Context *newp) {}
-
-/** @} */
