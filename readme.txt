@@ -32,11 +32,18 @@ ARM7-LPC214x-GCC    - ChibiOS/RT port for ARM7 LPC2148, the demo targets the
                       for any processor into the LPC2000 family or other
                       boards. The demo can be compiled using YAGARTO or any
                       other GCC-based ARM toolchain.
-AVR-AT90CANx-GCC    - Port on AVER AT90CAN128, not complete yet.
+AVR-AT90CANx-GCC    - Port on AVR AT90CAN128, not complete yet.
 
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 0.3.4 ***
+- Fixed a problem in chVTSetI().
+- New API, chVTIsArmedI(), it is a macro in delta.h.
+- New API, chThdResumeI(), it is a macro in threads.h. This function is just
+  an alias for chSchReadyI() but makes the code more readable.
+- New API, chThdSuspend(). New switch CH_USE_SUSPEND added to chconf.h.
 
 *** 0.3.3 ***
 - Modified the chVTSetI(), now for the "time" parameter can have value zero
@@ -49,7 +56,7 @@ AVR-AT90CANx-GCC    - Port on AVER AT90CAN128, not complete yet.
 - Modified the chSysInit() to give the idle thread absolute priority, the
   priority is then lowered to the minimum value into the chSysPause(). This
   is done in order to ensure that the initializations performed into the
-  main() procedure are performed before any thread starts.
+  main() procedure are finished before any thread starts.
 - Added chThdSetPriority() new API.
 - Added a generic events generator timer modulee to the library code.
 - Modified the ARM7-LPC214x-GCC demo to show the use of the event timer.

@@ -220,10 +220,10 @@ t_eventid chEvtWaitTimeout(t_eventmask ewmask,
     chVTSetI(&vt, time, unwait, currp);
     currp->p_ewmask = ewmask;
     chSchGoSleepS(PRWTEVENT);
-    if (!vt.vt_func) {
+    if (!chVTIsArmedI(&vt)) {
 
       chSysUnlock();
-      return RDY_TIMEOUT; // No need to read t_rdymsg value, it is a timeout.
+      return RDY_TIMEOUT;
     }
     chVTResetI(&vt);
   }
