@@ -166,6 +166,12 @@ void chSysHalt(void) {
 }
 
 /*
+ * System console message (not implemented).
+ */
+void chSysPuts(char *msg) {
+}
+
+/*
  * Non-vectored IRQs handling here.
  */
 void NonVectoredIrq(void) {
@@ -179,6 +185,6 @@ void NonVectoredIrq(void) {
 void Timer0Irq(void) {
 
   T0IR = 1;             /* Clear interrupt on match MR0. */
-  chSchTimerHandlerI();
+  chSysTimerHandlerI();
   VICVectAddr = 0;
 }

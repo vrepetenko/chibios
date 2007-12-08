@@ -21,17 +21,35 @@
 
 #ifdef CH_USE_DEBUG
 
-TraceBuffer dbgtb;
-char *dbglastmsg;
+char *panicmsg;
 
 /**
  * Debug subsystem initialization.
  */
 void chDbgInit(void) {
 
+#ifdef CH_USE_TRACE
   dbgtb.tb_size = TRACE_BUFFER_SIZE;
   dbgtb.tb_ptr = &dbgtb.tb_buffer[0];
+#endif
 }
+
+/**
+ * Prints a panic message on the console/debugger and then halts the system.
+ */
+void chDbgPanic(char *msg) {
+
+  panicmsg = msg;
+  chSysPuts("PANIC: ");
+  chSysPuts(msg);
+  chSysHalt();
+}
+
+#ifdef CH_USE_TRACE
+/**
+ * Public trace buffer.
+ */
+TraceBuffer dbgtb;
 
 /**
  * Inserts in the circular debug trace buffer a context switch record.
@@ -51,25 +69,6 @@ void chDbgTrace(Thread *otp, Thread *ntp) {
   if (++dbgtb.tb_ptr >= &dbgtb.tb_buffer[TRACE_BUFFER_SIZE])
     dbgtb.tb_ptr = &dbgtb.tb_buffer[0];
 }
-
-/**
- * Prints a message on the console/debugger. The latest message pointer
- * is retained.
- */
-void chDbgPuts(char *msg) {
-
-  dbglastmsg = msg;
-  chSysPuts(msg);
-}
-
-/**
- * Prints a panic message on the console/debugger and then halts the system.
- */
-void chDbgPanic(char *msg) {
-
-  chSysPuts("PANIC: ");
-  chDbgPuts(msg);
-  chSysHalt();
-}
+#endif /* CH_USE_TRACE */
 
 #endif /* CH_USE_DEBUG */

@@ -23,20 +23,66 @@
 
 Current ports under ./demos:
 
-Win32-MinGW         - ChibiOS/RT simulator and demo into a WIN32 process,
-                      MinGW version.
-Win32-MSVS          - ChibiOS/RT simulator and demo into a WIN32 process,
-                      Visual Studio 7 or any later version should work.
-ARM7-LPC214x-GCC    - ChibiOS/RT port for ARM7 LPC2148, the demo targets the
-                      Olimex LPC-P2148 board. This port can be easily modified
-                      for any processor into the LPC2000 family or other
-                      boards. The demo can be compiled using YAGARTO or any
-                      other GCC-based ARM toolchain. Full demo.
-AVR-AT90CANx-GCC    - Port on AVR AT90CAN128, not complete yet.
+Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
+                         MinGW version.
+Win32-MSVS             - ChibiOS/RT simulator and demo into a WIN32 process,
+                         Visual Studio 7 or any later version should work.
+ARM7-LPC214x-GCC       - ChibiOS/RT port for ARM7 LPC2148, the demo targets
+                         the Olimex LPC-P2148 board. This port can be easily
+                         modified for any processor into the LPC2000 family or
+                         other boards. The demo can be compiled using YAGARTO
+                         or any other GCC-based ARM toolchain. Full demo.
+ARM7-LPC214x-GCC-min   - Minimal demo for LPC214X.
+AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not complete yet.
 
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 0.4.4 ***
+- Fixed a very important bug in the preemption ARM code, important enough to
+  make this update *mandatory*.
+  Note: This is not a kernel bug but something specific with the ARM port, the
+        other ports are not affected.
+- Fixed a nasty bug in the pure THUMB mode threads trampoline code (chcore2.s,
+  threadstart), it failed on THUMB threads returning with a "bx" instruction.
+  The bug did not affect ARM mode or THUMB with interworking mode.
+  Note: This is not a kernel bug but something specific with the ARM port, the
+        other ports are not affected.
+- Fixed a bug in chIQGetTimeout(), interrupts were not re-enabled when exiting
+  the function because a timeout. The problem affected that API only.
+- Fixed a potential problem in chSysInit(), it should not affect any past
+  application.
+- Added a chDbgAssert() API to the debug subsystem.
+- Cleaned up the kernel source code using chDbgAssert() instead of a lot of
+  "#ifdef CH_USE_DEBUG", it is much more readable now.
+- Now the threads working area is filled with a 0x55 when in debug mode, this
+  will make easier to track stack usage using a JTAG probe.
+- Added an I/O Queues benchmark to the test suite.
+- Removed the chSchTimerHandlerI() routine from chschd.c and moved it into
+  chinit.c renaming it chSysTimerHandlerI() because it is not part of the
+  scheduler.
+
+*** 0.4.3 ***
+- Size optimization in the events code, now the chEvtWait() reuses the
+  chEvtWaitTimeout() code if it is enabled.
+- Size optimization in the semaphores code, now the chSemWaitTimeout() just
+  invokes the chSemWaitTimeoutS() inside its system mutex zone. Same thing
+  done with chSemWait() and chSemWaitS().
+- Size optimization in the queues code.
+- Modified the return type of chSemWait() and chSemWaitS() from void to t_msg,
+  this allows to understand if the semaphore was signaled or reset without
+  have to access the Thread structure.
+- Added a threads create/exit/wait benchmark to the test suite, the system
+  is capable of 81712 threads started/terminated per second on the reference
+  LPC2148 board. The figure is inclusive of two context switch operations
+  for each thread.
+- Minor improvement in the LPC214x serial driver, unneeded events were
+  generated in some rare cases.
+- Fixed a chSysInit() documentation error.
+- Fixed a chEvtWaitTimeout() documentation error.
+- Added a new debug switch: CH_USE_TRACE, previously the trace functionality
+  was associated to the CH_USE_DEBUG switch.
 
 *** 0.4.2 ***
 - Added a minimal ARM7-LPC demo, you can use this one as template in order to

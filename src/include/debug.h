@@ -27,9 +27,14 @@
 
 #ifdef CH_USE_DEBUG
 
-#ifndef TRACE_BUFFER_SIZE 
+#ifndef TRACE_BUFFER_SIZE
 #define TRACE_BUFFER_SIZE 64
 #endif
+
+/**
+ * Fill value for threads working area in debug mode.
+ */
+#define MEM_FILL_PATTERN 0x55
 
 typedef struct {
   void          *cse_slpdata;
@@ -52,20 +57,42 @@ extern char *dbglastmsg;
 extern "C" {
 #endif
   void chDbgInit(void);
-  void chDbgTrace(Thread *otp, Thread *ntp);
   void chDbgPuts(char *msg);
   void chDbgPanic(char *msg);
 #ifdef __cplusplus
 }
 #endif
 
+/**
+ * Condition assertion, if the condition check fails then the kernel panics
+ * with the specified message.
+ * @param c the condition to be verified to be true
+ * @param m the text message
+ * @note The condition is tested only if the \p CH_USE_DEBUG switch is
+ *       specified in \p chconf.h else the macro does nothing.
+ */
+#define chDbgAssert(c, m) {                                             \
+  if (!(c))                                                             \
+    chDbgPanic(m);                                                      \
+}
+
 #else /* CH_USE_DEBUG */
 
 #define chDbgInit()
-#define chDbgPuts(msg) {}
 #define chDbgPanic(msg) {}
+#define chDbgAssert(c, m) {}
 
 #endif /* CH_USE_DEBUG */
+
+#ifdef CH_USE_TRACE
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void chDbgTrace(Thread *otp, Thread *ntp);
+#ifdef __cplusplus
+}
+#endif
+#endif /* CH_USE_TRACE */
 
 #endif /* _DEBUG_H_ */
 

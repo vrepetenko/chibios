@@ -119,6 +119,7 @@ void chEvtSendI(EventSource *esp) {
   }
 }
 
+#ifdef CH_USE_EVENTS_TIMEOUT
 /**
  * The function waits for an event and returns the event identifier, if an
  * event handler is specified then the handler is executed before returning.
@@ -137,34 +138,13 @@ void chEvtSendI(EventSource *esp) {
  */
 t_eventid chEvtWait(t_eventmask ewmask,
                     const t_evhandler handlers[]) {
-  t_eventid i;
-  t_eventmask m;
 
-  chSysLock();
-
-  if ((currp->p_epending & ewmask) == 0) {
-    currp->p_ewmask = ewmask;
-    chSchGoSleepS(PRWTEVENT);
-  }
-  i = 0, m = 1;
-  while ((currp->p_epending & ewmask & m) == 0)
-    i += 1, m <<= 1;
-  currp->p_epending &= ~m;
-
-  chSysUnlock();
-
-  if (handlers && handlers[i])
-    handlers[i](i);
-
-  return i;
+  return chEvtWaitTimeout(ewmask, handlers, TIME_INFINITE);
 }
 
-#ifdef CH_USE_EVENTS_TIMEOUT
 static void wakeup(void *p) {
-#ifdef CH_USE_DEBUG
-  if (((Thread *)p)->p_state != PRWTEVENT)
-    chDbgPanic("chevents.c, wakeup()\r\n");
-#endif
+
+  chDbgAssert(((Thread *)p)->p_state == PRWTEVENT, "chevents.c, wakeup()");
   chSchReadyI(p, RDY_TIMEOUT);
 }
 
@@ -179,9 +159,7 @@ static void wakeup(void *p) {
  *                 identifier. The array can be NULL or contain NULL elements
  *                 (no callback specified).
  * @param time the number of ticks before the operation timouts
- * @return the event identifier or \p RDY_TIMEOUT the specified time expired or
- *         if the timeout was set to zero and no serviceable pending events
- *         were present
+ * @return the event identifier or \p RDY_TIMEOUT if the specified time expired
  * @note Only a single event is served in the function, the one with the
  *       lowest event id. The function is meant to be invoked into a loop so
  *       that all events are received and served.<br>
@@ -223,7 +201,33 @@ t_eventid chEvtWaitTimeout(t_eventmask ewmask,
 
   return i;
 }
-#endif /*CH_USE_EVENTS_TIMEOUT */
+
+#else /* !CH_USE_EVENTS_TIMEOUT */
+t_eventid chEvtWait(t_eventmask ewmask,
+                    const t_evhandler handlers[]) {
+  t_eventid i;
+  t_eventmask m;
+
+  chSysLock();
+
+  if ((currp->p_epending & ewmask) == 0) {
+    currp->p_ewmask = ewmask;
+    chSchGoSleepS(PRWTEVENT);
+  }
+  i = 0, m = 1;
+  while ((currp->p_epending & ewmask & m) == 0)
+    i += 1, m <<= 1;
+  currp->p_epending &= ~m;
+
+  chSysUnlock();
+
+  if (handlers && handlers[i])
+    handlers[i](i);
+
+  return i;
+}
+
+#endif /* CH_USE_EVENTS_TIMEOUT */
 
 #endif /* CH_USE_EVENTS */
 

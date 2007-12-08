@@ -66,9 +66,8 @@ t_msg chMsgSendWithEvent(Thread *tp, t_msg msg, EventSource *esp) {
 
   chSysLock();
 
+  chDbgAssert(tp->p_state != PRWTMSG, "chmsg.c, chMsgSendWithEvent()");
   fifo_insert(currp, &tp->p_msgqueue);
-//  if (tp->p_state == PRWTMSG)
-//    chSchReadyI(tp, RDY_OK);
   chEvtSendI(esp);
   currp->p_msg = msg;
   chSchGoSleepS(PRSNDMSG);
@@ -82,10 +81,7 @@ t_msg chMsgSendWithEvent(Thread *tp, t_msg msg, EventSource *esp) {
 #ifdef CH_USE_MESSAGES_TIMEOUT
 static void wakeup(void *p) {
 
-#ifdef CH_USE_DEBUG
-  if (((Thread *)p)->p_state != PRSNDMSG)
-    chDbgPanic("chmsg.c, wakeup()\r\n");
-#endif
+  chDbgAssert(((Thread *)p)->p_state == PRSNDMSG, "chmsg.c, wakeup()");
   chSchReadyI(dequeue(p), RDY_TIMEOUT);
 }
 
@@ -184,10 +180,7 @@ void chMsgRelease(t_msg msg) {
 
   chSysLock();
 
-#ifdef CH_USE_DEBUG
-  if (!chMsgIsPendingI(currp))
-    chDbgPanic("chmsg.c, chMsgRelease()\r\n");
-#endif
+  chDbgAssert(chMsgIsPendingI(currp), "chmsg.c, chMsgRelease()");
   chSchWakeupS(fifo_remove(&currp->p_msgqueue), msg);
 
   chSysUnlock();

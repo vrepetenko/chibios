@@ -24,7 +24,6 @@
 
 #include <ch.h>
 
-
 /**
  * ChibiOS/RT initialization. After executing this function the current
  * instructions stream becomes the main thread.
@@ -34,7 +33,7 @@
  */
 void chSysInit(void) {
   static Thread mainthread;
-  static BYTE8 waIdleThread[UserStackSize(IDLE_THREAD_STACK_SIZE)];
+  static WorkingArea(waIdleThread, IDLE_THREAD_STACK_SIZE);
 
   chSchInit();
   chDbgInit();
@@ -53,12 +52,28 @@ void chSysInit(void) {
   /*
    * The idle thread is created using the port-provided implementation.
    * This thread has the lowest priority in the system, its role is just to
-   * execute the chSysPause() and serve interrupts in its context.
-   * In ChibiOS/RT at least one thread in the system *must* execute
-   * chThdPause(), it can be done in a dedicated thread or in the main()
-   * function (that would never exit the call).
+   * serve interrupts in its context while keeping the lowest energy saving
+   * mode compatible with the system status.
    */
   chThdCreate(IDLEPRIO, 0, waIdleThread, sizeof(waIdleThread), (t_tfunc)_IdleThread, NULL);
+}
+
+/**
+ * Preemption routine, this function must be called into an interrupt
+ * handler invoked by a system timer.
+ * The frequency of the timer determines the system tick granularity and,
+ * together with the \p CH_TIME_QUANTUM macro, the round robin interval.
+ */
+void chSysTimerHandlerI(void) {
+
+  rlist.r_preempt--;
+#ifdef CH_USE_SYSTEMTIME
+  rlist.r_stime++;
+#endif
+
+#ifdef CH_USE_VIRTUAL_TIMERS
+  chVTDoTickI();
+#endif
 }
 
 /** @} */

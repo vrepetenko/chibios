@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = ChibiOS/RT
-PROJECT_NUMBER         = "0.4.2 beta"
+PROJECT_NUMBER         = "0.4.4 beta"
 OUTPUT_DIRECTORY       = .
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -244,7 +244,8 @@ PREDEFINED             = __JUST_STUBS__ \
                          CH_USE_MESSAGES_TIMEOUT \
                          CH_USE_MESSAGES_EVENT \
                          CH_USE_SEMSW \
-                         CH_USE_DEBUG
+                         CH_USE_DEBUG \
+                         CH_USE_TRACE
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------

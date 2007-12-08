@@ -33,6 +33,7 @@
  */
 void chSemInit(Semaphore *sp, t_cnt n) {
 
+  chDbgAssert(n >= 0, "chsem.c, chSemInit()");
   fifo_init(&sp->s_queue);
   sp->s_cnt = n;
 }
@@ -48,6 +49,7 @@ void chSemInit(Semaphore *sp, t_cnt n) {
 void chSemReset(Semaphore *sp, t_cnt n) {
   t_cnt cnt;
 
+  chDbgAssert(n >= 0, "chsem.c, chSemReset()");
   chSysLock();
 
   cnt = sp->s_cnt;
@@ -73,6 +75,7 @@ void chSemReset(Semaphore *sp, t_cnt n) {
 void chSemResetI(Semaphore *sp, t_cnt n) {
   t_cnt cnt;
 
+  chDbgAssert(n >= 0, "chsem.c, chSemResetI()");
   cnt = sp->s_cnt;
   sp->s_cnt = n;
   while (cnt++ < 0)
@@ -82,42 +85,41 @@ void chSemResetI(Semaphore *sp, t_cnt n) {
 /**
  * Performs a wait operation on a semaphore.
  * @param sp pointer to a \p Semaphore structure
+ * @return the function can return \p RDY_OK or \p RDY_RESET.
  */
-void chSemWait(Semaphore *sp) {
+t_msg chSemWait(Semaphore *sp) {
+  t_msg msg;
 
   chSysLock();
 
-  if (--sp->s_cnt < 0) {
-    fifo_insert(currp, &sp->s_queue);
-    currp->p_semp = sp;
-    chSchGoSleepS(PRWTSEM);
-  }
+  msg = chSemWaitS(sp);
 
   chSysUnlock();
+  return msg;
 }
 
 /**
  * Performs a wait operation on a semaphore.
  * @param sp pointer to a \p Semaphore structure
+ * @return the function can return \p RDY_OK or \p RDY_RESET.
  * @note This function must be called with interrupts disabled.
  * @note This function cannot be called by an interrupt handler.
  */
-void chSemWaitS(Semaphore *sp) {
+t_msg chSemWaitS(Semaphore *sp) {
 
   if (--sp->s_cnt < 0) {
     fifo_insert(currp, &sp->s_queue);
     currp->p_semp = sp;
     chSchGoSleepS(PRWTSEM);
+    return currp->p_rdymsg;
   }
+  return RDY_OK;
 }
 
 #ifdef CH_USE_SEMAPHORES_TIMEOUT
 static void wakeup(void *p) {
 
-#ifdef CH_USE_DEBUG
-  if (((Thread *)p)->p_state != PRWTSEM)
-    chDbgPanic("chsem.c, wakeup()\r\n");
-#endif
+  chDbgAssert(((Thread *)p)->p_state == PRWTSEM, "chsem.c, wakeup()");
   chSemFastSignalI(((Thread *)p)->p_semp);
   chSchReadyI(dequeue(p), RDY_TIMEOUT);
 }
@@ -126,37 +128,24 @@ static void wakeup(void *p) {
  * Performs a wait operation on a semaphore with timeout specification.
  * @param sp pointer to a \p Semaphore structure
  * @param time the number of ticks before the operation fails
- * @return the function can return \p RDY_OK. \p RDY_TIMEOUT or \p RDY_RESET.
+ * @return the function can return \p RDY_OK, \p RDY_TIMEOUT or \p RDY_RESET.
  */
 t_msg chSemWaitTimeout(Semaphore *sp, t_time time) {
   t_msg msg;
 
   chSysLock();
 
-  if (--sp->s_cnt < 0) {
-    VirtualTimer vt;
-
-    chVTSetI(&vt, time, wakeup, currp);
-    fifo_insert(currp, &sp->s_queue);
-    currp->p_semp = sp;
-    chSchGoSleepS(PRWTSEM);
-    msg = currp->p_rdymsg;
-    if (chVTIsArmedI(&vt))
-      chVTResetI(&vt);
-
-    chSysUnlock();
-    return msg;
-  }
+  msg = chSemWaitTimeoutS(sp, time);
 
   chSysUnlock();
-  return RDY_OK;
+  return msg;
 }
 
 /**
  * Performs a wait operation on a semaphore with timeout specification.
  * @param sp pointer to a \p Semaphore structure
  * @param time the number of ticks before the operation fails
- * @return the function can return \p RDY_OK. \p RDY_TIMEOUT or \p RDY_RESET.
+ * @return the function can return \p RDY_OK, \p RDY_TIMEOUT or \p RDY_RESET.
  * @note This function must be called with interrupts disabled.
  * @note This function cannot be called by an interrupt handler.
  * @note The function is available only if the \p CH_USE_SEMAPHORES_TIMEOUT

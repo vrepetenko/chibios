@@ -88,7 +88,7 @@ void chSchGoSleepS(t_tstate newstate) {
   (otp = currp)->p_state = newstate;
   (currp = fifo_remove(&rlist.r_queue))->p_state = PRCURR;
   rlist.r_preempt = CH_TIME_QUANTUM;
-#ifdef CH_USE_DEBUG
+#ifdef CH_USE_TRACE
   chDbgTrace(otp, currp);
 #endif
   chSysSwitchI(&otp->p_ctx, &currp->p_ctx);
@@ -115,7 +115,7 @@ void chSchWakeupS(Thread *ntp, t_msg msg) {
     (currp = ntp)->p_state = PRCURR;
     ntp->p_rdymsg = msg;
     rlist.r_preempt = CH_TIME_QUANTUM;
-#ifdef CH_USE_DEBUG
+#ifdef CH_USE_TRACE
     chDbgTrace(otp, ntp);
 #endif
     chSysSwitchI(&otp->p_ctx, &ntp->p_ctx);
@@ -164,24 +164,6 @@ BOOL chSchRescRequiredI(void) {
       return FALSE;
   }
   return TRUE;
-}
-
-/**
- * Preemption routine, this function must be called into an interrupt
- * handler invoked by a system timer.
- * The frequency of the timer determines the system tick granularity and,
- * together with the \p CH_TIME_QUANTUM macro, the round robin interval.
- */
-void chSchTimerHandlerI(void) {
-
-  rlist.r_preempt--;
-#ifdef CH_USE_SYSTEMTIME
-  rlist.r_stime++;
-#endif
-
-#ifdef CH_USE_VIRTUAL_TIMERS
-  chVTDoTickI();
-#endif
 }
 
 /** @} */

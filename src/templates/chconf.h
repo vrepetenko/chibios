@@ -138,11 +138,11 @@
 
 /** Configuration option: Frequency of the system timer that drives the system
  *  ticks. This also defines the system time unit.*/
-#define CH_FREQUENCY 100
+#define CH_FREQUENCY 1000
 
 /** Configuration option: This constant is the number of ticks allowed for the
  *  threads before preemption occurs.*/
-#define CH_TIME_QUANTUM 10
+#define CH_TIME_QUANTUM 20
 
 /** Configuration option: Defines a CPU register to be used as storage for the
  *  global \p currp variable. Caching this variable in a register can greatly
@@ -157,11 +157,15 @@
  */
 //#define CH_CURRP_REGISTER_CACHE "reg"
 
-/** Configuration option: Includes basic debug support to the kernel.
+/** Debug option: Includes basic debug support to the kernel.
  *  @note the debug support is port-dependent, it may be not present on some
  *       targets. In that case stub functions will be included.
  */
 #define CH_USE_DEBUG
+
+/** Debug option: Includes the threads context switch tracing feature.
+ */
+#define CH_USE_TRACE
 
 #endif  /* _CHCONF_H_ */
 
