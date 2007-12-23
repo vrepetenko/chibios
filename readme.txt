@@ -39,6 +39,42 @@ AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not complete yet.
 *** Releases                                                              ***
 *****************************************************************************
 
+*** 0.5.0 ***
+- NEW: Mutexes, the new mechanism provides a complete implementation of the
+  "priority inheritance" algorithm as a tool for work around the priority
+  inversion problem.
+  The Mutexes are not meant to replace the Semaphores that still are the best
+  synchronization mechanism between interrupt handlers and high level
+  code, something that Mutexes cannot do.
+  Soon an article will be added to the wiki describing pro and cons of the
+  various mechanisms and the correct use cases.
+- RT Semaphores subsystem removed, the Mutexes implements a better solution
+  for the same problem.
+- Fixed a bug in the round robin scheduling mode, see the bug tracker for
+  details and a fix for previous versions.
+- More performance improvements to the scheduler. The ready list insertion
+  sequence is now reversed, it is scanned starting from the highest priority
+  end. This has an important side effect into the chSchWakeupS() that makes
+  most of the ready list insertions happen in constant time (extraction is
+  done always in constant time).
+  The worst case is always proportional to the number of threads in the ready
+  list but the normal case is much more often constant than linear. See the
+  new benchmarks added to the test suite.
+- Added mutexes test cases and new benchmarks to the test suite.
+- Modified the test suite in order to have each test case to have the same
+  alignment enforced on functions. This is done to reduce MAM/Cache alignment
+  effects on the measurement.
+- IRQ entry/exit code is now encapsulated into two new macros, see chcore.h
+  for details.
+- All the asm code previously in chcore2.s is now inline asm code in chcore.c
+  (ARM port), chcore2.s removed.
+- Moved all the board specific definitions/code into two new files: board.c
+  and board.h. Moved all the files no more board-dependent under ports/
+  (ARM port).
+- Improved the kernel performance in THUMB mode by better exploiting MAM
+  locality in some critical functions. The context switch benchmark shows
+  5% improved speed.
+
 *** 0.4.5 ***
 - Moved the serial IRQ handlers and VIC vectors initialization inside the
   serial drivers. Now the serial-related code is all inside the driver.

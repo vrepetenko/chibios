@@ -35,7 +35,7 @@ ReadyList rlist;
 void chSchInit(void) {
 
   fifo_init(&rlist.r_queue);
-  rlist.r_prio = ABSPRIO;
+  rlist.r_prio = NOPRIO;
   rlist.r_preempt = CH_TIME_QUANTUM;
 #ifdef CH_USE_SYSTEMTIME
   rlist.r_stime = 0;
@@ -58,15 +58,17 @@ INLINE void chSchReadyI(Thread *tp, t_msg msg) {
 #else
 void chSchReadyI(Thread *tp, t_msg msg) {
 #endif
-  Thread *cp = rlist.r_queue.p_prev;
+  Thread *cp = rlist.r_queue.p_next;
 
   tp->p_state = PRREADY;
   tp->p_rdymsg = msg;
-  while (cp->p_prio < tp->p_prio)
-    cp = cp->p_prev;
-  /* Insertion on p_next.*/
-  tp->p_next = (tp->p_prev = cp)->p_next;
-  tp->p_next->p_prev = cp->p_next = tp;
+//  prio_insert(tp, &rlist.r_queue);
+  while (cp->p_prio >= tp->p_prio)
+    cp = cp->p_next;
+  /* Insertion on p_prev.*/
+  tp->p_prev = (tp->p_next = cp)->p_prev;
+  tp->p_prev->p_next = cp->p_prev = tp;
+
 }
 
 /**
