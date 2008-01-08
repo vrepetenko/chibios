@@ -65,11 +65,19 @@ void chMtxLockS(Mutex *mp) {
     Thread *tp = mp->m_owner;
     while (tp->p_prio < currp->p_prio) {
       tp->p_prio = currp->p_prio;
+      /*
+       * The following states need priority queues reordering.
+       */
       switch (tp->p_state) {
       case PRWTMTX:
-        prio_insert(dequeue(tp), &tp->p_mtxp->m_queue);
-        tp = tp->p_mtxp->m_owner;
+        prio_insert(dequeue(tp), &tp->p_wtmtxp->m_queue);
+        tp = tp->p_wtmtxp->m_owner;
         continue;
+#ifdef CH_USE_MESSAGES_PRIORITY
+      case PRSNDMSG:
+        if (tp->p_flags & P_MSGBYPRIO)
+          prio_insert(dequeue(tp), &tp->p_wtthdp->p_msgqueue);
+#endif
       case PRREADY:
         chSchReadyI(dequeue(tp), RDY_OK);
       }
@@ -79,7 +87,7 @@ void chMtxLockS(Mutex *mp) {
      * Goes to sleep on the mutex.
      */
     prio_insert(currp, &mp->m_queue);
-    currp->p_mtxp = mp;
+    currp->p_wtmtxp = mp;
     chSchGoSleepS(PRWTMTX);
     chDbgAssert(mp->m_owner == NULL, "chmtx.c, chMtxLockS()");
   }
@@ -99,10 +107,11 @@ void chMtxLockS(Mutex *mp) {
  * @return \p TRUE if the mutex was successfully acquired else \p FALSE
  */
 BOOL chMtxTryLock(Mutex *mp) {
+  BOOL b;
 
   chSysLock();
 
-  BOOL b = chMtxTryLockS(mp);
+  b = chMtxTryLockS(mp);
 
   chSysUnlock();
   return b;
@@ -131,6 +140,7 @@ BOOL chMtxTryLockS(Mutex *mp) {
  * Unlocks the next owned mutex in reverse lock order.
  */
 void chMtxUnlock(void) {
+  Mutex *mp;
 
   chSysLock();
 
@@ -140,7 +150,7 @@ void chMtxUnlock(void) {
   /*
    * Removes the top Mutex from the owned mutexes list and marks it as not owned.
    */
-  Mutex *mp = currp->p_mtxlist;
+  mp = currp->p_mtxlist;
   currp->p_mtxlist = mp->m_next;
   mp->m_owner = NULL;
   /*
@@ -172,6 +182,7 @@ void chMtxUnlock(void) {
  * @note This function does not reschedule internally.
  */
 void chMtxUnlockS(void) {
+  Mutex *mp;
 
   chDbgAssert((currp->p_mtxlist != NULL) && (currp->p_mtxlist->m_owner == currp),
               "chmtx.c, chMtxUnlockS()");
@@ -179,7 +190,7 @@ void chMtxUnlockS(void) {
   /*
    * Removes the top Mutex from the owned mutexes list and marks it as not owned.
    */
-  Mutex *mp = currp->p_mtxlist;
+  mp = currp->p_mtxlist;
   currp->p_mtxlist = mp->m_next;
   mp->m_owner = NULL;
   /*

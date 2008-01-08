@@ -48,23 +48,34 @@ struct Thread {
   /** Mode flags.*/
   t_tmode           p_flags;
   /*
-   * The following fields are merged in an union because they are all
+   * The following fields are merged in unions because they are all
    * state-specific fields. This trick saves some extra space for each
    * thread in the system.
    */
+  union {
+#ifdef CH_USE_TRACE
+    /** Kernel object where the thread is waiting on.*/
+    void            *p_wtobjp;
+#endif
+#ifdef CH_USE_SEMAPHORES
+    /** Semaphore where the thread is waiting on (only in \p PRWTSEM state).*/
+    Semaphore       *p_wtsemp;
+#endif
+#ifdef CH_USE_MUTEXES
+    /** Mutex where the thread is waiting on (only in \p PRWTMTX state).*/
+    Mutex           *p_wtmtxp;
+#endif
+#ifdef CH_USE_MESSAGES
+    /** Destination thread for message send (only in \p PRSNDMSG state).*/
+    Thread          *p_wtthdp;
+#endif
+  };
   union {
     /** Thread wakeup code, normally set to \p RDY_OK by the \p chSchReadyI()
      * (only while in \p PRREADY state).*/
     t_msg           p_rdymsg;
     /** The thread exit code (only while in \p PREXIT state).*/
     t_msg           p_exitcode;
-#ifdef CH_USE_SEMAPHORES
-    /** Semaphore where the thread is waiting on (only in \p PRWTSEM state).*/
-    Semaphore       *p_semp;
-#endif
-#ifdef CH_USE_MUTEXES
-    Mutex           *p_mtxp;
-#endif
 #ifdef CH_USE_EVENTS
     /** Enabled events mask (only while in \p PRWTEVENT state).*/
     t_eventmask     p_ewmask;
@@ -73,16 +84,11 @@ struct Thread {
     /** Message (only while in \p PRSNDMSG state).*/
     t_msg           p_msg;
 #endif
-    /** Generic way to access the union.*/
-    void            *p_common;
   };
   /** Machine dependent processor context.*/
   Context           p_ctx;
   /*
-   * Start of the optional fields. Note, the null thread may also let its
-   * stack overwrite the following fields since it never uses semaphores,
-   * events, messages, exit etc, this can save some space on RAM starved
-   * systems, be caruful in doing so.
+   * Start of the optional fields.
    */
 #ifdef CH_USE_WAITEXIT
   /** The list of the threads waiting for this thread termination.*/
@@ -131,10 +137,18 @@ struct Thread {
 /** Thread state: After termination.*/
 #define PREXIT      11
 
+#ifdef CH_USE_TERMINATE
 /** Thread option: Termination requested flag.*/
 #define P_TERMINATE 1
+#endif
+#ifdef CH_USE_RESUME
 /** Thread option: Create suspended thread.*/
 #define P_SUSPENDED 2
+#endif
+#ifdef CH_USE_MESSAGES_PRIORITY
+/** Thread option: Serve messages by priority instead of FIFO order.*/
+#define P_MSGBYPRIO 4
+#endif
 
 /** Pseudo priority used by the ready list header, do not use.*/
 #define NOPRIO      0
