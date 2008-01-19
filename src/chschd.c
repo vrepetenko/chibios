@@ -62,13 +62,11 @@ void chSchReadyI(Thread *tp, t_msg msg) {
 
   tp->p_state = PRREADY;
   tp->p_rdymsg = msg;
-//  prio_insert(tp, &rlist.r_queue);
   while (cp->p_prio >= tp->p_prio)
     cp = cp->p_next;
   /* Insertion on p_prev.*/
   tp->p_prev = (tp->p_next = cp)->p_prev;
   tp->p_prev->p_next = cp->p_prev = tp;
-
 }
 
 /**
@@ -89,7 +87,7 @@ void chSchGoSleepS(t_tstate newstate) {
 #ifdef CH_USE_TRACE
   chDbgTrace(otp, currp);
 #endif
-  chSysSwitchI(&otp->p_ctx, &currp->p_ctx);
+  chSysSwitchI(otp, currp);
 }
 
 /**
@@ -116,21 +114,8 @@ void chSchWakeupS(Thread *ntp, t_msg msg) {
 #ifdef CH_USE_TRACE
     chDbgTrace(otp, ntp);
 #endif
-    chSysSwitchI(&otp->p_ctx, &ntp->p_ctx);
+    chSysSwitchI(otp, ntp);
   }
-}
-
-/**
- * If a thread with an higher priority than the current thread is in the
- * ready list then it becomes running.
- * @note The function must be called in the system mutex zone.
- */
-void chSchRescheduleS(void) {
-
-  if (isempty(&rlist.r_queue) || firstprio(&rlist.r_queue) <= currp->p_prio)
-    return;
-
-  chSchDoRescheduleI();
 }
 
 /**
@@ -146,7 +131,20 @@ void chSchDoRescheduleI(void) {
 #ifdef CH_USE_TRACE
   chDbgTrace(otp, currp);
 #endif
-  chSysSwitchI(&otp->p_ctx, &currp->p_ctx);
+  chSysSwitchI(otp, currp);
+}
+
+/**
+ * If a thread with an higher priority than the current thread is in the
+ * ready list then it becomes running.
+ * @note The function must be called in the system mutex zone.
+ */
+void chSchRescheduleS(void) {
+
+  if (isempty(&rlist.r_queue) || firstprio(&rlist.r_queue) <= currp->p_prio)
+    return;
+
+  chSchDoRescheduleI();
 }
 
 /**

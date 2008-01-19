@@ -47,16 +47,18 @@ struct Thread {
   t_tstate          p_state;
   /** Mode flags.*/
   t_tmode           p_flags;
+  /** Machine dependent processor context.*/
+  Context           p_ctx;
   /*
    * The following fields are merged in unions because they are all
    * state-specific fields. This trick saves some extra space for each
    * thread in the system.
    */
   union {
-#ifdef CH_USE_TRACE
-    /** Kernel object where the thread is waiting on.*/
-    void            *p_wtobjp;
-#endif
+    /** Thread wakeup code (only valid when exiting the \p PRREADY state).*/
+    t_msg           p_rdymsg;
+    /** The thread exit code (only while in \p PREXIT state).*/
+    t_msg           p_exitcode;
 #ifdef CH_USE_SEMAPHORES
     /** Semaphore where the thread is waiting on (only in \p PRWTSEM state).*/
     Semaphore       *p_wtsemp;
@@ -69,24 +71,16 @@ struct Thread {
     /** Destination thread for message send (only in \p PRSNDMSG state).*/
     Thread          *p_wtthdp;
 #endif
-  };
-  union {
-    /** Thread wakeup code, normally set to \p RDY_OK by the \p chSchReadyI()
-     * (only while in \p PRREADY state).*/
-    t_msg           p_rdymsg;
-    /** The thread exit code (only while in \p PREXIT state).*/
-    t_msg           p_exitcode;
 #ifdef CH_USE_EVENTS
     /** Enabled events mask (only while in \p PRWTEVENT state).*/
     t_eventmask     p_ewmask;
 #endif
-#ifdef CH_USE_MESSAGES
-    /** Message (only while in \p PRSNDMSG state).*/
-    t_msg           p_msg;
+#ifdef CH_USE_TRACE
+    /** Kernel object where the thread is waiting on. It is only valid when
+        the thread is some sleeping states.*/
+    void            *p_wtobjp;
 #endif
   };
-  /** Machine dependent processor context.*/
-  Context           p_ctx;
   /*
    * Start of the optional fields.
    */
@@ -100,6 +94,7 @@ struct Thread {
 #endif
 #ifdef CH_USE_MESSAGES
   ThreadsQueue      p_msgqueue;
+  t_msg             p_msg;
 #endif
 #ifdef CH_USE_EVENTS
   /** Pending events mask.*/
