@@ -18,7 +18,7 @@
 */
 
 /*
- * Configuration file for Visual Studio 7 demo project.
+ * Configuration file for LPC214x-GCC demo project.
  */
 
 /**
@@ -28,11 +28,6 @@
 
 #ifndef _CHCONF_H_
 #define _CHCONF_H_
-
-/*
- * NOTE: this is just documentation for doxigen, the real configuration file
- * is the one into the project directories.
- */
 
 /** Configuration option: if specified then time efficient rather than space
  *  efficient code is used when two possible implementations exist, note
@@ -155,9 +150,9 @@
  *        on processors with many registers like ARM cores.
  *  @note If this option is enabled then ALL the libraries linked to the
  *        ChibiOS/RT code <b>must</b> be recompiled with the GCC option \p
- *        -ffixed-\<reg\>.
+ *        -ffixed-<reg>.
  */
-//#define CH_CURRP_REGISTER_CACHE "reg"
+//#define CH_CURRP_REGISTER_CACHE "r8"
 
 /** Configuration option: Includes basic debug support to the kernel.
  *  @note the debug support is port-dependent, it may be not present on some

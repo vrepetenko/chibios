@@ -17,31 +17,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _CHTYPES_H_
-#define _CHTYPES_H_
+#ifndef _LPC214x_SSP_H_
+#define _LPC214x_SSP_H_
 
 /*
- * Generic types often dependant on the compiler.
+ * Configuration parameter, if defined this macro enforces mutual exclusion
+ * when invoking \p sspAcquireBus() and \p sspReleaseBus().
  */
-#define BOOL        char
-#define BYTE8       unsigned char
-#define SBYTE8      char
-#define WORD16      short
-#define UWORD16     unsigned short
-#define LONG32      int
-#define ULONG32     unsigned int
+#define SSP_USE_MUTEX
 
-typedef BYTE8       t_tmode;
-typedef BYTE8       t_tstate;
-typedef UWORD16     t_tid;
-typedef ULONG32     t_prio;
-typedef LONG32      t_msg;
-typedef LONG32      t_eventid;
-typedef ULONG32     t_eventmask;
-typedef ULONG32     t_time;
-typedef LONG32      t_cnt;
-typedef ULONG32     t_size;
+#ifdef __cplusplus
+}
+#endif
+  void InitSSP(void);
+  void SetSSP(int cpsr, int cr0, int cr1);
 
-#define INLINE      __inline
+  void sspAcquireBus(void);
+  void sspReleaseBus(void);
+  void sspRW(uint8_t *in, uint8_t *out, size_t n);
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* _CHTYPES_H_ */
+#endif /* _LPC214x_SSP_H_*/

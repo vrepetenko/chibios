@@ -37,8 +37,8 @@
 #define CMDWRITEMULTIPLE        25
 
 typedef struct {
-  ULONG32       csize;
-  ULONG32       rdblklen;
+  uint32_t      csize;
+  uint32_t      rdblklen;
 } MMCCSD;
 
 extern EventSource MMCInsertEventSource, MMCRemoveEventSource;
@@ -48,16 +48,16 @@ extern EventSource MMCInsertEventSource, MMCRemoveEventSource;
 #endif
   void InitMMC(void);
 
-  BOOL mmcInit(void);
+  bool_t mmcInit(void);
   void mmcStartPolling(void);
   void mmcStopPolling(void);
-  BOOL mmcCardInserted (void);
-  BYTE8 mmcSendCommand(BYTE8 cmd, ULONG32 arg);
-  BOOL mmcGetSize(MMCCSD *data);
-  BOOL mmcRead(BYTE8 *buf, ULONG32 blknum);
-  BOOL mmcReadMultiple(BYTE8 *buf, ULONG32 blknum, ULONG32 n);
-  BOOL mmcWrite(BYTE8 *buf, ULONG32 blknum);
-  BOOL mmcWriteMultiple(BYTE8 *buf, ULONG32 blknum, ULONG32 n);
+  bool_t mmcCardInserted (void);
+  uint8_t mmcSendCommand(uint8_t cmd, uint32_t arg);
+  bool_t mmcGetSize(MMCCSD *data);
+  bool_t mmcRead(uint8_t *buf, uint32_t blknum);
+  bool_t mmcReadMultiple(uint8_t *buf, uint32_t blknum, uint32_t n);
+  bool_t mmcWrite(uint8_t *buf, uint32_t blknum);
+  bool_t mmcWriteMultiple(uint8_t *buf, uint32_t blknum, uint32_t n);
   void mmcSynch(void);
 #ifdef __cplusplus
 }

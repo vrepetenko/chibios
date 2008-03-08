@@ -18,7 +18,7 @@
 */
 
 /*
- * Generic ARM startup file for ChibiOS/RT.
+ * Generic ARM startup file for ChibiOS/RT (Atmel variant).
  */
 
 .extern _main
@@ -47,8 +47,8 @@ _start:
         ldr     pc, _prefetch
         ldr     pc, _abort
         nop
-        ldr     pc, [pc,#-0xFF0]        /* VIC - IRQ Vector Register */
-        ldr     pc, _fiq
+        ldr     pc, [pc,#-0xF20]        /* AIC - AIC_IVR */
+        ldr     pc, [pc,#-0xF20]        /* AIC - AIC_FVR */
 
 _undefined:
         .word   UndHandler
@@ -169,10 +169,4 @@ AbortHandler:
 .globl FiqHandler
 FiqHandler:
 
-.weak _halt32
-.globl _halt32
-_halt32:
-       mrs      r0, CPSR
-       orr      r0, #I_BIT | F_BIT
-       msr      CPSR_c, r0
 .loop: b        .loop

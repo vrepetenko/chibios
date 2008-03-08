@@ -17,31 +17,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _CHTYPES_H_
-#define _CHTYPES_H_
+#ifndef _AVR_SERIAL_H_
+#define _AVR_SERIAL_H_
 
 /*
- * Generic types often dependant on the compiler.
+ * Configuration parameter, you can change the depth of the queue buffers
+ * depending on the requirements of your application.
  */
-#define BOOL        char
-#define BYTE8       unsigned char
-#define SBYTE8      char
-#define WORD16      short
-#define UWORD16     unsigned short
-#define LONG32      int
-#define ULONG32     unsigned int
+#define SERIAL_BUFFERS_SIZE 32
 
-typedef BYTE8       t_tmode;
-typedef BYTE8       t_tstate;
-typedef UWORD16     t_tid;
-typedef ULONG32     t_prio;
-typedef LONG32      t_msg;
-typedef LONG32      t_eventid;
-typedef ULONG32     t_eventmask;
-typedef ULONG32     t_time;
-typedef LONG32      t_cnt;
-typedef ULONG32     t_size;
+//#define USE_AVR_USART0
+#define USE_AVR_USART1
 
-#define INLINE      inline
+/*
+ * Macro for baud rate computation.
+ */
+#define UBRR(b) ((F_CPU / (b << 4)) - 1)
 
-#endif /* _CHTYPES_H_ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void InitSerial(void);
+  void SetUSART0I(uint16_t brr, uint8_t csrc);
+  void SetUSART1I(uint16_t brr, uint8_t csrc);
+#ifdef __cplusplus
+}
+#endif
+
+extern FullDuplexDriver SER1, SER2;
+
+#endif /* _AVR_SERIAL_H_ */

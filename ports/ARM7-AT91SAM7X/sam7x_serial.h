@@ -17,19 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _LPC214x_SERIAL_H_
-#define _LPC214x_SERIAL_H_
-
-/*
- * Configuration parameter, this values defines how many bytes are preloaded
- * in the HW transmit FIFO for each interrupt, the maximum value is 16 the
- * minimum is 2.
- * NOTE: A greater value reduces the number of interrupts generated but can
- *       also increase the worst case interrupt response time.
- * NOTE: You can undefine the following macro and revert to a simpler code
- *       that will generate an interrupt for each output byte,
- */
-#define FIFO_PRELOAD 16
+#ifndef _SAM7X_SERIAL_H_
+#define _SAM7X_SERIAL_H_
 
 /*
  * Configuration parameter, you can change the depth of the queue buffers
@@ -38,16 +27,16 @@
 #define SERIAL_BUFFERS_SIZE 128
 
 #ifdef __cplusplus
-}
+extern "C" {
 #endif
-  void InitSerial(int vector1, int vector2);
+  void InitSerial(int prio0, int prio1);
   void UART0IrqHandler(void);
   void UART1IrqHandler(void);
-  void SetUARTI(UART *u, int speed, int lcr, int fcr);
+  void SetUSARTI(AT91PS_USART u, int speed, int mode);
 #ifdef __cplusplus
 }
 #endif
 
 extern FullDuplexDriver COM1, COM2;
 
-#endif /* _LPC214x_SERIAL_H_*/
+#endif /* _SAM7X_SERIAL_H_ */

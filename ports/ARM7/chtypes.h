@@ -17,26 +17,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _SAM7X_SERIAL_H_
-#define _SAM7X_SERIAL_H_
+#ifndef _CHTYPES_H_
+#define _CHTYPES_H_
 
-/*
- * Configuration parameter, you can change the depth of the queue buffers
- * depending on the requirements of your application.
- */
-#define SERIAL_BUFFERS_SIZE 128
+#define __need_NULL
+#define __need_size_t
+#include <stddef.h>
 
-#ifdef __cplusplus
-}
-#endif
-  void InitSerial(int prio0, int prio1);
-  void UART0IrqHandler(void);
-  void UART1IrqHandler(void);
-  void SetUSARTI(AT91PS_USART u, int speed, int mode);
-#ifdef __cplusplus
-}
+#if !defined(_STDINT_H) && !defined(__STDINT_H_)
+#include <stdint.h>
 #endif
 
-extern FullDuplexDriver COM1, COM2;
+typedef int8_t          bool_t;
+typedef uint8_t         tmode_t;
+typedef uint8_t         tstate_t;
+typedef uint16_t        tid_t;
+typedef uint32_t        tprio_t;
+typedef int32_t         msg_t;
+typedef int32_t         eventid_t;
+typedef uint32_t        eventmask_t;
+typedef uint32_t        systime_t;
+typedef int32_t         cnt_t;
 
-#endif /* _SAM7X_SERIAL_H_ */
+#define INLINE      inline
+
+#endif /* _CHTYPES_H_ */

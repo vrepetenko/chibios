@@ -20,28 +20,24 @@
 #ifndef _CHTYPES_H_
 #define _CHTYPES_H_
 
-/*
- * Generic types often dependant on the compiler.
- */
-#define BOOL        char
-#define BYTE8       unsigned char
-#define SBYTE8      signed char
-#define WORD16      int
-#define UWORD16     unsigned int
-#define LONG32      long
-#define ULONG32     unsigned long
-#define PTR_EQ      int
+#define __need_NULL
+#define __need_size_t
+#include <stddef.h>
 
-typedef BYTE8       t_tmode;
-typedef BYTE8       t_tstate;
-typedef BYTE8       t_tid;
-typedef BYTE8       t_prio;
-typedef WORD16      t_msg;
-typedef BYTE8       t_eventid;
-typedef BYTE8       t_eventmask;
-typedef UWORD16     t_time;
-typedef SBYTE8      t_cnt;
-typedef UWORD16     t_size;
+#if !defined(_STDINT_H) && !defined(__STDINT_H_)
+#include <stdint.h>
+#endif
+
+typedef int8_t          bool_t;
+typedef uint8_t         tmode_t;
+typedef uint8_t         tstate_t;
+typedef uint8_t         tid_t;
+typedef uint8_t         tprio_t;
+typedef int16_t         msg_t;
+typedef uint8_t         eventid_t;
+typedef uint8_t         eventmask_t;
+typedef uint16_t        systime_t;
+typedef int8_t          cnt_t;
 
 #define INLINE      inline
 

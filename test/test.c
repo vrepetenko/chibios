@@ -51,7 +51,7 @@ static void wait(void) {
   chThdWait(t5);
 }
 
-static void printn(unsigned int n) {
+static void printn(uint32_t n) {
   char buf[16], *p;
 
   if (!n)
@@ -59,7 +59,7 @@ static void printn(unsigned int n) {
   else {
     p = buf;
     while (n)
-          *p++ = (n % 10) + '0', n /= 10;
+      *p++ = (n % 10) + '0', n /= 10;
     while (p > buf)
       chFDDPut(comp, *--p);
   }
@@ -79,9 +79,9 @@ static void println(char *msgp) {
 }
 
 __attribute__((noinline))
-void CPU(t_time ms) {
+void CPU(systime_t ms) {
 
-  t_time time = chSysGetTime() + ms;
+  systime_t time = chSysGetTime() + ms;
   while (chSysGetTime() != time) {
 #if defined(WIN32)
     ChkIntSources();
@@ -90,9 +90,9 @@ void CPU(t_time ms) {
 }
 
 __attribute__((noinline))
-t_time wait_tick(void) {
+systime_t wait_tick(void) {
 
-  t_time time = chSysGetTime() + 1;
+  systime_t time = chSysGetTime() + 1;
   while (chSysGetTime() < time) {
 #if defined(WIN32)
     ChkIntSources();
@@ -101,29 +101,29 @@ t_time wait_tick(void) {
   return time;
 }
 
-t_msg Thread1(void *p) {
+msg_t Thread1(void *p) {
 
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread2(void *p) {
+msg_t Thread2(void *p) {
 
   chSemWait(&sem1);
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread3(void *p) {
+msg_t Thread3(void *p) {
 
   chMtxLock(&m1);
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   chMtxUnlock();
   return 0;
 }
 
-t_msg Thread4(void *p) {
-  t_msg msg;
+msg_t Thread4(void *p) {
+  msg_t msg;
   int i;
 
   for (i = 0; i < 5; i++) {
@@ -134,16 +134,16 @@ t_msg Thread4(void *p) {
   return 0;
 }
 
-t_msg Thread6(void *p) {
+msg_t Thread6(void *p) {
 
   while (!chThdShouldTerminate())
-    chMsgRelease(chMsgWait() + 1);
+    chMsgRelease(chMsgWait());
   return 0;
 }
 
-t_msg Thread7(void *p) {
+msg_t Thread7(void *p) {
 
-  return (unsigned int)p + 1;
+  return (msg_t)NULL;
 }
 
 void testrdy1(void) {
@@ -215,47 +215,47 @@ void testmtx1(void) {
   println("");
 }
 
-t_msg Thread8(void *p) {
+msg_t Thread8(void *p) {
 
   chThdSleep(5);
   chMtxLock(&m1);
   chMtxUnlock();
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread9(void *p) {
+msg_t Thread9(void *p) {
 
   chMtxLock(&m1);
   chThdSleep(20);
   chMtxUnlock();
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread10(void *p) {
+msg_t Thread10(void *p) {
 
   chThdSleep(10);
   CPU(50);
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread11(void *p) {
+msg_t Thread11(void *p) {
 
   chThdSleep(5);
   chSemWait(&sem1);
   chSemSignal(&sem1);
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread12(void *p) {
+msg_t Thread12(void *p) {
 
   chSemWait(&sem1);
   chThdSleep(20);
   chSemSignal(&sem1);
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
@@ -291,16 +291,16 @@ void testmtx3(void) {
   println("");
 }
 
-t_msg Thread13(void *p) {
+msg_t Thread13(void *p) {
 
   chMtxLock(&m1);
   CPU(50);
   chMtxUnlock();
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread14(void *p) {
+msg_t Thread14(void *p) {
 
   chThdSleep(10);
   chMtxLock(&m2);
@@ -310,35 +310,35 @@ t_msg Thread14(void *p) {
   chMtxUnlock();
   CPU(20);
   chMtxUnlock();
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread15(void *p) {
+msg_t Thread15(void *p) {
 
   chThdSleep(20);
   chMtxLock(&m2);
   CPU(50);
   chMtxUnlock();
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread16(void *p) {
+msg_t Thread16(void *p) {
 
   chThdSleep(40);
   CPU(200);
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
-t_msg Thread17(void *p) {
+msg_t Thread17(void *p) {
 
   chThdSleep(50);
   chMtxLock(&m2);
   CPU(50);
   chMtxUnlock();
-  chFDDPut(comp, *(BYTE8 *)p);
+  chFDDPut(comp, *(uint8_t *)p);
   return 0;
 }
 
@@ -365,7 +365,7 @@ void testmtx4(void) {
 }
 
 void testmsg1(void) {
-  t_msg msg;
+  msg_t msg;
 
   println("*** Messages, dispatch test, you should read AABBCCDDEE:");
   t1 = chThdCreate(chThdGetPriority()-1, 0, wsT1, sizeof(wsT1), Thread4, chThdSelf());
@@ -380,12 +380,13 @@ void testmsg1(void) {
 
 __attribute__((noinline))
 unsigned int msg_loop_test(Thread *tp) {
-  unsigned int i;
+  uint32_t i;
 
-  t_time time = wait_tick() + 1000;
+  systime_t time = wait_tick() + 1000;
   i = 0;
   while (chSysGetTime() < time) {
-    i = chMsgSend(tp, i);
+    (void)chMsgSend(tp, 0);
+    i++;
 #if defined(WIN32)
     ChkIntSources();
 #endif
@@ -395,7 +396,7 @@ unsigned int msg_loop_test(Thread *tp) {
 
 __attribute__((noinline))
 void precache(void) {
-  unsigned int i;
+  uint32_t i;
 
   println("\r\nPreparing for benchmarks\r\n");
   t1 = chThdCreate(chThdGetPriority()-1, 0, wsT1, sizeof(wsT1), Thread6, 0);
@@ -406,7 +407,7 @@ void precache(void) {
 
 __attribute__((noinline))
 void bench1(void) {
-  unsigned int i;
+  uint32_t i;
 
   println("*** Kernel Benchmark, context switch test #1 (optimal):");
   t1 = chThdCreate(chThdGetPriority()-1, 0, wsT1, sizeof(wsT1), Thread6, 0);
@@ -422,7 +423,7 @@ void bench1(void) {
 
 __attribute__((noinline))
 void bench2(void) {
-  unsigned int i;
+  uint32_t i;
 
   println("*** Kernel Benchmark, context switch test #2 (no threads in ready list):");
   t1 = chThdCreate(chThdGetPriority()+1, 0, wsT1, sizeof(wsT1), Thread6, 0);
@@ -439,7 +440,7 @@ chMsgSend(t1, 0);
 
 __attribute__((noinline))
 void bench3(void) {
-  unsigned int i;
+  uint32_t i;
 
   println("*** Kernel Benchmark, context switch test #3 (04 threads in ready list):");
   t1 = chThdCreate(chThdGetPriority()+1, 0, wsT1, sizeof(wsT1), Thread6, "A");
@@ -460,15 +461,16 @@ chMsgSend(t1, 0);
 
 __attribute__((noinline))
 void bench4(void) {
-  unsigned int i;
-  t_time time;
+  uint32_t i;
+  systime_t time;
 
   println("*** Kernel Benchmark, threads creation/termination:");
   time = wait_tick() + 1000;
   i = 0;
   while (chSysGetTime() < time) {
-    t1 = chThdCreate(chThdGetPriority()-1, 0, wsT1, sizeof(wsT1), Thread7, (void *)i);
-    i = chThdWait(t1);
+    t1 = chThdCreate(chThdGetPriority()-1, 0, wsT1, sizeof(wsT1), Thread7, NULL);
+    chThdWait(t1);
+    i++;
 #if defined(WIN32)
     ChkIntSources();
 #endif
@@ -480,24 +482,24 @@ void bench4(void) {
 
 __attribute__((noinline))
 void bench5(void) {
-  static BYTE8 ib[16];
+  static uint8_t ib[16];
   static Queue iq;
-  unsigned int i;
-  t_time time;
+  uint32_t i;
+  systime_t time;
 
   println("*** Kernel Benchmark, I/O Queues throughput:");
   chIQInit(&iq, ib, sizeof(ib), NULL);
   time = wait_tick() + 1000;
   i = 0;
   while (chSysGetTime() < time) {
-    chIQPutI(&iq, i >> 24);
-    chIQPutI(&iq, i >> 16);
-    chIQPutI(&iq, i >> 8);
-    chIQPutI(&iq, i);
-    i = chIQGet(&iq) << 24;
-    i |= chIQGet(&iq) << 16;
-    i |= chIQGet(&iq) << 8;
-    i |= chIQGet(&iq);
+    chIQPutI(&iq, 0);
+    chIQPutI(&iq, 1);
+    chIQPutI(&iq, 2);
+    chIQPutI(&iq, 3);
+    (void)chIQGet(&iq);
+    (void)chIQGet(&iq);
+    (void)chIQGet(&iq);
+    (void)chIQGet(&iq);
     i++;
 #if defined(WIN32)
     ChkIntSources();
@@ -511,7 +513,7 @@ void bench5(void) {
 /**
  * Tester thread, this thread must be created with priority \p NORMALPRIO.
  */
-t_msg TestThread(void *p) {
+msg_t TestThread(void *p) {
 
   comp = p;
   println("*****************************");

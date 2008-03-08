@@ -17,31 +17,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _CHTYPES_H_
-#define _CHTYPES_H_
+#ifndef _LCD_H_
+#define _LCD_H_
 
-/*
- * Generic types often dependant on the compiler.
- */
-#define BOOL        char
-#define BYTE8       unsigned char
-#define SBYTE8      char
-#define WORD16      short
-#define UWORD16     unsigned short
-#define LONG32      int
-#define ULONG32     unsigned int
+#define ELOOPVALUE              10
 
-typedef BYTE8       t_tmode;
-typedef BYTE8       t_tstate;
-typedef UWORD16     t_tid;
-typedef ULONG32     t_prio;
-typedef LONG32      t_msg;
-typedef LONG32      t_eventid;
-typedef ULONG32     t_eventmask;
-typedef ULONG32     t_time;
-typedef LONG32      t_cnt;
-typedef ULONG32     t_size;
+#define LCD_CLEAR               0x01
 
-#define INLINE      inline
+#define LCD_RETURN_HOME         0x02
 
-#endif /* _CHTYPES_H_ */
+#define LCD_SET_INCREMENT_MODE  0x06
+
+#define LCD_SET_DM              0x08
+#define LCD_DM_DISPLAY_ON       4
+#define LCD_DM_DISPLAY_OFF      0
+#define LCD_DM_CURSOR_ON        2
+#define LCD_DM_CURSOR_OFF       0
+#define LCD_DM_BLINK_ON         1
+#define LCD_DM_BLINK_OFF        0
+
+#define LCD_CMD_INIT4           0x28
+#define LCD_CMD_INIT8           0x38
+
+#define LCD_SET_DDRAM_ADDRESS   0x80
+
+#define LCD_LINE1               0
+#define LCD_LINE2               40
+
+void lcdInit(void);
+void lcdCmd(uint8_t cmd);
+void lcdPutc(char c);
+void lcdPuts(uint8_t pos, char *p);
+
+#endif /* _LCD_H_ */

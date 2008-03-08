@@ -17,26 +17,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _LPC214x_SSP_H_
-#define _LPC214x_SSP_H_
+#include <ch.h>
+
+#include "at91lib/AT91SAM7X256.h"
 
 /*
- * Configuration parameter, if defined this macro enforces mutual exclusion
- * when invoking \p sspAcquireBus() and \p sspReleaseBus().
+ * System idle thread loop.
  */
-#define SSP_USE_MUTEX
+void _IdleThread(void *p) {
 
-#ifdef __cplusplus
+  while (TRUE) {
+// Note, it is disabled because it causes trouble with the JTAG probe.
+// Enable it in the final code only.
+//    PCON = 1;
+  }
 }
-#endif
-  void InitSSP(void);
-  void SetSSP(int cpsr, int cr0, int cr1);
 
-  void sspAcquireBus(void);
-  void sspReleaseBus(void);
-  void sspRW(BYTE8 *in, BYTE8 *out, t_size n);
-#ifdef __cplusplus
+/*
+ * System console message (not implemented).
+ */
+void chSysPuts(char *msg) {
 }
-#endif
 
-#endif /* _LPC214x_SSP_H_*/
+/*
+ * System halt.
+ */
+__attribute__((naked, weak))
+void chSysHalt(void) {
+
+#ifdef THUMB
+  asm("b        _halt16");
+#else
+  asm("b        _halt32");
+#endif
+}

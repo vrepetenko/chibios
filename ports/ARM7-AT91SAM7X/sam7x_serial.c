@@ -24,15 +24,15 @@
 #include "at91lib/aic.h"
 
 FullDuplexDriver COM1;
-static BYTE8 ib1[SERIAL_BUFFERS_SIZE];
-static BYTE8 ob1[SERIAL_BUFFERS_SIZE];
+static uint8_t ib1[SERIAL_BUFFERS_SIZE];
+static uint8_t ob1[SERIAL_BUFFERS_SIZE];
 
 FullDuplexDriver COM2;
-static BYTE8 ib2[SERIAL_BUFFERS_SIZE];
-static BYTE8 ob2[SERIAL_BUFFERS_SIZE];
+static uint8_t ib2[SERIAL_BUFFERS_SIZE];
+static uint8_t ob2[SERIAL_BUFFERS_SIZE];
 
 static void SetError(AT91_REG csr, FullDuplexDriver *com) {
-  UWORD16 sts = 0;
+  dflags_t sts = 0;
 
   if (csr & AT91C_US_OVRE)
     sts |= SD_OVERRUN_ERROR;
@@ -53,7 +53,7 @@ static void ServeInterrupt(AT91PS_USART u, FullDuplexDriver *com) {
   if (u->US_CSR & AT91C_US_RXRDY)
       chFDDIncomingDataI(com, u->US_RHR);
   if (u->US_CSR & AT91C_US_TXRDY) {
-    t_msg b = chFDDRequestDataI(com);
+    msg_t b = chFDDRequestDataI(com);
     if (b < Q_OK)
       u->US_IDR = AT91C_US_TXRDY;
     else
@@ -63,6 +63,7 @@ static void ServeInterrupt(AT91PS_USART u, FullDuplexDriver *com) {
     SetError(u->US_CSR, com);
     u->US_CR = AT91C_US_RSTSTA;
   }
+  AT91C_BASE_AIC->AIC_EOICR = 0;                                        \
 }
 
 __attribute__((naked, weak))

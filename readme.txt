@@ -21,6 +21,9 @@
                          The documentation is also available on the project
                          web page: http://chibios.sourceforge.net/
 
+*****************************************************************************
+*** Current ports/demos                                                   ***
+*****************************************************************************
 Current ports under ./demos:
 
 Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
@@ -35,11 +38,63 @@ ARM7-LPC214x-GCC       - ChibiOS/RT port for ARM7 LPC2148, the demo targets
 ARM7-LPC214x-GCC-min   - Minimal demo for LPC214X.
 ARM7-AT91SAM7X-GCC     - Port for Atmel AT91SAM7X256. The demo program targets
                          the Olimex SAM7-EX256 board.
-AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not complete yet.
+AVR-AVRmega128-GCC     - Port on AVRmega128, experimental. A special thanks to
+                         Vladimir for the work done on the AVR port. The demo
+                         program targets the Olimex AVR-MT-128 mini terminal
+                         board.
+AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not tested on hardware yet.
+
+*****************************************************************************
+*** Plans                                                                 ***
+*****************************************************************************
+
+- Look into importing *or* implementing a TCP/IP stack and a File System.
+- Start the work on a Cortex-M3 port as soon GCC 4.3.0 will be released and
+  incorporated in YAGARTO.
+- Evaluate other architectures for a possible ChibiOS/RT port. An important
+  selection parameter will be the availability of FOSS toolchains. Currently
+  we are evaluating the Cortex-M3 and the MSP430.
+- Creation of a reduced ChibiOS/RT kernel targeted to lesser 8bit micros and
+  educational purposes, the name will probably be ChibiOS/SX, we are still
+  discussing it.
 
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 0.6.0 ***
+- Code refactory, all the old sized-integer definitions like LONG32, UWORD16
+  etc are now replaced by the proper definitions provided by the compiler
+  into stdint.h.
+- Code refactory, the previous system types style using a t_ in front of the
+  name has been replaced with the standard trailing _t. The system now uses
+  the size_t type defined into stddef.h. Some type names were modified in
+  order to not match commonly used type names.
+- The above changes have an impact on some API prototypes but we can't help
+  it, the changes were required because the type names were a concern for
+  some users.
+- Implemented a serial driver in the AVR port.
+- Implemented a simple HD44780 LCD driver into the AVRmega128 demo.
+- Reworked the AVR AT90CAN128 port to share the common AVR code.
+- Modified the test suite to be compatible with 8 bit micros.
+- MSVC demo dropped, it is still possible to use the MinGW demo as simulator
+  in Win32.
+- Fixed a minor error in sam7x_serial.h and lpc214x_serial.h.
+- The kernel is *unchanged* compared to version 0.5.3 except for the type
+  names but the change is important enough to make this a recommended update.
+
+*** 0.5.5 ***
+- Added an AVRmega128 port. The previous AT90CANx port is still present but
+  it will be redone after the AVRmega128 port is complete because it will
+  share most of it. The demo is very simple, it will be expanded in next
+  releases.
+- Reorganized the code of the two ARM7 ports, now all the common ARM7 code
+  is in ./ports/ARM7. This will make maintenance and new ARM7 ports much much
+  easier.
+- Simplified the directory structure under ./ports.
+- Added to the readme a section with our future plans/ideas.
+- The kernel is *unchanged* compared to version 0.5.3, just the new port and
+  the new demo were added.
 
 *** 0.5.4 ***
 - Port for Atmel AT91SAM7X256 introduced, the port should be useable also on
@@ -47,10 +102,10 @@ AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not complete yet.
   also be useable with limited changes.
   The demo currently just performs basic operations, will be enhanced in next
   ChibiOS/RT releases, see the demo readme.txt file.
-  The kernel is *unchanged* compared to version 0.5.3, just the new port and
-  the new demo were added.
 - Small fix to the thumb mode IRQ code on the LPC214x port, removed some extra
   code.
+- The kernel is *unchanged* compared to version 0.5.3, just the new port and
+  the new demo were added.
 
 *** 0.5.3 ***
 - Removed the chMsgSendTimeout() API, it was conceptually flawed because,
@@ -83,7 +138,7 @@ AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not complete yet.
   behavior).
   Note: This option brings a small overhead when sending a message regardless
   if in FIFO or priority order, if you dont need priority ordering for your
-  messages it is better to keep disabled the feature in chconf.h.
+  messages it is better to keep the feature disabled in chconf.h.
 - Added to the ARM demos load scripts the capability to load code in RAM
   instead flash, the function must be marked as:
     __attribute__((section(".ramtext")))

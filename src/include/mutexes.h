@@ -44,8 +44,8 @@ extern "C" {
   void chMtxInit(Mutex *mp);
   void chMtxLock(Mutex *mp);
   void chMtxLockS(Mutex *mp);
-  BOOL chMtxTryLock(Mutex *mp);
-  BOOL chMtxTryLockS(Mutex *mp);
+  bool_t chMtxTryLock(Mutex *mp);
+  bool_t chMtxTryLockS(Mutex *mp);
   void chMtxUnlock(void);
   void chMtxUnlockS(void);
   void chMtxUnlockAll(void);

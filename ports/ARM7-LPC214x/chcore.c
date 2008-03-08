@@ -17,28 +17,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _CHTYPES_H_
-#define _CHTYPES_H_
+#include <ch.h>
 
-#define __need_NULL
-#define __need_size_t
-#include <stddef.h>
+#include "lpc214x.h"
 
-#if !defined(_STDINT_H) && !defined(__STDINT_H_)
-#include <stdint.h>
+/*
+ * System idle thread loop.
+ */
+void _IdleThread(void *p) {
+
+  while (TRUE) {
+// Note, it is disabled because it causes trouble with the JTAG probe.
+// Enable it in the final code only.
+//    PCON = 1;
+  }
+}
+
+/*
+ * System console message (not implemented).
+ */
+void chSysPuts(char *msg) {
+}
+
+/*
+ * System halt.
+ */
+__attribute__((naked, weak))
+void chSysHalt(void) {
+
+#ifdef THUMB
+  asm("b        _halt16");
+#else
+  asm("b        _halt32");
 #endif
-
-typedef int8_t          bool_t;
-typedef uint8_t         tmode_t;
-typedef uint8_t         tstate_t;
-typedef uint16_t        tid_t;
-typedef uint32_t        tprio_t;
-typedef int32_t         msg_t;
-typedef int32_t         eventid_t;
-typedef uint32_t        eventmask_t;
-typedef uint32_t        systime_t;
-typedef int32_t         cnt_t;
-
-#define INLINE      inline
-
-#endif /* _CHTYPES_H_ */
+}

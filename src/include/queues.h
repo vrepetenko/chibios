@@ -26,7 +26,7 @@
 #define _QUEUES_H_
 
 /** Queue notification callback type.*/
-typedef void (*t_qnotify)(void);
+typedef void (*qnotify_t)(void);
 
 /** Returned by the queue functions if the operation is successful.*/
 #define Q_OK        RDY_OK
@@ -46,17 +46,17 @@ typedef void (*t_qnotify)(void);
  */
 typedef struct {
   /** Pointer to the queue buffer.*/
-  BYTE8             *q_buffer;
+  uint8_t           *q_buffer;
   /** Pointer to the first location after the buffer.*/
-  BYTE8             *q_top;
+  uint8_t           *q_top;
   /** Write pointer.*/
-  BYTE8             *q_wrptr;
+  uint8_t           *q_wrptr;
   /** Read pointer.*/
-  BYTE8             *q_rdptr;
+  uint8_t           *q_rdptr;
   /** Counter semaphore.*/
   Semaphore         q_sem;
   /** Data notification callback.*/
-  t_qnotify         q_notify;
+  qnotify_t         q_notify;
 } Queue;
 
 /** Returns the queue's buffer size.*/
@@ -91,24 +91,24 @@ extern "C" {
    * Input Queues functions. An Input Queue is usually written into by an
    * interrupt handler and read from a thread.
    */
-  void chIQInit(Queue *qp, BYTE8 *buffer, t_size size, t_qnotify inotify);
+  void chIQInit(Queue *qp, uint8_t *buffer, size_t size, qnotify_t inotify);
   void chIQReset(Queue *qp);
-  t_msg chIQPutI(Queue *qp, BYTE8 b);
-  t_msg chIQGet(Queue *qp);
-  t_size chIQRead(Queue *qp, BYTE8 *buffer, t_size n);
+  msg_t chIQPutI(Queue *qp, uint8_t b);
+  msg_t chIQGet(Queue *qp);
+  size_t chIQRead(Queue *qp, uint8_t *buffer, size_t n);
 #ifdef CH_USE_QUEUES_TIMEOUT
-  t_msg chIQGetTimeout(Queue *qp, t_time time);
+  msg_t chIQGetTimeout(Queue *qp, systime_t time);
 #endif
 
   /*
    * Output Queues functions. An Output Queue is usually written into by a
    * thread and read from an interrupt handler.
    */
-  void chOQInit(Queue *queue, BYTE8 *buffer, t_size size, t_qnotify onotify);
+  void chOQInit(Queue *queue, uint8_t *buffer, size_t size, qnotify_t onotify);
   void chOQReset(Queue *queue);
-  void chOQPut(Queue *queue, BYTE8 b);
-  t_msg chOQGetI(Queue *queue);
-  t_size chOQWrite(Queue *queue, BYTE8 *buffer, t_size n);
+  void chOQPut(Queue *queue, uint8_t b);
+  msg_t chOQGetI(Queue *queue);
+  size_t chOQWrite(Queue *queue, uint8_t *buffer, size_t n);
 #ifdef __cplusplus
 }
 #endif
@@ -120,21 +120,21 @@ extern "C" {
  */
 typedef struct {
   /** Pointer to the queue buffer.*/
-  BYTE8             *hdq_buffer;
+  uint8_t           *hdq_buffer;
   /** Pointer to the first location after the buffer.*/
-  BYTE8             *hdq_top;
+  uint8_t           *hdq_top;
   /** Write pointer.*/
-  BYTE8             *hdq_wrptr;
+  uint8_t           *hdq_wrptr;
   /** Read pointer.*/
-  BYTE8             *hdq_rdptr;
+  uint8_t           *hdq_rdptr;
   /** Input counter semaphore.*/
   Semaphore         hdq_isem;
   /** Output counter semaphore.*/
   Semaphore         hdq_osem;
   /** Input data notification callback.*/
-  t_qnotify         hdq_inotify;
+  qnotify_t         hdq_inotify;
   /** Output data notification callback.*/
-  t_qnotify         hdq_onotify;
+  qnotify_t         hdq_onotify;
 } HalfDuplexQueue;
 
 /** Returns the queue's buffer size.*/
@@ -164,14 +164,14 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chHDQInit(HalfDuplexQueue *qp, BYTE8 *buffer, t_size size,
-                 t_qnotify inotify, t_qnotify onotify);
-  t_msg chHDQGetReceive(HalfDuplexQueue *qp);
-  void chHDQPutTransmit(HalfDuplexQueue *qp, BYTE8 b);
-  t_msg chHDQGetTransmitI(HalfDuplexQueue *qp);
-  t_msg chHDQPutReceiveI(HalfDuplexQueue *qp, BYTE8 b);
+  void chHDQInit(HalfDuplexQueue *qp, uint8_t *buffer, size_t size,
+                 qnotify_t inotify, qnotify_t onotify);
+  msg_t chHDQGetReceive(HalfDuplexQueue *qp);
+  void chHDQPutTransmit(HalfDuplexQueue *qp, uint8_t b);
+  msg_t chHDQGetTransmitI(HalfDuplexQueue *qp);
+  msg_t chHDQPutReceiveI(HalfDuplexQueue *qp, uint8_t b);
 #ifdef CH_USE_QUEUES_TIMEOUT
-  t_msg chHDQGetReceiveTimeout(HalfDuplexQueue *qp, t_time time);
+  msg_t chHDQGetReceiveTimeout(HalfDuplexQueue *qp, systime_t time);
 #endif
 #ifdef __cplusplus
 }

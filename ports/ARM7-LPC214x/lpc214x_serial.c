@@ -25,15 +25,15 @@
 #include "board.h"
 
 FullDuplexDriver COM1;
-BYTE8 ib1[SERIAL_BUFFERS_SIZE];
-BYTE8 ob1[SERIAL_BUFFERS_SIZE];
+static uint8_t ib1[SERIAL_BUFFERS_SIZE];
+static uint8_t ob1[SERIAL_BUFFERS_SIZE];
 
 FullDuplexDriver COM2;
-BYTE8 ib2[SERIAL_BUFFERS_SIZE];
-BYTE8 ob2[SERIAL_BUFFERS_SIZE];
+static uint8_t ib2[SERIAL_BUFFERS_SIZE];
+static uint8_t ob2[SERIAL_BUFFERS_SIZE];
 
 static void SetError(IOREG32 err, FullDuplexDriver *com) {
-  UWORD16 sts = 0;
+  dflags_t sts = 0;
 
   if (err & LSR_OVERRUN)
     sts |= SD_OVERRUN_ERROR;
@@ -72,7 +72,7 @@ static void ServeInterrupt(UART *u, FullDuplexDriver *com) {
 #ifdef FIFO_PRELOAD
         int i = FIFO_PRELOAD;
         do {
-          t_msg b = chOQGetI(&com->sd_oqueue);
+          msg_t b = chOQGetI(&com->sd_oqueue);
           if (b < Q_OK) {
             u->UART_IER &= ~IER_THRE;
             chEvtSendI(&com->sd_oevent);
@@ -81,7 +81,7 @@ static void ServeInterrupt(UART *u, FullDuplexDriver *com) {
           u->UART_THR = b;
         } while (--i);
 #else
-        t_msg b = chFDDRequestDataI(com);
+        msg_t b = chFDDRequestDataI(com);
         if (b < Q_OK)
           u->UART_IER &= ~IER_THRE;
         else
@@ -101,6 +101,7 @@ void UART0IrqHandler(void) {
   chSysIRQEnterI();
 
   ServeInterrupt(U0Base, &COM1);
+  VICVectAddr = 0;
 
   chSysIRQExitI();
 }
@@ -111,6 +112,7 @@ void UART1IrqHandler(void) {
   chSysIRQEnterI();
 
   ServeInterrupt(U1Base, &COM2);
+  VICVectAddr = 0;
 
   chSysIRQExitI();
 }
@@ -121,7 +123,7 @@ static void preload(UART *u, FullDuplexDriver *com) {
   if (u->UART_LSR & LSR_THRE) {
     int i = FIFO_PRELOAD;
     do {
-      t_msg b = chOQGetI(&com->sd_oqueue);
+      msg_t b = chOQGetI(&com->sd_oqueue);
       if (b < Q_OK) {
         chEvtSendI(&com->sd_oevent);
         return;
