@@ -17,6 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "stm32lib/stm32f10x_map.h"
+
 #include <ch.h>
 
 /*
@@ -66,5 +68,61 @@ void threadstart(void) {
   asm volatile ("mov     r0, r5                                 \n\t" \
                 "blx     r4                                     \n\t" \
                 "bl      chThdExit                              ");
+}
 
+void *retaddr;
+
+/*
+ * System Timer vector.
+ */
+void SysTickVector(void) {
+
+  chSysIRQEnterI();
+
+  chSysTimerHandlerI();
+
+  chSysIRQExitI();
+}
+
+/*
+ * To be invoked at the end of any interrupt handler that can trigger a
+ * reschedule.
+ */
+void chSysIRQExitI(void) {
+
+  chSysLock();
+  if (SCB->ICSR & (1 << 11)) {  /* RETTOBASE */
+    if (chSchRescRequiredI()) {
+
+  asm volatile ("mrs     r0, PSP                                \n\t" \
+                "ldr     r1, =retaddr                           \n\t" \
+                "ldr     r2, [r0, #18]                          \n\t" \
+                "str     r2, [r1]                               \n\t" \
+                "ldr     r1, =threadswitch                      \n\t" \
+                "str     r1, [r0, #18]                          ");
+      return; /* Note, returns *without* re-enabling interrupts.*/
+    }
+  }
+  chSysUnlock();
+}
+
+/*
+ * This code is execute in thread mode when exiting from an ISR routine that
+ * requires rescheduling.
+ */
+__attribute__((naked, weak))
+void threadswitch(void) {
+
+  asm volatile ("sub     sp, sp, #4                             \n\t" \
+                "push    {r0-r3, r12, lr}                       \n\t" \
+                "mrs     r0, XPSR                               \n\t" \
+                "push    {r0}                                   \n\t" \
+                "ldr     r0, =retaddr                           \n\t" \
+                "str     r0, [sp, #28]                          \n\t" \
+                "b       chSchDoRescheduleI                     \n\t" \
+                "pop     {r0}                                   \n\t" \
+                "msr     XPSR, r0                               \n\t" \
+                "pop     {r0-r3, r12, lr}                       \n\t" \
+                "cpsie   i                                      \n\t" \
+                "pop     {pc}                                   ");
 }

@@ -18,21 +18,28 @@
 */
 
 /*
- * ST32F103 memory setup.
+ * LPC2148 memory setup.
  */
-__main_stack_size__	= 0x0100;
-__process_stack_size__	= 0x0100;
-__stacks_total_size__	= __main_stack_size__ + __process_stack_size__;
+__und_stack_size__	= 0x0004;
+__abt_stack_size__	= 0x0004;
+__fiq_stack_size__	= 0x0010;
+__irq_stack_size__	= 0x0080;
+__svc_stack_size__	= 0x0004;
+__sys_stack_size__	= 0x0400;
+__stacks_total_size__	= __und_stack_size__ + __abt_stack_size__ + __fiq_stack_size__ + __irq_stack_size__ + __svc_stack_size__ + __sys_stack_size__;
 
 MEMORY
 {
-	flash : org = 0x08000000, len = 128k
-	ram : org = 0x20000000, len = 20k
+	flash : org = 0x00000000, len = 512k - 12k
+	ram : org = 0x40000200, len = 32k - 0x200 - 288
 }
 
 __ram_start__		= ORIGIN(ram);
 __ram_size__		= LENGTH(ram);
 __ram_end__		= __ram_start__ + __ram_size__;
+__dma_start__		= 0x7FD00000;
+__dma_size__		= 8k;
+__dma_end__		= 0x7FD00000 + __dma_size__;
 
 SECTIONS
 {
@@ -41,12 +48,15 @@ SECTIONS
 	.text :
 	{
 		_text = .;
-		*(INTVEC);
 		*(.text);
+		*(.text.*);
 		*(.rodata);
-		*(.rodata*);
+		*(.rodata.*);
 		*(.glue_7t);
 		*(.glue_7);
+		*(.gcc*);
+		*(.ctors);
+		*(.dtors);
 		. = ALIGN(4);
 		_etext = .;
 	} > flash
@@ -58,6 +68,8 @@ SECTIONS
 		_data = .;
 		*(.data)
 		. = ALIGN(4);
+		*(.data.*)
+		. = ALIGN(4);
 		*(.ramtext)
 		. = ALIGN(4);
 		_edata = .;
@@ -68,6 +80,8 @@ SECTIONS
 		_bss_start = .;
 		*(.bss)
 		. = ALIGN(4);
+		*(.bss.*)
+		. = ALIGN(4);
 		*(COMMON)
 		. = ALIGN(4);
 		_bss_end = .;
@@ -75,7 +89,7 @@ SECTIONS
 }
 
 PROVIDE(end = .);
-_end 			= .;
+_end =			.;
 
 __heap_base__		= _end;
 __heap_end__		= __ram_end__ - __stacks_total_size__;

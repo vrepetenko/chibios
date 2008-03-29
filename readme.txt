@@ -12,8 +12,8 @@
                          generic and architecture indipendent.
 ./src/templates/       - ChibiOS/RT non portable source templates, new ports
                          are started by copying the templates into a new
-                         directory under ./demos/.
-./ports/               - Architecture/compiler specific portable files.
+                         directory under ./demos/ and/or ./ports/.
+./ports/               - Architecture specific portable files.
 ./demos/               - Demo programs for specific archtectures/boards.
 ./test/                - Test code, used by some demos.
 ./docs/Doxifile        - Doxigen project file.
@@ -32,6 +32,9 @@ ARM7-LPC214x-GCC       - ChibiOS/RT port for ARM7 LPC2148, the demo targets
                          other boards. The demo can be compiled using YAGARTO
                          or any other GCC-based ARM toolchain. Full demo.
 ARM7-LPC214x-GCC-min   - Minimal demo for LPC214X.
+ARM7-LPC214x-G++       - Yet another LPC214X demo but this one is done using
+                         G++ in order to provide a C++ template project to the
+                         ChibiOS/RT users.
 ARM7-AT91SAM7X-GCC     - Port for Atmel AT91SAM7X256. The demo program targets
                          the Olimex SAM7-EX256 board.
 ARMCM3-ST32F103-GCC    - ARM Cortex-M3 port, work in progress, not complete
@@ -59,6 +62,26 @@ Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 0.6.2 ***
+- NEW: Added C++ wrapper around the ChibiOS/RT core APIs, now it is possible
+  to use the OS in a fully object oriented application. The wrapper offers
+  classes that encapsulate threads, semaphores, mutexes, timers etc. Normal C
+  APIs are still accessible from C++ code as usual.
+- NEW: Added a new LPC2148 demo using the new C++ wrapper, it is a good
+  example of C++ used for an embedded application. The demo does not use RTTI
+  nor standard libraries so the resulting code is very compact.
+- Enhanced the chSemSignalWait() API to return the wakeup message just like
+  the other "Wait" semaphore functions.
+- Fixed a minor problem in the ARM7 port, the extctx structure definition was
+  missing one field, the effect was to allocate stacks 4 bytes shorter than
+  the declared size.
+- Fixed a compile time error into the chThdSleepUntil() macro.
+- Fixes in various headers to make some macros compatible with both C and C++.
+- Fixed a regression in the LPC214x minimal demo that broke interrupt
+  handling.
+- Some fixes to the doxigen documentation.
+- More work done on the ARM-CM3 port but it is still not complete.
 
 *** 0.6.1 ***
 - Removed some redundant checks from the scheduler code: improved threads
