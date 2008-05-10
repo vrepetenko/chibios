@@ -21,7 +21,7 @@
 #define _VIC_H_
 
 #ifdef __cplusplus
-}
+extern "C" {
 #endif
   void InitVIC(void);
   void SetVICVector(void *handler, int vector, int source);
@@ -29,4 +29,4 @@
 }
 #endif
 
-#endif /* _VIC_H_*/
+#endif /* _VIC_H_ */

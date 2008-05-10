@@ -17,28 +17,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _CHTYPES_H_
-#define _CHTYPES_H_
+#include <ch.h>
+#include <nvic.h>
 
-#define __need_NULL
-#define __need_size_t
-#include <stddef.h>
+void NVICEnableVector(uint32_t n, uint32_t prio) {
+  int sh = (n & 3) << 3;
 
-#if !defined(_STDINT_H) && !defined(__STDINT_H_)
-#include <stdint.h>
-#endif
-
-typedef int32_t         bool_t;
-typedef uint8_t         tmode_t;
-typedef uint8_t         tstate_t;
-typedef uint16_t        tid_t;
-typedef uint32_t        tprio_t;
-typedef int32_t         msg_t;
-typedef int32_t         eventid_t;
-typedef uint32_t        eventmask_t;
-typedef uint32_t        systime_t;
-typedef int32_t         cnt_t;
-
-#define INLINE inline
-
-#endif /* _CHTYPES_H_ */
+  NVIC_IPR(n >> 2) = (NVIC_IPR(n >> 2) & ~(0xFF << sh)) | (prio << sh);
+  NVIC_ISER(n >> 5) = 1 << (n & 0x1F);
+}

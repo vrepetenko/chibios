@@ -20,26 +20,21 @@
 #ifndef _CHCORE_H_
 #define _CHCORE_H_
 
+#define CH_ARCHITECTURE_ARMCM3
+
 typedef void *regarm;
 
 /*
- * Interrupt saved context.
+ * Interrupt saved context, empty in this architecture.
  */
 struct extctx {
-  regarm  xpsr;
-  regarm  r0;
-  regarm  r1;
-  regarm  r2;
-  regarm  r3;
-  regarm  r12;
-  regarm  lr;
-  regarm  pc;
 };
 
 /*
  * System saved context.
  */
 struct intctx {
+  regarm  basepri;
   regarm  r4;
   regarm  r5;
   regarm  r6;
@@ -50,7 +45,15 @@ struct intctx {
   regarm  r9;
   regarm  r10;
   regarm  r11;
-  regarm  lr;
+  regarm  lr_exc;
+  regarm  r0;
+  regarm  r1;
+  regarm  r2;
+  regarm  r3;
+  regarm  r12;
+  regarm  lr_thd;
+  regarm  pc;
+  regarm  xpsr;
 };
 
 /*
@@ -68,15 +71,31 @@ typedef struct {
   tp->p_ctx.r13 = (struct intctx *)((uint8_t *)workspace +              \
                                      wsize -                            \
                                      sizeof(struct intctx));            \
-  tp->p_ctx.r13->r4 = pf;                                               \
-  tp->p_ctx.r13->r5 = arg;                                              \
-  tp->p_ctx.r13->lr = threadstart;                                      \
+  tp->p_ctx.r13->basepri = 0;                                           \
+  tp->p_ctx.r13->lr_exc = (regarm)0xFFFFFFFD;                           \
+  tp->p_ctx.r13->r0 = arg;                                              \
+  tp->p_ctx.r13->r1 = pf;                                               \
+  tp->p_ctx.r13->pc = threadstart;                                      \
+  tp->p_ctx.r13->xpsr = (regarm)0x01000000;                             \
 }
 
-#define chSysLock() asm("cpsid   i")
-#define chSysUnlock() asm("cpsie   i")
+#define chSysLock() {                                                   \
+  register uint32_t tmp asm ("r3");                                     \
+  asm volatile ("movs    %0, #0x10" : "=r" (tmp): );                    \
+  asm volatile ("msr     BASEPRI, %0" : : "r" (tmp));                   \
+}
+#define chSysUnlock() {                                                 \
+  register uint32_t tmp asm ("r3");                                     \
+  asm volatile ("movs    %0, #0" : "=r" (tmp): );                       \
+  asm volatile ("msr     BASEPRI, %0" : : "r" (tmp));                   \
+}
+#define chSysSwitchI(otp, ntp) {                                        \
+  register Thread *_otp asm ("r0") = (otp);                             \
+  register Thread *_ntp asm ("r1") = (ntp);                             \
+  asm volatile ("svc     #0" : : "r" (_otp), "r" (_ntp));               \
+}
 
-#define INT_REQUIRED_STACK 0x10
+#define INT_REQUIRED_STACK 0
 #define StackAlign(n) ((((n) - 1) | 3) + 1)
 #define UserStackSize(n) StackAlign(sizeof(Thread) +                    \
                                     sizeof(struct intctx) +             \
@@ -86,15 +105,16 @@ typedef struct {
 #define WorkingArea(s, n) uint32_t s[UserStackSize(n) >> 2];
 
 #define chSysIRQEnterI()
+#define chSysIRQExitI() {                                               \
+  SCB_ICSR = ICSR_PENDSVSET;                                            \
+}
 
-/* It requires zero bytes, but better be safe.*/
-#define IDLE_THREAD_STACK_SIZE 8
+/* It should be 8.*/
+#define IDLE_THREAD_STACK_SIZE 0
 void _IdleThread(void *p) __attribute__((noreturn));
 
 void chSysHalt(void);
-void chSysSwitchI(Thread *otp, Thread *ntp);
 void chSysPuts(char *msg);
 void threadstart(void);
-void chSysIRQExitI(void);
 
 #endif /* _CHCORE_H_ */

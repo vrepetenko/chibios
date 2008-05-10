@@ -17,6 +17,7 @@
 #
 
 TRGT = arm-none-eabi-
+#TRGT = arm-eabi-
 CC   = $(TRGT)gcc
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
@@ -62,7 +63,8 @@ UDEFS =
 UADEFS =
 
 # List ARM-mode C source files here
-SRC = ../../ports/ARMCM3/chcore.c \
+SRC = ../../ports/ARMCM3/chcore.c ../../ports/ARMCM3/nvic.c \
+      ../../ports/ARMCM3-STM32F103/stm32_serial.c \
       ../../src/chinit.c ../../src/chdebug.c ../../src/chlists.c ../../src/chdelta.c \
       ../../src/chschd.c ../../src/chthreads.c ../../src/chsem.c ../../src/chmtx.c \
       ../../src/chevents.c ../../src/chmsg.c ../../src/chsleep.c ../../src/chqueues.c \
@@ -74,7 +76,8 @@ SRC = ../../ports/ARMCM3/chcore.c \
 ASMSRC = ../../ports/ARMCM3/crt0.s ../../ports/ARMCM3-STM32F103/vectors.s
 
 # List all user directories here
-UINCDIR = ../../src/include ../../src/lib ../../ports/ARMCM3
+UINCDIR = ../../src/include ../../src/lib ../../test \
+          ../../ports/ARMCM3 ../../ports/ARMCM3-STM32F103
 
 # List the user directory to look for the libraries here
 ULIBDIR =
@@ -87,9 +90,9 @@ ULIBS =
 #       chconf.h.
 # NOTE: -falign-functions=16 may improve the performance, not always, but
 #       increases the code size.
-OPT = -O2 -ggdb -fomit-frame-pointer
+OPT = -O2 -ggdb -fomit-frame-pointer -mabi=apcs-gnu
 #OPT += -ffixed-r7
-#OPT += -falign-functions=16
+OPT += -falign-functions=16
 
 # Define warning options here
 WARN = -Wall -Wstrict-prototypes

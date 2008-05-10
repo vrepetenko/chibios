@@ -37,13 +37,15 @@ ARM7-LPC214x-G++       - Yet another LPC214X demo but this one is done using
                          ChibiOS/RT users.
 ARM7-AT91SAM7X-GCC     - Port for Atmel AT91SAM7X256. The demo program targets
                          the Olimex SAM7-EX256 board.
-ARMCM3-ST32F103-GCC    - ARM Cortex-M3 port, work in progress, not complete
-                         yet. The demo will target the Olimex STM32-P103
-                         board.
+ARMCM3-ST32F103-GCC    - ARM Cortex-M3 port. The demo targets the Olimex
+                         STM32-P103 board.
 AVR-AVRmega128-GCC     - Port on AVRmega128. A special thanks to Vladimir for
                          the work done on the AVR port. The demo program
                          targets the Olimex AVR-MT-128 mini terminal board.
 AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not tested on hardware yet.
+MSP430-MSP430x1611-GCC - Port on Texas Instruments MSP430F1611, the demo
+                         targets the Olimex MSP430-P1611 board. It is not
+                         tested on hardware yet, consider it work in progress.
 Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
                          MinGW version.
 
@@ -54,7 +56,7 @@ Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
 - Look into importing *or* implementing a TCP/IP stack and a File System.
 - Evaluate other architectures for a possible ChibiOS/RT port. An important
   selection parameter will be the availability of FOSS toolchains. Currently
-  we are evaluating the Cortex-M3 and the MSP430.
+  we are evaluating the MicroBlaze.
 - Creation of a reduced ChibiOS/RT kernel targeted to lesser 8bit micros and
   educational purposes, the name will probably be ChibiOS/SX, we are still
   discussing it.
@@ -62,6 +64,38 @@ Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 0.6.4 ***
+- NEW: MSP430 port, the port code compiles correctly but it is not tested yet.
+  The port requires the MSPGCC toolchain.
+- NEW: Added a CH_ARCHITECTURE_xxx define to the various chcore.h files, it
+  allows to write port-dependent code.
+- NEW: Added to the documentation the technical notes about the currently
+  supported ports.
+- FIX: In the ARM7 and ARMCM3 ports chanced the bool_t base type from int8_t
+  to int32_t, this produces a bit faster and smaller code.
+  It is nowhere required the bool_t type to be one byte sized.
+- FIX: Small fixes to the template files, there were some leftovers of the old
+  type names.
+- FIX: Modified the ARM demos makefiles in order to make them more compatible
+  with GCC 4.3.0, it seems the new GCC assumes -mthumb-interworking and
+  -mabi=apcs by default, at least the builds I tested did so, now the makefiles
+  explicitly assert -mno-thumb-interworking and -mabi=apcs-gnu in order to
+  produce better code.
+- Added an Ethernet driver for AT91SAM7X EMAC, not complete yet, it will be
+  required by a uIP web server demo under ChibiOS/RT coming in some next
+  release.
+
+*** 0.6.3 ***
+- NEW: ARM Cortex-M3 port completed. The demo program targets the STM32F103
+  chip from ST Microelectronics on an Olimex STM32-P103 board.
+- FIX: Fixed a minor error in ./ports/ARM7-LPC214x/vic.h, it should not affect
+  anything.
+- FIX: Minor fix: in chThdCreate() a working area size equal to
+  UserStackSize(0) was asserted as an error when in debug mode. It is now
+  allowed.
+- FIX: Increased the stack size for the threads in the test suite to 128 bytes
+  because THUMB/THUMB2 modes seem to use a lot more stack than ARM mode.
 
 *** 0.6.2 ***
 - NEW: Added C++ wrapper around the ChibiOS/RT core APIs, now it is possible
@@ -72,7 +106,7 @@ Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
   example of C++ used for an embedded application. The demo does not use RTTI
   nor standard libraries so the resulting code is very compact.
 - Enhanced the chSemSignalWait() API to return the wakeup message just like
-  the other "Wait" semaphore functions.
+  the other "Wait" semaphore functions do.
 - Fixed a minor problem in the ARM7 port, the extctx structure definition was
   missing one field, the effect was to allocate stacks 4 bytes shorter than
   the declared size.

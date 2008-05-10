@@ -16,7 +16,7 @@
 # Start of default section
 #
 
-TRGT = arm-elf-
+TRGT = msp430-
 CC   = $(TRGT)gcc
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
@@ -24,7 +24,7 @@ OD   = $(TRGT)objdump
 HEX  = $(CP) -O ihex
 BIN  = $(CP) -O binary
 
-MCU  = arm7tdmi
+MCU  = msp430x1611
 
 # List all default C defines here, like -D_DEBUG=1
 DDEFS =
@@ -53,7 +53,7 @@ DLIBS =
 PROJECT = ch
 
 # Define linker script file here
-LDSCRIPT= ch.ld
+LDSCRIPT= mspgcc/msp430x1611.x
 
 # List all user C define here, like -D_DEBUG=1
 UDEFS =
@@ -62,27 +62,19 @@ UDEFS =
 UADEFS =
 
 # List ARM-mode C source files here
-ASRC =
-
-# List THUMB-mode C sources here
-# NOTE: If any module is compiled in thumb mode then -mthumb-interwork is
-#       enabled for all modules and that lowers performance.
-TSRC = ../../ports/ARM7-AT91SAM7X/chcore.c \
-       ../../ports/ARM7-AT91SAM7X/sam7x_serial.c \
-       ../../src/chinit.c ../../src/chdebug.c ../../src/chlists.c ../../src/chdelta.c \
-       ../../src/chschd.c ../../src/chthreads.c ../../src/chsem.c ../../src/chmtx.c \
-       ../../src/chevents.c ../../src/chmsg.c ../../src/chsleep.c ../../src/chqueues.c \
-       ../../src/chserial.c \
-       ../../src/lib/evtimer.c ../../test/test.c \
-       at91lib/aic.c \
-       board.c main.c
+SRC = ../../ports/MSP430/chcore.c \
+      ../../src/chinit.c ../../src/chdebug.c ../../src/chlists.c ../../src/chdelta.c \
+      ../../src/chschd.c ../../src/chthreads.c ../../src/chsem.c ../../src/chmtx.c \
+      ../../src/chevents.c ../../src/chmsg.c ../../src/chsleep.c ../../src/chqueues.c \
+      ../../src/chserial.c \
+      ../../src/lib/evtimer.c ../../test/test.c \
+      board.c main.c
 
 # List ASM source files here
-ASMSRC = ../../ports/ARM7-AT91SAM7X/crt0.s ../../ports/ARM7/chsys.s
+ASMSRC =
 
 # List all user directories here
-UINCDIR = ../../src/include ../../src/lib \
-          ../../ports/ARM7 ../../ports/ARM7-AT91SAM7X
+UINCDIR = ../../src/include ../../src/lib ../../test ../../ports/MSP430
 
 # List the user directory to look for the libraries here
 ULIBDIR =
@@ -90,20 +82,11 @@ ULIBDIR =
 # List all user libraries here
 ULIBS =
 
-# ARM-specific options here
-AOPT =
-
-# THUMB-specific options here
-TOPT = -mthumb -D THUMB
-
 # Common options here
 # NOTE: -ffixed-r7 is only needed if you enabled CH_CURRP_REGISTER_CACHE in
 #       chconf.h.
-# NOTE: -falign-functions=16 may improve the performance, not always, but
-#       increases the code size.
-OPT = -Os -ggdb -fomit-frame-pointer -mabi=apcs-gnu
+OPT = -O2 -ggdb -fomit-frame-pointer
 #OPT += -ffixed-r7
-#OPT += -falign-functions=16
 
 # Define warning options here
 WARN = -Wall -Wstrict-prototypes
@@ -116,53 +99,25 @@ INCDIR  = $(patsubst %,-I%,$(DINCDIR) $(UINCDIR))
 LIBDIR  = $(patsubst %,-L%,$(DLIBDIR) $(ULIBDIR))
 DEFS    = $(DDEFS) $(UDEFS)
 ADEFS   = $(DADEFS) $(UADEFS)
-AOBJS   = $(ASRC:.c=.o)
-TOBJS   = $(TSRC:.c=.o)
-OBJS	= $(ASMOBJS) $(AOBJS) $(TOBJS)
+COBJS   = $(SRC:.c=.o)
 ASMOBJS = $(ASMSRC:.s=.o)
+OBJS	= $(ASMOBJS) $(COBJS)
 LIBS    = $(DLIBS) $(ULIBS)
-MCFLAGS = -mcpu=$(MCU)
+MCFLAGS = -mmcu=$(MCU)
 
 ASFLAGS = $(MCFLAGS) -Wa,-amhls=$(<:.s=.lst) $(ADEFS)
 CPFLAGS = $(MCFLAGS) $(OPT) $(WARN) -Wa,-alms=$(<:.c=.lst) $(DEFS)
-LDFLAGS = $(MCFLAGS) -nostartfiles -T$(LDSCRIPT) -Wl,-Map=$(PROJECT).map,--cref,--no-warn-mismatch $(LIBDIR)
+LDFLAGS = $(MCFLAGS) -T$(LDSCRIPT) -Wl,-Map=$(PROJECT).map,--cref,--no-warn-mismatch $(LIBDIR)
 ODFLAGS	= -x --syms
-
-# Thumb interwork enabled only if needed because it kills performance.
-ifneq ($(TSRC),)
-  CPFLAGS += -D THUMB_PRESENT
-  ASFLAGS += -D THUMB_PRESENT
-  ifneq ($(ASRC),)
-    # Mixed ARM and THUMB case.
-    CPFLAGS += -mthumb-interwork
-    LDFLAGS += -mthumb-interwork
-  else
-    # Pure THUMB case, THUMB C code cannot be called by ARM asm code directly.
-    CPFLAGS += -mno-thumb-interwork -D THUMB_NO_INTERWORKING
-    LDFLAGS += -mno-thumb-interwork -mthumb
-    ASFLAGS += -D THUMB_NO_INTERWORKING
-  endif
-else
-  CPFLAGS += -mno-thumb-interwork
-  LDFLAGS += -mno-thumb-interwork
-endif
-
-# Generate dependency information
-CPFLAGS += -MD -MP -MF .dep/$(@F).d
 
 #
 # Makefile rules
 #
-
 all: $(OBJS) $(PROJECT).elf $(PROJECT).hex $(PROJECT).bin $(PROJECT).dmp
 
-$(AOBJS) : %.o : %.c
+$(COBJS) : %.o : %.c
 	@echo
-	$(CC) -c $(CPFLAGS) $(AOPT) -I . $(INCDIR) $< -o $@
-
-$(TOBJS) : %.o : %.c
-	@echo
-	$(CC) -c $(CPFLAGS) $(TOPT) -I . $(INCDIR) $< -o $@
+	$(CC) -c $(CPFLAGS) -I . $(INCDIR) $< -o $@
 
 $(ASMOBJS) : %.o : %.s
 	@echo
@@ -170,7 +125,7 @@ $(ASMOBJS) : %.o : %.s
 
 %elf: $(OBJS)
 	@echo
-	$(CC) $(ASMOBJS) $(AOBJS) $(TOBJS) $(LDFLAGS) $(LIBS) -o $@
+	$(CC) $(ASMOBJS) $(COBJS) $(LDFLAGS) $(LIBS) -o $@
 
 %hex: %elf
 	$(HEX) $< $@
@@ -188,17 +143,9 @@ clean:
 	-rm -f $(PROJECT).map
 	-rm -f $(PROJECT).hex
 	-rm -f $(PROJECT).bin
-	-rm -f $(ASRC:.c=.c.bak)
-	-rm -f $(ASRC:.c=.lst)
-	-rm -f $(TSRC:.c=.c.bak)
-	-rm -f $(TSRC:.c=.lst)
+	-rm -f $(SRC:.c=.c.bak)
+	-rm -f $(SRC:.c=.lst)
 	-rm -f $(ASMSRC:.s=.s.bak)
 	-rm -f $(ASMSRC:.s=.lst)
-	-rm -fR .dep
-
-#
-# Include the dependency files, should be the last of the makefile
-#
--include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
 # *** EOF ***

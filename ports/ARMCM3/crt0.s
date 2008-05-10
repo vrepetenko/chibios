@@ -24,15 +24,17 @@
 .set    CONTROL_MODE_PRIVILEGED, 0
 .set    CONTROL_MODE_UNPRIVILEGED, 1
 .set    CONTROL_USE_MSP, 0
-.set    CONTROL_USE_PSP, 0
+.set    CONTROL_USE_PSP, 2
 
 .text
 .balign 2
 .syntax unified
+.thumb
 
 /*
  * Reset handler.
  */
+.thumb_func
 .global ResetHandler
 ResetHandler:
         /*
@@ -61,7 +63,7 @@ dloop:
          * BSS initialization.
          * NOTE: It assumes that the BSS size is a multiple of 4.
          */
-        mov     r0, #0
+        movs    r0, #0
         ldr     r1, =_bss_start
         ldr     r2, =_bss_end
 bloop:
@@ -72,9 +74,12 @@ bloop:
         /*
          * Switches to the Process Stack and disables the interrupts globally.
          */
-        mov     r0, #CONTROL_MODE_PRIVILEGED | CONTROL_USE_PSP
+        movs    r0, #CONTROL_MODE_PRIVILEGED | CONTROL_USE_PSP
         msr     CONTROL, r0
-        cpsid   i
+        isb
+	movs    r0, #0x10
+	msr	BASEPRI, r0
+        cpsie   i
         /*
          * Application-provided HW initialization routine.
          */
@@ -82,7 +87,7 @@ bloop:
         /*
          * main(0, NULL).
          */
-        mov     r0, #0
+        movs    r0, #0
         mov     r1, r0
         bl      main
         bl      chSysHalt

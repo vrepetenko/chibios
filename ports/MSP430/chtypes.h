@@ -17,6 +17,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @addtogroup Core
+ * @{
+ */
+
 #ifndef _CHTYPES_H_
 #define _CHTYPES_H_
 
@@ -28,17 +33,19 @@
 #include <stdint.h>
 #endif
 
-typedef int32_t         bool_t;
-typedef uint8_t         tmode_t;
-typedef uint8_t         tstate_t;
-typedef uint16_t        tid_t;
-typedef uint32_t        tprio_t;
-typedef int32_t         msg_t;
-typedef int32_t         eventid_t;
-typedef uint32_t        eventmask_t;
-typedef uint32_t        systime_t;
-typedef int32_t         cnt_t;
+typedef int16_t         bool_t;     /* Signed boolean. */
+typedef uint8_t         tmode_t;    /* Thread mode flags, uint8_t is ok. */
+typedef uint8_t         tstate_t;   /* Thread state, uint8_t is ok. */
+typedef uint16_t        tid_t;      /* Thread id. */
+typedef uint16_t        tprio_t;    /* Priority, use the fastest unsigned type. */
+typedef int16_t         msg_t;      /* Message, use signed pointer equivalent.*/
+typedef int16_t         eventid_t;  /* Event Id, use fastest signed.*/
+typedef uint16_t        eventmask_t;/* Event Mask, recommended fastest unsigned.*/
+typedef uint16_t        systime_t;  /* System Time, recommended fastest unsigned.*/
+typedef int16_t         cnt_t;      /* Counter, recommended fastest signed.*/
 
-#define INLINE inline
+#define INLINE      inline
 
 #endif /* _CHTYPES_H_ */
+
+/** @} */

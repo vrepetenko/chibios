@@ -21,18 +21,17 @@
 #include <test.h>
 
 #include "board.h"
-#include "stm32_serial.h"
 
 /*
  * Red LEDs blinker thread, times are in milliseconds.
  */
-static WorkingArea(waThread1, 128);
+static WorkingArea(waThread1, 64);
 static msg_t Thread1(void *arg) {
 
   while (TRUE) {
-    GPIOC->BRR = GPIOC_LED;
+    P6OUT |= P6_O_LED;
     chThdSleep(500);
-    GPIOC->BSRR = GPIOC_LED;
+    P6OUT &= ~P6_O_LED;
     chThdSleep(500);
   }
   return 0;
@@ -42,6 +41,11 @@ static msg_t Thread1(void *arg) {
  * Entry point, the interrupts are disabled on entry.
  */
 int main(int argc, char **argv) {
+
+  /*
+   * Hardware initialization, see board.c.
+   */
+  hwinit();
 
   /*
    * The main() function becomes a thread here then the interrupts are
@@ -59,8 +63,8 @@ int main(int argc, char **argv) {
    * sleeping in a loop.
    */
   while (TRUE) {
-    if (GPIOA->IDR & GPIOA_BUTTON)
-      TestThread(&COM2);
+//    if (!(P6IN & P6_I_BUTTON))
+//      TestThread(&COM1);
     chThdSleep(500);
   }
   return 0;
