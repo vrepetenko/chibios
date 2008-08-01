@@ -26,6 +26,7 @@
 #ifndef CH_OPTIMIZE_SPEED
 /*
  * Inserts a thread into a priority ordered queue.
+ *
  * @param tp the pointer to the thread to be inserted in the list
  * @param tqp the pointer to the threads list header
  * @note the insertion is done by scanning the list from the highest priority
@@ -33,28 +34,35 @@
  */
 void prio_insert(Thread *tp, ThreadsQueue *tqp) {
 
+  /* cp iterates over the queue */
   Thread *cp = tqp->p_next;
+  /* not end of queue? and cp has equal or higher priority than tp? */
   while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio))
+    /* iterate to next thread in queue */
     cp = cp->p_next;
-  /* Insertion on p_prev.*/
+  /* insert before cp, point tp to next and prev in queue */
   tp->p_prev = (tp->p_next = cp)->p_prev;
+  /* make prev point to tp, and cp point back to tp */
   tp->p_prev->p_next = cp->p_prev = tp;
 }
 
 /*
- * Inserts a thread into a FIFO queue.
+ * Inserts a Thread into a queue.
+ *
  * @param tp the pointer to the thread to be inserted in the list
  * @param tqp the pointer to the threads list header
  */
-void fifo_insert(Thread *tp, ThreadsQueue *tqp) {
+void queue_insert(Thread *tp, ThreadsQueue *tqp) {
 
   tp->p_prev = (tp->p_next = (Thread *)tqp)->p_prev;
   tp->p_prev->p_next = tqp->p_prev = tp;
 }
 
 /*
- * Removes a thread from a FIFO queue.
+ * Removes the first-out Thread from a queue and returns it.
+ *
  * @param tqp the pointer to the threads list header
+ * @return the removed thread pointer
  */
 Thread *fifo_remove(ThreadsQueue *tqp) {
   Thread *tp = tqp->p_next;
@@ -64,9 +72,22 @@ Thread *fifo_remove(ThreadsQueue *tqp) {
 }
 
 /*
+ * Removes the last-out Thread from a queue and returns it.
+ *
+ * @param tqp the pointer to the threads list header
+ * @return the removed thread pointer
+ */
+Thread *lifo_remove(ThreadsQueue *tqp) {
+  Thread *tp = tqp->p_next;
+
+  (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+  return tp;
+}
+
+/*
  * Removes a Thread from a FIFO list and returns it.
+ *
  * @param tp the pointer to the thread to be removed from the list
- * @param tqp the pointer to the list header
  * @return the removed thread pointer
  */
 Thread *dequeue(Thread *tp) {
@@ -77,7 +98,8 @@ Thread *dequeue(Thread *tp) {
 }
 
 /*
- * Inserts a Thread into a stack list.
+ * Pushes a Thread on top of a stack list.
+ *
  * @param tp the pointer to the thread to be inserted in the list
  * @param tlp the pointer to the threads list header
  */
@@ -87,9 +109,9 @@ void list_insert(Thread *tp, ThreadsList *tlp) {
   tlp->p_next = tp;
 }
 
-
 /*
- * Removes a Thread from a stack list and returns it.
+ * Pops a Thread from the top of a stack list and returns it.
+ *
  * @param tlp the pointer to the threads list header
  * @return the removed thread pointer
  */

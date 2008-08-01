@@ -29,6 +29,7 @@ typedef void *regarm;
  */
 #define BASEPRI_USER    0       /* User level BASEPRI, 0 = disabled.    */
 #define BASEPRI_KERNEL  0x10    /* BASEPRI level within kernel lock.    */
+#define ENABLE_WFI_IDLE 0       /* Enables the use of the WFI ins.      */
 
 /*
  * Interrupt saved context, empty in this architecture.
@@ -80,7 +81,7 @@ typedef struct {
   tp->p_ctx.r13 = (struct intctx *)((uint8_t *)workspace +              \
                                      wsize -                            \
                                      sizeof(struct intctx));            \
-  tp->p_ctx.r13->basepri = 0;                                           \
+  tp->p_ctx.r13->basepri = BASEPRI_USER;                                \
   tp->p_ctx.r13->lr_exc = (regarm)0xFFFFFFFD;                           \
   tp->p_ctx.r13->r0 = arg;                                              \
   tp->p_ctx.r13->r1 = pf;                                               \
@@ -119,7 +120,6 @@ typedef struct {
   SCB_ICSR = ICSR_PENDSVSET;                                            \
 }
 
-/* It should be 8.*/
 #define IDLE_THREAD_STACK_SIZE 0
 void _IdleThread(void *p) __attribute__((noreturn));
 

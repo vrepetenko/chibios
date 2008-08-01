@@ -27,7 +27,9 @@ __attribute__((weak))
 void _IdleThread(void *p) {
 
   while (TRUE) {
-//    asm volatile ("wfi");
+#if ENABLE_WFI_IDLE != 0
+    asm volatile ("wfi");
+#endif
   }
 }
 
@@ -118,6 +120,36 @@ void SVCallVector(Thread *otp, Thread *ntp) {
 #endif
 }
 
+#ifdef CH_CURRP_REGISTER_CACHE
+#define PUSH_CONTEXT(sp) {                                              \
+  register uint32_t tmp asm ("r3") = BASEPRI_USER;                      \
+  asm volatile ("mrs     %0, PSP                                \n\t"   \
+                "stmdb   %0!, {r3-r6,r8-r11, lr}" :                     \
+                "=r" (sp) : "r" (sp), "r" (tmp));                       \
+}
+
+#define POP_CONTEXT(sp) {                                               \
+  asm volatile ("ldmia   %0!, {r3-r6,r8-r11, lr}                \n\t"   \
+                "msr     PSP, %0                                \n\t"   \
+                "msr     BASEPRI, r3                            \n\t"   \
+                "bx      lr" : "=r" (sp) : "r" (sp));                   \
+}
+#else
+#define PUSH_CONTEXT(sp) {                                              \
+  register uint32_t tmp asm ("r3") = BASEPRI_USER;                      \
+  asm volatile ("mrs     %0, PSP                                \n\t"   \
+                "stmdb   %0!, {r3-r11,lr}" :                            \
+                "=r" (sp) : "r" (sp), "r" (tmp));                       \
+}
+
+#define POP_CONTEXT(sp) {                                               \
+  asm volatile ("ldmia   %0!, {r3-r11, lr}                      \n\t"   \
+                "msr     PSP, %0                                \n\t"   \
+                "msr     BASEPRI, r3                            \n\t"   \
+                "bx      lr" : "=r" (sp) : "r" (sp));                   \
+}
+#endif
+
 /*
  * Preemption invoked context switch.
  */
@@ -134,35 +166,19 @@ void PendSVVector(void) {
   }
   asm volatile ("pop     {lr}");
 
-  register uint32_t tmp asm ("r3") = BASEPRI_USER;
-#ifdef CH_CURRP_REGISTER_CACHE
-  asm volatile ("mrs     %0, PSP                                \n\t" \
-                "stmdb   %0!, {r3-r6,r8-r11, lr}" :
-                "=r" (sp_thd) :
-                "r" (sp_thd), "r" (tmp));
-#else
-  asm volatile ("mrs     %0, PSP                                \n\t" \
-                "stmdb   %0!, {r3-r11,lr}" :
-                "=r" (sp_thd) :
-                "r" (sp_thd), "r" (tmp));
-#endif
+  PUSH_CONTEXT(sp_thd);
 
   (otp = currp)->p_ctx.r13 = sp_thd;
-  chSchReadyI(otp);
   (currp = fifo_remove(&rlist.r_queue))->p_state = PRCURR;
+  chSchReadyI(otp);
+#ifdef CH_USE_ROUNDROBIN
   /* set the round-robin time quantum */
   rlist.r_preempt = CH_TIME_QUANTUM;
+#endif
 #ifdef CH_USE_TRACE
   chDbgTrace(otp, currp);
 #endif
   sp_thd = currp->p_ctx.r13;
 
-#ifdef CH_CURRP_REGISTER_CACHE
-  asm volatile ("ldmia   %0!, {r3-r6,r8-r11, lr}" : : "r" (sp_thd));
-#else
-  asm volatile ("ldmia   %0!, {r3-r11, lr}" : : "r" (sp_thd));
-#endif
-  asm volatile ("msr     PSP, %0                                \n\t" \
-                "msr     BASEPRI, r3                            \n\t" \
-                "bx      lr" : : "r" (sp_thd));
+  POP_CONTEXT(sp_thd);
 }

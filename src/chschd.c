@@ -36,7 +36,9 @@ void chSchInit(void) {
 
   fifo_init(&rlist.r_queue);
   rlist.r_prio = NOPRIO;
+#ifdef CH_USE_ROUNDROBIN
   rlist.r_preempt = CH_TIME_QUANTUM;
+#endif
 #ifdef CH_USE_SYSTEMTIME
   rlist.r_stime = 0;
 #endif
@@ -83,7 +85,9 @@ void chSchGoSleepS(tstate_t newstate) {
 
   (otp = currp)->p_state = newstate;
   (currp = fifo_remove(&rlist.r_queue))->p_state = PRCURR;
+#ifdef CH_USE_ROUNDROBIN
   rlist.r_preempt = CH_TIME_QUANTUM;
+#endif
 #ifdef CH_USE_TRACE
   chDbgTrace(otp, currp);
 #endif
@@ -142,18 +146,21 @@ msg_t chSchGoSleepTimeoutS(tstate_t newstate, systime_t time) {
  */
 void chSchWakeupS(Thread *ntp, msg_t msg) {
   ntp->p_rdymsg = msg;
-  /* the woken thread has equal or lower priority than the running thread? */
   if (ntp->p_prio <= currp->p_prio)
-    /* put the woken thread on the ready queue */
+    /* the woken thread has equal or lower priority than the running thread */
     chSchReadyI(ntp);
-  /* the woken thread has higher priority than the running thread */
   else {
-    /* put the running thread on the ready queue */
+    /* the woken thread has higher priority than the running thread and thus
+     * preempts the currently running thread. */
     Thread *otp = currp;
     chSchReadyI(otp);
+    /* change the to-be-run thread to running state */
     (currp = ntp)->p_state = PRCURR;
+#ifdef CH_USE_ROUNDROBIN
     rlist.r_preempt = CH_TIME_QUANTUM;
+#endif
 #ifdef CH_USE_TRACE
+    /* trace the context switch */
     chDbgTrace(otp, ntp);
 #endif
     /* switch the thread context */
@@ -167,16 +174,17 @@ void chSchWakeupS(Thread *ntp, msg_t msg) {
  * Intended to be called if \p chSchRescRequired() evaluates to \p TRUE.
  */
 void chSchDoRescheduleI(void) {
-  /* put the running thread on the ready queue */
+
   Thread *otp = currp;
-  chSchReadyI(otp);
-  /* pick the first thread from the ready queue */
+  /* pick the first thread from the ready queue and makes it current */
   (currp = fifo_remove(&rlist.r_queue))->p_state = PRCURR;
+  chSchReadyI(otp);
+#ifdef CH_USE_ROUNDROBIN
   rlist.r_preempt = CH_TIME_QUANTUM;
+#endif
 #ifdef CH_USE_TRACE
   chDbgTrace(otp, currp);
 #endif
-  /* switch thread context */
   chSysSwitchI(otp, currp);
 }
 
@@ -204,12 +212,16 @@ void chSchRescheduleS(void) {
 bool_t chSchRescRequiredI(void) {
   tprio_t p1 = firstprio(&rlist.r_queue);
   tprio_t p2 = currp->p_prio;
+#ifdef CH_USE_ROUNDROBIN
   /* If the running thread has not reached its time quantum, reschedule only
    * if the first thread on the ready queue has a higher priority.
    * Otherwise, if the running thread has used up its time quantum, reschedule
    * if the first thread on the ready queue has equal or higher priority.
    */
   return rlist.r_preempt ? p1 > p2 : p1 >= p2;
+#else
+  return p1 > p2;
+#endif
 }
 
 /** @} */
