@@ -18,14 +18,29 @@
 */
 
 /**
- * @addtogroup VirtualTimers
+ * @addtogroup Time
  * @{
  */
 
-#ifndef _DELTA_H_
-#define _DELTA_H_
+#ifndef _VT_H_
+#define _VT_H_
 
-#ifdef CH_USE_VIRTUAL_TIMERS
+/**
+ * Time conversion utility. Converts from seconds to system ticks number.
+ */
+#define S2ST(sec)   ((systime_t)((sec) * CH_FREQUENCY))
+
+/**
+ * Time conversion utility. Converts from milliseconds to system ticks number.
+ * @note The result is rounded upward to the next tick boundary.
+ */
+#define MS2ST(msec) ((systime_t)(((((msec) - 1L) * CH_FREQUENCY) / 1000L) + 1L))
+
+/**
+ * Time conversion utility. Converts from microseconds to system ticks number.
+ * @note The result is rounded upward to the next tick boundary.
+ */
+#define US2ST(usec) ((systime_t)(((((usec) - 1L) * CH_FREQUENCY) / 1000000L) + 1L))
 
 /** Virtual Timer callback function.*/
 typedef void (*vtfunc_t)(void *);
@@ -37,17 +52,17 @@ typedef struct VirtualTimer VirtualTimer;
  * @extends DeltaList
  */
 struct VirtualTimer {
-    /** Next timer in the delta list.*/
-    VirtualTimer    *vt_next;
-    /** Previous timer in the delta list.*/
-    VirtualTimer    *vt_prev;
-    /** Time delta before timeout.*/
-    systime_t       vt_dtime;
-    /** Timer callback function pointer. The pointer is reset to zero after
-        the callback is invoked.*/
-    vtfunc_t        vt_func;
-    /** Timer callback function parameter.*/
-    void            *vt_par;
+  /** Next timer in the delta list.*/
+  VirtualTimer          *vt_next;
+  /** Previous timer in the delta list.*/
+  VirtualTimer          *vt_prev;
+  /** Time delta before timeout.*/
+  systime_t             vt_time;
+  /** Timer callback function pointer. The pointer is reset to zero after
+      the callback is invoked.*/
+  vtfunc_t              vt_func;
+  /** Timer callback function parameter.*/
+  void                  *vt_par;
 };
 
 /**
@@ -57,32 +72,32 @@ struct VirtualTimer {
  *       is often used in the code.
  */
 typedef struct {
-    /** Next timer in the list (the one that will be triggered next).*/
-    VirtualTimer    *dl_next;
-    /** Last timer in the list.*/
-    VirtualTimer    *dl_prev;
-    /** Not used but it must be set to -1.*/
-    systime_t       dl_dtime;
-} DeltaList;
+  /** Next timer in the list (the one that will be triggered next).*/
+  VirtualTimer          *vt_next;
+  /** Last timer in the list.*/
+  VirtualTimer          *vt_prev;
+  /** Not used but it must be set to -1.*/
+  systime_t             vt_time;
+  /** System Time counter.*/
+  volatile systime_t    vt_systime;
+} VTList;
 
-extern DeltaList dlist;
+extern VTList vtlist;
 
 #define chVTDoTickI() {                                                 \
-  if (&dlist != (DeltaList *)dlist.dl_next) {                           \
+  vtlist.vt_systime++;                                                  \
+  if (&vtlist != (VTList *)vtlist.vt_next) {                            \
     VirtualTimer *vtp;                                                  \
                                                                         \
-    --dlist.dl_next->vt_dtime;                                          \
-    while (!(vtp = dlist.dl_next)->vt_dtime) {                          \
+    --vtlist.vt_next->vt_time;                                          \
+    while (!(vtp = vtlist.vt_next)->vt_time) {                          \
       vtfunc_t fn = vtp->vt_func;                                       \
       vtp->vt_func = NULL;                                              \
-      (vtp->vt_next->vt_prev = (void *)&dlist)->vt_next = vtp->vt_next; \
+      (vtp->vt_next->vt_prev = (void *)&vtlist)->vt_next = vtp->vt_next;\
       fn(vtp->vt_par);                                                  \
     }                                                                   \
   }                                                                     \
 }
-
-/** Infinite time specification.*/
-#define TIME_INFINITE 0
 
 /*
  * Virtual Timers APIs.
@@ -93,6 +108,7 @@ extern "C" {
   void chVTInit(void);
   void chVTSetI(VirtualTimer *vtp, systime_t time, vtfunc_t vtfunc, void *par);
   void chVTResetI(VirtualTimer *vtp);
+  bool_t chSysInTimeWindow(systime_t start, systime_t end);
 #ifdef __cplusplus
 }
 #endif
@@ -100,8 +116,14 @@ extern "C" {
 /** Returns TRUE if the speciified timer is armed.*/
 #define chVTIsArmedI(vtp) ((vtp)->vt_func != NULL)
 
-#endif /* CH_USE_VIRTUAL_TIMER */
+/**
+ * Returns the number of system ticks since the \p chSysInit() invocation.
+ * @return the system ticks number
+ * @note The counter can reach its maximum and then returns to zero.
+ * @note This function is designed to work with the \p chThdSleepUntil().
+ */
+#define chSysGetTime() (vtlist.vt_systime)
 
-#endif /* _DELTA_H_ */
+#endif /* _VT_H_ */
 
 /** @} */

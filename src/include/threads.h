@@ -189,10 +189,12 @@ extern "C" {
   Thread *chThdCreate(tprio_t prio, tmode_t mode, void *workspace,
                       size_t wsize, tfunc_t pf, void *arg);
   void chThdSetPriority(tprio_t newprio);
-  void chThdExit(msg_t msg);
   Thread *chThdResume(Thread *tp);
   void chThdSuspend(Thread **tpp);
   void chThdTerminate(Thread *tp);
+  void chThdSleep(systime_t time);
+  void chThdSleepUntil(systime_t time);
+  void chThdExit(msg_t msg);
 #ifdef CH_USE_WAITEXIT
   msg_t chThdWait(Thread *tp);
 #endif
@@ -265,6 +267,30 @@ extern "C" {
  */
 #define chThdCreateFast(prio, workspace, wsize, pf) \
         chThdCreateStatic(workspace, wsize, prio, pf, NULL)
+
+/**
+ * Delays the invoking thread for the specified number of seconds.
+ * @note The specified time is rounded up to a value allowed by the real
+ *       system clock.
+ * @note The maximum specified value is implementation dependent.
+ */
+#define chThdSleepSeconds(sec) chThdSleep(S2ST(sec))
+
+/**
+ * Delays the invoking thread for the specified number of milliseconds.
+ * @note The specified time is rounded up to a value allowed by the real
+ *       system clock.
+ * @note The maximum specified value is implementation dependent.
+ */
+#define chThdSleepMilliseconds(msec) chThdSleep(MS2ST(msec))
+
+/**
+ * Delays the invoking thread for the specified number of microseconds.
+ * @note The specified time is rounded up to a value allowed by the real
+ *       system clock.
+ * @note The maximum specified value is implementation dependent.
+ */
+#define chThdSleepMicroseconds(usec) chThdSleep(US2ST(usec))
 
 #endif  /* _THREADS_H_ */
 

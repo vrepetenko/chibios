@@ -73,6 +73,27 @@ Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
 *** Releases                                                              ***
 *****************************************************************************
 
+*** 0.7.3 ***
+- FIX: Fixed a bug in chThdSleepUntil(), this API is no more a macro now.
+- NEW: New chThdSleepSeconds(), chThdSleepMilliseconds() and
+  chThdSleepMicroseconds() utility macros.
+- CHANGE: Zero is no more a valid time specification for the chVTSetI() API.
+- CHANGE: Removed the files chsleep.c and sleep.h.
+- CHANGE: Renamed the files chdelta.c and delta.h to chvt.c and vt.h. All the
+  system time related functions and macros are now there.
+- CHANGE: Renamed the structure DeltaList to VTList, it includes the system
+  time counter too now.
+- CHANGE: Removed the CH_USE_SYSTEMTIME and CH_USE_VIRTUAL_TIMER configuration
+  options in order to make the chconf.h file simpler. The related subsystems
+  are almost always required and are now always included.
+- Small optimization to the MSP430 serial driver.
+- Improvements to the test code, now a failed assert terminates the test case.
+- Added dependency informations handling to the MSP430 demo Makefile.
+- Removed the performance spreadsheet (it was *very* old) and added a
+  directory containing the test reports ./docs/reports. Each report shows the
+  results from the latest test run on each target.
+- Small fixes to the documentation.
+
 *** 0.7.2 ***
 - NEW: Added a serial driver to the MSP430 port, the MSP430 port now has been
   tested on hardware and passes the test suite.
