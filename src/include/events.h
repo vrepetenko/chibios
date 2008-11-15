@@ -40,8 +40,8 @@ struct EventListener {
   EventListener     *el_next;
   /** Thread interested in the Event Source.*/
   Thread            *el_listener;
-  /** Event identifier associated by the thread to the Event Source.*/
-  eventid_t         el_id;
+  /** Event flags mask associated by the thread to the Event Source.*/
+  eventmask_t       el_mask;
 };
 
 /**
@@ -52,8 +52,12 @@ typedef struct EventSource {
   EventListener     *es_next;
 } EventSource;
 
-/** Returns the event mask from the event identifier.*/
+/** Returns the event mask from the event identifier.
+ * @deprecated use EVENT_MASK() instead.*/
 #define EventMask(eid) (1 << (eid))
+
+/** Returns the event mask from the event identifier.*/
+#define EVENT_MASK(eid) (1 << (eid))
 
 /**
  * Initializes an Event Source.
@@ -70,7 +74,7 @@ typedef struct EventSource {
  * @note Can be called with interrupts disabled or enabled.
  */
 #define chEvtIsListening(esp) \
-                ((esp) != (EventListener *)(void *)(esp)->es_next)
+                ((void *)(esp) != (void *)(esp)->es_next)
 
 
 /** Event Handler callback function.*/
@@ -79,20 +83,50 @@ typedef void (*evhandler_t)(eventid_t);
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chEvtRegister(EventSource *esp, EventListener *elp, eventid_t eid);
+  void chEvtRegisterMask(EventSource *esp, EventListener *elp, eventmask_t emask);
   void chEvtUnregister(EventSource *esp, EventListener *elp);
-  void chEvtClear(eventmask_t mask);
+  eventmask_t chEvtClear(eventmask_t mask);
+  eventmask_t chEvtPend(eventmask_t mask);
   void chEvtBroadcast(EventSource *esp);
   void chEvtBroadcastI(EventSource *esp);
+  void chEvtDispatch(const evhandler_t handlers[], eventmask_t mask);
+#if defined(CH_OPTIMIZE_SPEED) || !defined(CH_USE_EVENT_TIMEOUT)
+  eventmask_t chEvtWaitOne(eventmask_t ewmask);
+  eventmask_t chEvtWaitAny(eventmask_t ewmask);
+  eventmask_t chEvtWaitAll(eventmask_t ewmask);
   eventid_t chEvtWait(eventmask_t ewmask,
                       const evhandler_t handlers[]);
-#ifdef CH_USE_EVENTS_TIMEOUT
+#endif
+#ifdef CH_USE_EVENT_TIMEOUT
+  eventmask_t chEvtWaitOneTimeout(eventmask_t ewmask, systime_t time);
+  eventmask_t chEvtWaitAnyTimeout(eventmask_t ewmask, systime_t time);
+  eventmask_t chEvtWaitAllTimeout(eventmask_t ewmask, systime_t time);
   eventid_t chEvtWaitTimeout(eventmask_t ewmask,
                              const evhandler_t handlers[],
                              systime_t time);
 #endif
 #ifdef __cplusplus
 }
+#endif
+
+/**
+ * Registers an Event Listener on an Event Source.
+ * @param esp pointer to the  \p EventSource structure
+ * @param elp pointer to the \p EventListener structure
+ * @param eid numeric identifier assigned to the Event Listener. The identifier
+ *            is used as index for the event callback function.
+ *            The value must range between zero and the size, in bit, of the
+ *            \p eventid_t type minus one.
+ * @note Multiple Event Listeners can use the same event identifier, the
+ *       listener will share the callback function.
+ */
+#define chEvtRegister(esp, elp, eid) chEvtRegisterMask(esp, elp, EVENT_MASK(eid))
+
+#if !defined(CH_OPTIMIZE_SPEED) && defined(CH_USE_EVENT_TIMEOUT)
+#define chEvtWaitOne(ewmask) chEvtWaitOneTimeout(ewmask, TIME_INFINITE)
+#define chEvtWaitAny(ewmask) chEvtWaitAnyTimeout(ewmask, TIME_INFINITE)
+#define chEvtWaitAll(ewmask) chEvtWaitAllTimeout(ewmask, TIME_INFINITE)
+#define chEvtWait(ewmask, handlers) chEvtWaitTimeout(ewmask, handlers, TIME_INFINITE)
 #endif
 
 /*

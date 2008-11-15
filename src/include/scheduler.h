@@ -32,6 +32,19 @@
 /** Returned when the thread was made ready because of a reset. */
 #define RDY_RESET   -2
 
+/** Pseudo priority used by the ready list header, do not use.*/
+#define NOPRIO      0
+/** Idle thread priority.*/
+#define IDLEPRIO    1
+/** Lowest user priority.*/
+#define LOWPRIO     2
+/** Normal user priority.*/
+#define NORMALPRIO  64
+/** Highest user priority.*/
+#define HIGHPRIO    127
+/** Greatest possible priority.*/
+#define ABSPRIO     255
+
 /** Infinite time specification for all the syscalls with a timeout
     specification.*/
 #define TIME_INFINITE 0
@@ -41,10 +54,17 @@
 
 /**
  * Ready list header.
+ * @extends ThreadsQueue
  */
 typedef struct {
-  ThreadsQueue          r_queue;
+  /** Next \p Thread in the ready list.*/
+  Thread            *p_next;
+  /** Previous \p Thread in the ready list.*/
+  Thread            *p_prev;
+  /* End of the fields shared with the ThreadsQueue structure. */
+  /** The thread priority.*/
   tprio_t               r_prio;
+  /* End of the fields shared with the Thread structure. */
 #ifdef CH_USE_ROUNDROBIN
   cnt_t                 r_preempt;
 #endif

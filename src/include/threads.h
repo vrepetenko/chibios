@@ -56,29 +56,34 @@ struct Thread {
    * thread in the system.
    */
   union {
-    /** Thread wakeup code (only valid when exiting the \p PRREADY state). */
+    /** Thread wakeup code (only valid when exiting the \p PRREADY state).*/
     msg_t           p_rdymsg;
     /** The thread exit code (only while in \p PREXIT state).*/
     msg_t           p_exitcode;
 #ifdef CH_USE_SEMAPHORES
-    /** Semaphore where the thread is waiting on (only in \p PRWTSEM state). */
+    /** Semaphore where the thread is waiting on (only in \p PRWTSEM state).*/
     Semaphore       *p_wtsemp;
 #endif
 #ifdef CH_USE_MUTEXES
-    /** Mutex where the thread is waiting on (only in \p PRWTMTX state). */
+    /** Mutex where the thread is waiting on (only in \p PRWTMTX state).*/
     Mutex           *p_wtmtxp;
 #endif
+#ifdef CH_USE_CONDVARS
+    /** CondVar where the thread is waiting on (only in \p PRWTCOND state).*/
+    CondVar         *p_wtcondp;
+#endif
 #ifdef CH_USE_MESSAGES
-    /** Destination thread for message send (only in \p PRSNDMSG state). */
+    /** Destination thread for message send (only in \p PRSNDMSG state).*/
     Thread          *p_wtthdp;
 #endif
 #ifdef CH_USE_EVENTS
-    /** Enabled events mask (only while in \p PRWTEVENT state). */
+    /** Enabled events mask (only while in \p PRWTOREVT or \p PRWTANDEVT
+        states). */
     eventmask_t     p_ewmask;
 #endif
 #ifdef CH_USE_TRACE
     /** Kernel object where the thread is waiting on. It is only valid when
-        the thread is some sleeping states. */
+        the thread is some sleeping states.*/
     void            *p_wtobjp;
 #endif
   };
@@ -127,17 +132,22 @@ struct Thread {
 /** Thread state: Waiting on a mutex. */
 #define PRWTMTX     4
 /** Thread state: Waiting in \p chThdSleep() or \p chThdSleepUntil(). */
-#define PRSLEEP     5
+#define PRWTCOND    5
+/** Thread state: Waiting in \p chCondWait(). */
+#define PRSLEEP     6
 /** Thread state: Waiting in \p chThdWait(). */
-#define PRWAIT      6
-/** Thread state: Waiting in \p chEvtWait(). */
-#define PRWTEVENT   7
+#define PRWAIT      7
+/** Thread state: Waiting in \p chEvtWaitOneTimeout() or
+    \p chEvtWaitAnyTimeout(). */
+#define PRWTOREVT   8
+/** Thread state: Waiting in \p chEvtWaitAllTimeout(). */
+#define PRWTANDEVT  9
 /** Thread state: Waiting in \p chMsgSend(). */
-#define PRSNDMSG    8
+#define PRSNDMSG    10
 /** Thread state: Waiting in \p chMsgWait(). */
-#define PRWTMSG     9
+#define PRWTMSG     11
 /** Thread state: After termination.*/
-#define PREXIT      10
+#define PREXIT      12
 
 /*
  * Various flags into the thread p_flags field.
@@ -148,19 +158,6 @@ struct Thread {
 #define P_MEM_MODE_MEMPOOL      2       /* Thread memory mode: mempool. */
 #define P_TERMINATE             4       /* Termination requested.       */
 #define P_SUSPENDED             8       /* Create suspended (old).      */
-
-/** Pseudo priority used by the ready list header, do not use.*/
-#define NOPRIO      0
-/** Idle thread priority.*/
-#define IDLEPRIO    1
-/** Lowest user priority.*/
-#define LOWPRIO     2
-/** Normal user priority.*/
-#define NORMALPRIO  64
-/** Highest user priority.*/
-#define HIGHPRIO    127
-/** Greatest possible priority.*/
-#define ABSPRIO     255
 
 /* Not an API, don't use into the application code.*/
 Thread *init_thread(Thread *tp, tprio_t prio);

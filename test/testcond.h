@@ -17,11 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTBMK_H_
-#define _TESTBMK_H_
+#ifndef _TESTCOND_H_
+#define _TESTCOND_H_
 
-extern const struct testcase testbmk1, testbmk2, testbmk3,
-                             testbmk4, testbmk5, testbmk6,
-                             testbmk7, testbmk8;
+extern const struct testcase testcond1;
+extern const struct testcase testcond2;
 
-#endif /* _TESTBMK_H_ */
+#endif /* _TESTCOND_H_ */

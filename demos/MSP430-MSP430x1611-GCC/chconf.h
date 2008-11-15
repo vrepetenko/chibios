@@ -60,13 +60,24 @@
  * the kernel.*/
 #define CH_USE_MUTEXES
 
+/** Configuration option: if specified then the Conditional Variables APIs are
+ *  included in the kernel.
+ * @note requires \p CH_USE_MUTEXES.*/
+#define CH_USE_CONDVARS
+
+/** Configuration option: if specified then the Conditional Variables APIs are
+ *  included in the kernel.
+ * @note requires \p CH_USE_CONDVARS and \p CH_USE_MUTEXES.*/
+#define CH_USE_CONDVARS_TIMEOUT
+
 /** Configuration option: if specified then the Events APIs are included in
  *  the kernel.*/
 #define CH_USE_EVENTS
 
-/** Configuration option: if specified then the \p chEvtWaitTimeout()
- *  function is included in the kernel.
- * @note requires \p CH_USE_EVENTS.*/
+/** Configuration option: if specified then the \p chEvtWaitXXXTimeout()
+ * functions are included in the kernel.
+ * @note requires \p CH_USE_EVENTS.
+ */
 #define CH_USE_EVENTS_TIMEOUT
 
 /** Configuration option: if specified then the Synchronous Messages APIs are
@@ -122,11 +133,11 @@
  *       provide the \p __heap_base__ and \p __heap_end__ symbols.
  * @note requires \p CH_USE_HEAP.
  */
-#define CH_HEAP_SIZE 0
+#define CH_HEAP_SIZE 512
 
 /** Configuration option: enforces the use of the C-runtime \p malloc() and
  *  \p free() functions as backend for the system heap allocator.*/
-#define CH_USE_MALLOC_HEAP
+//#define CH_USE_MALLOC_HEAP
 
 /** Configuration option: if specified then the memory pools allocator APIs
  *  are included in the kernel.*/

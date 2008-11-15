@@ -55,15 +55,23 @@
  * the kernel.*/
 #define CH_USE_MUTEXES
 
+/** Configuration option: if specified then the Conditional Variables APIs are
+ *  included in the kernel.
+ * @note requires \p CH_USE_MUTEXES.*/
+#define CH_USE_CONDVARS
+
+/** Configuration option: if specified then the Conditional Variables APIs are
+ *  included in the kernel.
+ * @note requires \p CH_USE_CONDVARS and \p CH_USE_MUTEXES.*/
+#define CH_USE_CONDVARS_TIMEOUT
+
 /** Configuration option: if specified then the Events APIs are included in
  *  the kernel.*/
 #define CH_USE_EVENTS
 
-/** Configuration option: if specified then the
- *  \p chThdGetExitEventSource() function is included in the kernel.
+/** Configuration option: if specified then the \p chEvtWaitXXXTimeout()
+ * functions are included in the kernel.
  * @note requires \p CH_USE_EVENTS.
- * @deprecated \p THREAD_EXT_EXIT should be used, this functionality will be
- *             removed in version 1.0.0.
  */
 #define CH_USE_EVENTS_TIMEOUT
 
@@ -84,7 +92,9 @@
 /** Configuration option: if specified then the
  *  \p chThdGetExitEventSource() function is included in the kernel.
  * @note requires \p CH_USE_MESSAGES.
- * @note requires \p CH_USE_EVENTS.*/
+ * @note requires \p CH_USE_EVENTS.
+ * @deprecated \p THREAD_EXT_EXIT should be used, this functionality will be
+ *             removed in version 1.0.0.*/
 #define CH_USE_EXIT_EVENT
 
 /** Configuration option: if specified then the I/O queues APIs are included
@@ -157,8 +167,8 @@
 //#define CH_CURRP_REGISTER_CACHE "r7"
 
 /** Configuration option: Includes basic debug support to the kernel.
- *  @note the debug support is port-dependent, it may be not present on some
- *       targets. In that case stub functions will be included.
+ *  @note The debug support is port-dependent, it may be not present on some
+ *        targets. In that case stub functions will be included.
  */
 //#define CH_USE_DEBUG
 
