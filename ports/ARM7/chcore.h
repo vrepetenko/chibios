@@ -20,39 +20,50 @@
 #ifndef _CHCORE_H_
 #define _CHCORE_H_
 
+/*
+ * Macro defining the ARM7 architecture.
+ */
 #define CH_ARCHITECTURE_ARM7
 
-typedef void *regarm;
+/*
+ * 32 bit stack alignment.
+ */
+typedef uint32_t stkalign_t;
+
+/*
+ * Generic ARM register.
+ */
+typedef void *regarm_t;
 
 /*
  * Interrupt saved context.
  */
 struct extctx {
-  regarm  spsr_irq;
-  regarm  lr_irq;
-  regarm  r0;
-  regarm  r1;
-  regarm  r2;
-  regarm  r3;
-  regarm  r12;
-  regarm  lr_usr;
+  regarm_t      spsr_irq;
+  regarm_t      lr_irq;
+  regarm_t      r0;
+  regarm_t      r1;
+  regarm_t      r2;
+  regarm_t      r3;
+  regarm_t      r12;
+  regarm_t      lr_usr;
 };
 
 /*
  * System saved context.
  */
 struct intctx {
-  regarm  r4;
-  regarm  r5;
-  regarm  r6;
+  regarm_t      r4;
+  regarm_t      r5;
+  regarm_t      r6;
 #ifndef CH_CURRP_REGISTER_CACHE
-  regarm  r7;
+  regarm_t      r7;
 #endif
-  regarm  r8;
-  regarm  r9;
-  regarm  r10;
-  regarm  r11;
-  regarm  lr;
+  regarm_t      r8;
+  regarm_t      r9;
+  regarm_t      r10;
+  regarm_t      r11;
+  regarm_t      lr;
 };
 
 /*
@@ -113,13 +124,19 @@ extern "C" {
 #else /* !THUMB */
 #define INT_REQUIRED_STACK 0
 #endif /* !THUMB */
-#define StackAlign(n) ((((n) - 1) | 3) + 1)
-#define UserStackSize(n) StackAlign(sizeof(Thread) +                    \
-                                    sizeof(struct intctx) +             \
-                                    sizeof(struct extctx) +             \
-                                    (n) +                               \
-                                    INT_REQUIRED_STACK)
-#define WorkingArea(s, n) uint32_t s[UserStackSize(n) >> 2];
+
+#define STACK_ALIGN(n) ((((n) - 1) | sizeof(stkalign_t)) + 1)
+#define StackAlign(n) STACK_ALIGN(n)
+
+#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                     \
+                                   sizeof(struct intctx) +              \
+                                   sizeof(struct extctx) +              \
+                                   (n) +                                \
+                                   INT_REQUIRED_STACK)
+#define UserStackSize(n) THD_WA_SIZE(n)
+
+#define WORKING_AREA(s, n) stkalign_t s[THD_WA_SIZE(n) / sizeof(stkalign_t)];
+#define WorkingArea(s, n) WORKING_AREA(s, n)
 
 #ifdef THUMB
 #define chSysSwitchI chSysSwitchI_thumb
@@ -154,7 +171,7 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void _IdleThread(void *p) __attribute__((noreturn));
+  void _idle(void *p) __attribute__((weak, noreturn));
   void chSysHalt(void);
   void chSysSwitchI(Thread *otp, Thread *ntp);
   void chSysPuts(char *msg);

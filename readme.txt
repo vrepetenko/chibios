@@ -18,7 +18,7 @@
 ./ext/                 - External libraries or other code not part of
                          ChibiOS/RT but used in the demo applications.
 ./test/                - Test code, used by some demos.
-./docs/Doxifile        - Doxigen project file.
+./docs/Doxyfile        - Doxygen project file.
 ./docs/html/index.html - ChibiOS/RT documentation (after running doxigen).
                          The documentation is also available on the project
                          web page: http://chibios.sourceforge.net/
@@ -72,6 +72,29 @@ Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 0.8.2 ***
+- FIX: Included the files that were missing from version 0.8.1 distribution.
+- FIX: Duplicated sections in the documentation removed.
+- FIX: Minor problem in Cortex-M3 and AVR ports when the kernel is compiled
+  using G++.
+- NEW: Added chPoolAllocI() and chPoolFreeI() APIs in order to allow the use
+  of memory pools from interrupt handlers and timer callbacks.
+- CHANGE: Simplified the code for chThdWait(), it is now both smaller and
+  faster. Added an important usage note to the documentation of this API.
+- CHANGE: The macros WorkingArea(), UserStackSize() and StackAlign() are now
+  deprecated and will be removed in version 1.0.0. Use the new equivalents
+  WORKING_AREA(), THD_WA_SIZE() and STACK_ALIGN() instead.
+- CHANGE: Renamed the default idle thread function from _IdleThread() to
+          _idle().
+- Added to the LPC2148 and STM32 load scripts the options "ALIGN(16)
+  SUBALIGN(16)" to the flash loading section in order to enforce the alignment
+  for both the code and read only data. This is done in order to obtain more
+  accurate timings from benchmarks, those families have 16 bytes
+  prefetch buffers and are very sensitive to alignment changes.
+  You can remove those options in order to save some flash space if accurate
+  response time is not on top of your priorities, it mainly depends on your
+  requirements.
 
 *** 0.8.1 ***
 - FIX: Fixed a regression in version 0.8.0, the configuration switch

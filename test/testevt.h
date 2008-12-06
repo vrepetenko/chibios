@@ -17,38 +17,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <ch.h>
+#ifndef _TESTEVT_H_
+#define _TESTEVT_H_
 
-#include "lpc214x.h"
+extern const struct testcase testevt1;
 
-/*
- * System idle thread loop.
- */
-void _idle(void *p) {
-
-  while (TRUE) {
-// Note, it is disabled because it causes trouble with the JTAG probe.
-// Enable it in the final code only.
-//    PCON = 1;
-  }
-}
-
-/*
- * System console message (not implemented).
- */
-void chSysPuts(char *msg) {
-}
-
-/*
- * System halt.
- */
-__attribute__((naked, weak))
-void chSysHalt(void) {
-
-#ifdef THUMB
-  asm volatile ("ldr      r0, =_halt16");
-  asm volatile ("bx       r0");
-#else
-  asm volatile ("b        _halt32");
-#endif
-}
+#endif /* _TESTEVT_H_ */
