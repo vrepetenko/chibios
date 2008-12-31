@@ -23,9 +23,17 @@
 /*
  * Port-related configuration parameters.
  */
+#ifndef BASEPRI_USER
 #define BASEPRI_USER    0       /* User level BASEPRI, 0 = disabled.    */
+#endif
+
+#ifndef BASEPRI_KERNEL
 #define BASEPRI_KERNEL  0x10    /* BASEPRI level within kernel lock.    */
+#endif
+
+#ifndef ENABLE_WFI_IDLE
 #define ENABLE_WFI_IDLE 0       /* Enables the use of the WFI ins.      */
+#endif
 
 /*
  * Macro defining the ARM Cortex-M3 architecture.
@@ -118,26 +126,26 @@ typedef struct {
   asm volatile ("svc     #0" : : "r" (_otp), "r" (_ntp));               \
 }
 
-#define INT_REQUIRED_STACK 0
+#ifndef INT_REQUIRED_STACK
+#define INT_REQUIRED_STACK 0            /* NOTE: Always safe for this port. */
+#endif
 
 /*
  * Enforces a 32 bit alignment for a stack area size value.
  */
 #define STACK_ALIGN(n) ((((n) - 1) | sizeof(stkalign_t)) + 1)
-#define StackAlign(n) STACK_ALIGN(n)
 
 #define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                     \
                                    sizeof(struct intctx) +              \
                                    sizeof(struct extctx) +              \
                                    (n) +                                \
                                    INT_REQUIRED_STACK)
-#define UserStackSize(n) THD_WA_SIZE(n)
 
 #define WORKING_AREA(s, n) stkalign_t s[THD_WA_SIZE(n) / sizeof(stkalign_t)];
-#define WorkingArea(s, n) WORKING_AREA(s, n)
 
 /* called on each interrupt entry, currently nothing is done */
 #define chSysIRQEnterI()
+
 /* called on each interrupt exit, pends a supervisor handler for
  * execution after all higher priority interrupts; PendSVVector() */
 #define chSysIRQExitI() {                                               \

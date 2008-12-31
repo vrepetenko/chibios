@@ -19,7 +19,7 @@
                          ChibiOS/RT but used in the demo applications.
 ./test/                - Test code, used by some demos.
 ./docs/Doxyfile        - Doxygen project file.
-./docs/html/index.html - ChibiOS/RT documentation (after running doxigen).
+./docs/html/index.html - ChibiOS/RT documentation.
                          The documentation is also available on the project
                          web page: http://chibios.sourceforge.net/
 
@@ -46,7 +46,8 @@ ARMCM3-ST32F103-GCC    - ARM Cortex-M3 port. The demo targets the Olimex
 AVR-AVRmega128-GCC     - Port on AVRmega128. A special thanks to Vladimir for
                          the work done on the AVR port. The demo program
                          targets the Olimex AVR-MT-128 mini terminal board.
-AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not tested on hardware yet.
+AVR-AT90CANx-GCC       - Port on AVR AT90CAN128, not tested on hardware yet. It
+                         ran correctly in the simulator.
 MSP430-MSP430x1611-GCC - Port on Texas Instruments MSP430F1611, the demo
                          targets the Olimex MSP430-P1611 board.
 Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
@@ -73,9 +74,40 @@ Win32-MinGW            - ChibiOS/RT simulator and demo into a WIN32 process,
 *** Releases                                                              ***
 *****************************************************************************
 
+*** 1.0.0rc1 ***
+- NEW: Added new macros CH_KERNEL_VERSION set to "1.0.0rc1", CH_KERNEL_MAJOR
+  set to 1, CH_KERNEL_MINOR set to 0, CH_KERNEL_PATCH set to 0.
+  The macros will be updated to reflect the actual kernel version number.
+- NEW: Made all the port-specific configuration settings externally
+  configurable, see the documentation.
+- FIX: Disabled the configuration option CH_USE_MESSAGES_PRIORITY from the
+  MSP430 demo, the default for this option should be off.
+- FIX: Fixed a bug that prevented the THREAD_EXT_FIELDS to be compiled into
+  the Thread structure.
+- FIX: Removed some references to deprecated APIs from the test suite.
+- FIX: Set the INT_REQUIRED_STACK configuration value for the ARM7 port to a
+  safer 0x10, it was previously 0 (correct but trimmed to specific compiler
+  settings).
+- FIX: Set the INT_REQUIRED_STACK configuration value for the AVR port to a 
+  safer 32.
+- FIX: Fixed the MinGW demo in order to not use any deprecated construct.
+- Removed deprecated threads APIs: chThdCreate() and chThdCreateFast().
+- Removed deprecated events APIs: chEvtWait(), chEvtWaitTimeout(), chEvtSend(),
+  chEvtSendI(), EventMask().
+- Removed deprecated configuration feature CH_USE_EXIT_EVENT and the related
+  API chThdGetExitEventSource(). The feature can be reimplemented in user code
+  as shown by the MinGW demo.
+- Removed deprecated macros: WorkingArea(), UserStackSize(), StackAlign().
+- Added usage note into the readme of the MinGW demo.
+- Added usage notes for programmers to the ARM7 port documentation about
+  interrupt handlers.
+- Port-specific settings added to the documentation.
+- Added source browser to the documentation.
+- Fixes and improvements through the documentation.
+
 *** 0.8.3 ***
 - NEW: Introduced new API chThdSleepS() as a macro, no real changes in the
-       kernel code.
+  kernel code.
 - FIX: The MinGW simulated demo now works again after breaking in 0.8.2
   because the changes to the macro names.
 - FIX: Adjusted the test suite stack sizes for the MinGW simulated demo, now

@@ -94,10 +94,6 @@ struct Thread {
   /** The list of the threads waiting for this thread termination. */
   Thread                *p_waiting;
 #endif
-#ifdef CH_USE_EXIT_EVENT
-  /** The thread termination \p EventSource. */
-  EventSource           p_exitesource;
-#endif
 #ifdef CH_USE_MESSAGES
   ThreadsQueue          p_msgqueue;
   msg_t                 p_msg;
@@ -116,9 +112,8 @@ struct Thread {
   /** Memory Pool where the thread workspace is returned. */
   void                  *p_mpool;
 #endif
-#ifdef CH_USE_THREAD_EXT
+  /* Extra fields defined in chconf.h */
   THREAD_EXT_FIELDS
-#endif
 };
 
 /** Thread state: Ready to run, waiting on the ready list.*/
@@ -183,8 +178,6 @@ extern "C" {
   Thread *chThdCreateFromMemoryPool(MemoryPool *mp, tprio_t prio,
                                     tfunc_t pf, void *arg);
 #endif
-  Thread *chThdCreate(tprio_t prio, tmode_t mode, void *workspace,
-                      size_t wsize, tfunc_t pf, void *arg);
   void chThdSetPriority(tprio_t newprio);
   Thread *chThdResume(Thread *tp);
   void chThdSuspend(Thread **tpp);
@@ -217,53 +210,11 @@ extern "C" {
 #define chThdShouldTerminate() (currp->p_flags & P_TERMINATE)
 
 /**
- * Returns the exit event source for the specified thread. The source is
- * signaled when the thread terminates.
- * @param tp the pointer to the thread
- * @note When registering on a thread termination make sure the thread
- *       is still alive, if you do that after the thread termination
- *       then you would miss the event. There are two ways to ensure
- *       this:<br>
- *       <ul>
- *       <li>Create the thread suspended, register on the event source
- *           and then resume the thread (recommended).</li>
- *       <li>Create the thread with a lower priority then register on it.
- *           This does not work if the hardware is capable of multiple
- *           physical threads.</li>
- *       </ul>
- * @note You dont need to unregister from a terminated thread because
- *       the event source becomes inactive.
- * @note The function is available only if the \p CH_USE_EXIT_EVENT
- *       option is enabled in \p chconf.h.
- * @deprecated \p THREAD_EXT_EXIT should be used, this functionality will be
- *             removed in version 1.0.0.
- */
-#define chThdGetExitEventSource(tp) (&(tp)->p_exitesource)
-
-/**
  * Resumes a thread created with the \p P_SUSPENDED option or suspended with
  * \p chThdSuspend().
  * @param tp the pointer to the thread
  */
 #define chThdResumeI(tp) chSchReadyI(tp)
-
-/**
- * Creates a new thread, simplified variant.
- * @param prio the priority level for the new thread. Usually the threads are
- *             created with priority \p NORMALPRIO, priorities
- *             can range from \p LOWPRIO to \p HIGHPRIO.
- * @param workspace pointer to a working area dedicated to the thread stack
- * @param wsize size of the working area.
- * @param pf the thread function
- * @return the pointer to the \p Thread structure allocated for the
- *         thread into the working space area.
- * @note A thread can terminate by calling \p chThdExit() or by simply
- *       returning from its main function.
- * @deprecated Please use \p chThdCreateStatic() or \p chThdInit() instead,
- *             this function will be removed in version 1.0.0.
- */
-#define chThdCreateFast(prio, workspace, wsize, pf) \
-        chThdCreateStatic(workspace, wsize, prio, pf, NULL)
 
 /**
  * Suspends the invoking thread for the specified time.

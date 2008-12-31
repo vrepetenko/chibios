@@ -119,24 +119,23 @@ extern "C" {
 #endif /* !REENTRANT_LOCKS */
 #endif /* THUMB */
 
+#ifndef INT_REQUIRED_STACK
 #ifdef THUMB
 #define INT_REQUIRED_STACK 0x10
 #else /* !THUMB */
-#define INT_REQUIRED_STACK 0
+#define INT_REQUIRED_STACK 0x10
 #endif /* !THUMB */
+#endif
 
 #define STACK_ALIGN(n) ((((n) - 1) | sizeof(stkalign_t)) + 1)
-#define StackAlign(n) STACK_ALIGN(n)
 
 #define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                     \
                                    sizeof(struct intctx) +              \
                                    sizeof(struct extctx) +              \
                                    (n) +                                \
                                    INT_REQUIRED_STACK)
-#define UserStackSize(n) THD_WA_SIZE(n)
 
 #define WORKING_AREA(s, n) stkalign_t s[THD_WA_SIZE(n) / sizeof(stkalign_t)];
-#define WorkingArea(s, n) WORKING_AREA(s, n)
 
 #ifdef THUMB
 #define chSysSwitchI chSysSwitchI_thumb

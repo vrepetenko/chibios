@@ -19,11 +19,10 @@
  *       sources while serving message queues.</li>
  *   </ul>
  * <li>PC simulator target included, the development can be done on the PC
- *     using MinGW or VS.
+ *     using MinGW.<br>
  *     Timers, I/O channels and other HW resources are simulated in a
  *     Win32 process and the application code does not need to be aware of it.
- *     MinGW and VS demos available and ready to go, use them as templates for
- *     your application.</li>
+ *     MinGW demo available.</li>
  * <li>Preemptive scheduling.</li>
  * <li>128 priority levels.</li>
  * <li>Multiple threads at the same priorily level allowed.</li>
@@ -65,7 +64,7 @@
  * ChibiOS/RT APIs are all named following this convention:
  * \a ch\<group\>\<action\>\<suffix\>().
  * The possible groups are: \a Sys, \a Sch, \a VT, \a Thd, \a Sem, \a Mtx,
- * \a Evt, \a Msg, \a IQ, \a OQ, \a HQ,\a FDD, \a HDD, \a Dbg.
+ * \a Evt, \a Msg, \a IQ, \a OQ, \a HQ,\a FDD, \a HDD, \a Dbg, \a Heap, \a Pool.
  * The suffix is not present for normal APIs but can be one of
  * the following: "I" for APIs meant to be invoked within the system mutex
  * zone, "S" for APIs only useable from within the system mutex zone but not
@@ -73,14 +72,14 @@
  * The APIs without suffix can be invoked only from the user code outsize the
  * system mutex zone and not from interrupt handlers unless differently
  * specified.<br>
- * Examples: \p chThdCreate(), \p chSemSignalI(), \p chIQGetTimeout().
+ * Examples: \p chThdCreateStatic(), \p chSemSignalI(), \p chIQGetTimeout().
  *
  * @section scheduling Scheduling
  * The strategy is very simple the currently ready thread with the highest
  * priority is executed. If more than one thread with equal priority are
  * eligible for execution then they are executed in a round-robin way, the
  * CPU time slice constant is configurable. The ready list is a double linked
- * list of threads ordered by priority.
+ * list of threads ordered by priority.<br><br>
  * @image html readylist.png
  * Note that the currently running thread is not in the ready list, the list
  * only contains the threads ready to be executed but still actually waiting.
@@ -90,19 +89,26 @@
  * @image html states.png
  *
  * @section warea Thread Working Area
- * Each thread has its own stack, a Thread structure and a registers dump
- * structure. All the structures are allocated into a "Thread working area",
+ * Each thread has its own stack, a Thread structure and some preemption
+ * areas. All the structures are allocated into a "Thread working area",
  * a thread private heap, usually allocated in a char array declared in your
  * code, there is not a central threads table or list, this means you can
  * have as many threads you want as long you have enough available RAM
  * memory. The threads do not use any memory outside the allocated working
- * area.<br>
+ * area.<br><br>
  * @image html workspace.png
  * <br>
- * Note that the registers dump is only present when the Thread is not
- * running, the context switching is done by pushing the registers on the
- * stack of the switched-out thread and popping the registers of the
- * switched-in thread from its stack.
+ * Note that the preemption area is only present when the thread is not
+ * running (switched out), the context switching is done by pushing the
+ * registers on the stack of the switched-out thread and popping the registers
+ * of the switched-in thread from its stack.
+ * The preemption area can be divided in up to three structures:
+ * - External context.
+ * - Interrupt stack.
+ * - Internal context.
+ *
+ * See the @ref Core documentation for details, the area may change on
+ * the various ports and some structures may not be present (or be zero-sized).
  *
  * @section sysmutex System Mutex Zone
  * It is the code within the OS that cannot be preempted, this code is
@@ -140,6 +146,21 @@
  * @defgroup ARM7 ARM7TDMI
  * @{
  * <p>
+ * The ARM7 port supports 3 modes:
+ * </p>
+ * <ul>
+ * <li>Pure ARM mode, this is the preferred mode for code speed. The code size
+ *     is larger however. This mode is enabled when all the modules are compiled
+ *     in ARM mode, see the Makefiles.</li>
+ * <li>Pure THUMB mode, this is the preferred mode for code size. In this mode
+ *     the execution speed is slower than the ARM mode. This mode is enabled
+ *     when all the modules are compiled in THUMB mode, see the Makefiles.</li>
+ * <li>Interworking mode, when in the sistem there are ARM modules mixed with
+ *     THUMB modules then the interworking compiler option is enabled. This is
+ *     usually the slowest mode and the code size is not as good as in pure
+ *     THUMB mode.</li>
+ * </ul>
+ * <p>
  * The ARM7 port makes some assumptions on the application code organization:
  * <ul>
  * <li>The \p main() function is invoked in system mode.</li>
@@ -158,13 +179,61 @@
  *     implementation, even if possible, is not really efficient in this
  *     architecture.</li>
  * <li>FIQ sources can preempt the kernel (by design) so it is not possible to
- *     invoke the kernel APIs from inside a FIQ handler.</li>
+ *     invoke the kernel APIs from inside a FIQ handler. FIQ handlers are not
+ *     affected by the kernel activity so there is not added jitter.</li>
+ * <li>Interrupt handlers do not save function-saved registers so you need to
+ *     make sure your code saves them or does not use them (this happens
+ *     because in the ARM7 port all the OS interrupt handlers are declared
+ *     naked).<br>
+ *     Function-trashed registers (R0-R3,R12,LR,SR) are saved/restored by the
+ *     system macros \p chSysIRQEnterI() and \p chSysIRQExitI().<br>
+ *     The easiest way to ensure this is to just invoke a function from within
+ *     the interrupt handler, the function code will save all the required
+ *     registers.<br>
+ *     Example:
+ * @code
+ * __attribute__((naked, weak))
+ * void irq_handler(void) {
+ *   chSysIRQEnterI();
+ *
+ *   serve_interrupt();
+ *
+ *   VICVectAddr = 0; // This is LPC214x-specific.
+ *   chSysIRQExitI();
+ * }
+ * @endcode
+ *     This is not a bug but an implementation choice, this solution allows to
+ *     have interrupt handlers compiled in thumb mode without have to use an
+ *     interworking mode (the mode switch is hidden in the macros), this
+ *     greatly improves code efficiency and size. You can look at the serial
+ *     driver for real examples of interrupt handlers.</li>
  * </ul>
  * </p>
- * <p>
- * The ARM7 port is shared by multiple demos targeted to various implementations:
- * </p>
  * @ingroup Ports
+ */
+/** @} */
+
+/**
+ * @defgroup ARM7CONF Configuration Options
+ * @{
+ * <p>
+ * The ARM7 port allows some architecture-specific configurations settings
+ * that can be specified externally, as example on the compiler command line:
+ * <ul>
+ * <li>@p INT_REQUIRED_STACK, this value represent the amount of stack space used
+ *     by an interrupt handler between the @p extctx and @p intctx
+ *     structures.<br>
+ *     In practice this value is the stack space used by the chSchDoReschedule()
+ *     stack frame.<br>
+ *     This value can be affected by a variety of external things like compiler
+ *     version, compiler options, kernel settings (speed/size) and so on.<br>
+ *     The default for this value is @p 0x10 which should be a safe value, you
+ *     can trim this down by defining the macro externally. This would save
+ *     some valuable RAM space for each thread present in the system.<br>
+ *     The default value is set into <b>./ports/ARM7/chcore.h</b>.</li>
+ * </ul>
+ * </p>
+ * @ingroup ARM7
  */
 /** @} */
 
@@ -195,7 +264,9 @@
  * The AT91SAM7X support includes:
  * <ul>
  * <li>Buffered, interrupt driven, serial driver.</li>
+ * <li>EMAC driver with MII support.</li>
  * <li>A demo supporting the kernel test suite.</li>
+ * <li>A Web server demo using the uIP TCP/IP stack.</li>
  * </ul>
  * </p>
  * @ingroup ARM7
@@ -218,7 +289,9 @@
  *     0x00 (disabled).</li>
  * <li>The kernel raises its BASEPRI level to 0x10 in order to protect the
  *     system mutex zones. Note that exceptions with level 0x00 can preempt
- *     the kernel, such exception handlers cannot invoke kernel APIs directly.</li>
+ *     the kernel, such exception handlers cannot invoke kernel APIs directly.
+ *     It is possible to modify the priority levels by editing the
+ *     <b>./ports/ARMCM3/chcore.h</b> file.</li>
  * <li>Interrupt nesting and the other advanced NVIC features are supported.</li>
  * <li>The SVC instruction and vector, with parameter #0,  is internally used
  *     for commanded context switching.<br>
@@ -229,6 +302,39 @@
  * @ingroup Ports
  */
 /** @} */
+
+/**
+ * @defgroup ARMCM3CONF Configuration Options
+ * @{
+ * <p>
+ * The ARMCM3 port allows some architecture-specific configurations settings
+ * that can be specified externally, as example on the compiler command line:
+ * <ul>
+ * <li>@p INT_REQUIRED_STACK, this value represent the amount of stack space used
+ *     by an interrupt handler between the @p extctx and @p intctx
+ *     structures.<br>
+ *     In the current implementation this value is guaranteed to be zero so
+ *     there is no need to modify this value unless changes are done at the
+ *     interrupts handling code.</li>
+ * <li>@p BASEPRI_USER, this is the @p BASEPRI value for the user threads. The
+ *     default value is @p 0 (disabled).<br>
+ *     Usually there is no need to change this value, please refer to the
+ *     Cortex-M3 technical reference manual for a detailed description.</li>
+ * <li>@p BASEPRI_KERNEL, this is the @p BASEPRI value for the kernel lock code.
+ *     The default value is 0x10.<br>
+ *     Code running at higher priority levels must not invoke any OS API.<br>
+ *     Usually there is no need to change this value, please refer to the
+ *     Cortex-M3 technical reference manual for a detailed description.</li>
+ * <li>@p ENABLE_WFI_IDLE, if set to @p 1 enables the use of the @p wfi
+ *     instruction from within the idle loop. This is defaulted to 0 because
+ *     it can create problems with some debuggers. Setting this option to 1
+ *     reduces the system power requirements.</li>
+ * </ul>
+ * </p>
+ * @ingroup ARMCM3
+ */
+/** @} */
+
 
 /**
  * @defgroup STM32F103 STM32F103 Support
@@ -253,9 +359,28 @@
  * <ul>
  * <li>The AVR does not have a dedicated interrupt stack, make sure to reserve
  *     enough stack space for interrupts in each thread stack. This can be done
- *     by modifying the \p INT_REQUIRED_STACK macro into \p ports/AVR/chcore.h.</li>
+ *     by modifying the \p INT_REQUIRED_STACK macro into
+ *     <b>./ports/AVR/chcore.h</b>.</li>
  * </ul>
  * @ingroup Ports
+ */
+/** @} */
+
+/**
+ * @defgroup AVRCONF Configuration Options
+ * @{
+ * <p>
+ * The AVR port allows some architecture-specific configurations settings
+ * that can be specified externally, as example on the compiler command line:
+ * <ul>
+ * <li>@p INT_REQUIRED_STACK, this value represent the amount of stack space
+ *     used by the interrupt handlers.<br>
+ *     The default for this value is @p 32, this space is allocated for each
+ *     thread so be careful in order to not waste precious RAM space.<br>
+ *     The default value is set into <b>./ports/AVR/chcore.h</b>.</li>
+ * </ul>
+ * </p>
+ * @ingroup AVR
  */
 /** @} */
 
@@ -266,12 +391,30 @@
  * Notes about the MSP430 port:
  * </p>
  * <ul>
- * <li>In the current version the MSP430 port is still untested.</li>
  * <li>The MSP430 does not have a dedicated interrupt stack, make sure to reserve
  *     enough stack space for interrupts in each thread stack. This can be done
- *     by modifying the \p INT_REQUIRED_STACK macro into \p ports/MSP430/chcore.h.</li>
+ *     by modifying the \p INT_REQUIRED_STACK macro into
+ *     <b>./ports/MSP430/chcore.h</b>.</li>
  * </ul>
  * @ingroup Ports
+ */
+/** @} */
+
+/**
+ * @defgroup MSP430CONF Configuration Options
+ * @{
+ * <p>
+ * The MSP430 port allows some architecture-specific configurations settings
+ * that can be specified externally, as example on the compiler command line:
+ * <ul>
+ * <li>@p INT_REQUIRED_STACK, this value represent the amount of stack space
+ *     used by the interrupt handlers.<br>
+ *     The default for this value is @p 32, this space is allocated for each
+ *     thread so be careful in order to not waste precious RAM space.<br>
+ *     The default value is set into <b>./ports/MSP430/chcore.h</b>.</li>
+ * </ul>
+ * </p>
+ * @ingroup MSP430
  */
 /** @} */
 
@@ -296,6 +439,25 @@
  * Non portable code.
  * @ingroup Kernel
  * @file chcore.c Non portable code.
+ * @file chcore.h Non portable macros and structures.
+ */
+/** @} */
+
+/**
+ * @defgroup Types Types
+ * @{
+ * System types and macros.
+ * @ingroup Kernel
+ * @file chtypes.h System types and code modifiers.
+ */
+/** @} */
+
+/**
+ * @defgroup Inline Inline
+ * @{
+ * System inline-able code.
+ * @ingroup Kernel
+ * @file inline.h Inline versions of some critical system routines.
  */
 /** @} */
 
@@ -484,10 +646,10 @@
  * An unlimited number of Event Sources can exists in a system and each
  * thread can listen on an unlimited number of them.<br>
  * Note that the events can be asynchronously generated but are synchronously
- * served, a thread can serve event by calling the \p chEvtWait()
+ * served, a thread can serve event by calling a \p chEvtWaitXXX()
  * API. If an event is generated while a listening thread is not ready to
  * serve it then the event becomes "pending" and will be served as soon the
- * thread invokes the \p chEvtWait().<br>
+ * thread invokes a \p chEvtWaitXXX().<br>
  * In order to use the Event APIs the \p CH_USE_EVENTS option must be
  * specified in \p chconf.h.
  * @file events.h Events macros and structures.
