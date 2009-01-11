@@ -62,12 +62,11 @@ typedef struct {
 } Context;
 
 /**
- * Platform dependent part of the \p chThdCreate() API.
+ * Platform dependent part of the @p chThdInit() API.
  * This code usually setup the context switching frame represented by a
  * @p intctx structure.
  */
-#define SETUP_CONTEXT(workspace, wsize, pf, arg)                        \
-{                                                                       \
+#define SETUP_CONTEXT(workspace, wsize, pf, arg) {                      \
 }
 
 /**
@@ -95,10 +94,10 @@ typedef struct {
  /**
   * Computes the thread working area global size.
   */
-#define THD_WA_SIZE(n) StackAlign(sizeof(Thread) +                      \
-                                  sizeof(struct intctx) +               \
-                                  sizeof(struct extctx) +               \
-                                  (n) + (INT_REQUIRED_STACK))
+#define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                     \
+                                   sizeof(struct intctx) +              \
+                                   sizeof(struct extctx) +              \
+                                   (n) + (INT_REQUIRED_STACK))
 
 /**
  * Macro used to allocate a thread working area aligned as both position and
