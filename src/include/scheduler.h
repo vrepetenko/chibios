@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,11 +15,16 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
- * @file scheduler.h
- * @brief Scheduler macros and structures.
  * @addtogroup Scheduler
  * @{
  */
@@ -27,55 +32,52 @@
 #ifndef _SCHEDULER_H_
 #define _SCHEDULER_H_
 
-/** Default thread wakeup low level message. */
+/** Normal \p chSchReadyI() message. */
 #define RDY_OK          0
-/** Low level message sent to a thread awakened by a timeout. */
+/** Returned when the thread was made ready because of a timeout. */
 #define RDY_TIMEOUT     -1
-/** Low level message sent to a thread awakened by a reset operation. */
+/** Returned when the thread was made ready because of a reset. */
 #define RDY_RESET       -2
 
-#define NOPRIO          0               /**< Ready list header priority.*/
-#define IDLEPRIO        1               /**< Idle thread priority.*/
-#define LOWPRIO         2               /**< Lowest user priority.*/
-#define NORMALPRIO      64              /**< Normal user priority.*/
-#define HIGHPRIO        127             /**< Highest user priority.*/
-#define ABSPRIO         255             /**< Greatest possible priority.*/
+/** Pseudo priority used by the ready list header, do not use.*/
+#define NOPRIO          0
+/** Idle thread priority.*/
+#define IDLEPRIO        1
+/** Lowest user priority.*/
+#define LOWPRIO         2
+/** Normal user priority.*/
+#define NORMALPRIO      64
+/** Highest user priority.*/
+#define HIGHPRIO        127
+/** Greatest possible priority.*/
+#define ABSPRIO         255
 
-/**
- * Zero time specification for some syscalls with a timeout
- * specification.
- * @note Not all functions accept @p TIME_IMMEDIATE as timeout parameter,
- *       see the specific function documentation.
- */
-#define TIME_IMMEDIATE  ((systime_t)-1)
-
-/**
- * Infinite time specification for all the syscalls with a timeout
- * specification.
- */
-#define TIME_INFINITE   ((systime_t)0)
+/** Infinite time specification for all the syscalls with a timeout
+    specification.*/
+#define TIME_INFINITE   0
 
 /** The priority of the first thread on the given ready list. */
 #define firstprio(rlp)  ((rlp)->p_next->p_prio)
 
 /**
- * @brief Ready list header.
- *
+ * Ready list header.
  * @extends ThreadsQueue
  */
 typedef struct {
-  Thread                *p_next;        /**< Next @p Thread in the ready list.*/
-  Thread                *p_prev;        /**< Previous @p Thread in the ready
-                                             list.*/
+  /** Next \p Thread in the ready list.*/
+  Thread                *p_next;
+  /** Previous \p Thread in the ready list.*/
+  Thread                *p_prev;
   /* End of the fields shared with the ThreadsQueue structure. */
-  tprio_t               r_prio;         /**< This field must be initialized to
-                                             zero.*/
+  /** The thread priority.*/
+  tprio_t               r_prio;
   /* End of the fields shared with the Thread structure. */
-#if CH_USE_ROUNDROBIN
-  cnt_t                 r_preempt;      /**< Round robin counter.*/
+#ifdef CH_USE_ROUNDROBIN
+  cnt_t                 r_preempt;
 #endif
 #ifndef CH_CURRP_REGISTER_CACHE
-  Thread                *r_current;     /**< The currently running thread.*/
+  /** the currently running thread */
+  Thread                *r_current;
 #endif
 } ReadyList;
 
@@ -87,7 +89,7 @@ extern ReadyList rlist;
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void scheduler_init(void);
+  void chSchInit(void);
   Thread *chSchReadyI(Thread *tp);
   void chSchGoSleepS(tstate_t newstate);
   msg_t chSchGoSleepTimeoutS(tstate_t newstate, systime_t time);

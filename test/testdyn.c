@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,13 +15,20 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include <ch.h>
 
 #include "test.h"
 
-#if CH_USE_DYNAMIC
+#ifdef CH_USE_DYNAMIC
 
 static msg_t thread(void *p) {
 
@@ -29,10 +36,16 @@ static msg_t thread(void *p) {
   return 0;
 }
 
-#if CH_USE_HEAP
+#ifdef CH_USE_HEAP
 static char *dyn1_gettest(void) {
 
   return "Dynamic APIs, threads creation from heap";
+}
+
+static void dyn1_setup(void) {
+}
+
+static void dyn1_teardown(void) {
 }
 
 static void dyn1_execute(void) {
@@ -52,27 +65,27 @@ static void dyn1_execute(void) {
                 (threads[2] == NULL) &&
                 (threads[3] == NULL) &&
                 (threads[4] == NULL),
-                "#1"); /* Thread creation failed.*/
+                "thread creation failed");
 
     /* Claiming the memory from terminated threads. */
     test_wait_threads();
     test_assert_sequence("AB");
 
     /* Heap status checked again.*/
-    test_assert(chHeapStatus(&n) == 1, "#2"); /* Heap fragmented.*/
-    test_assert(n == sz, "#3"); /* Heap size changed.*/
+    test_assert(chHeapStatus(&n) == 1, "heap fragmented");
+    test_assert(n == sz, "heap size changed");
   }
 }
 
 const struct testcase testdyn1 = {
   dyn1_gettest,
-  NULL,
-  NULL,
+  dyn1_setup,
+  dyn1_teardown,
   dyn1_execute
 };
 #endif /* CH_USE_HEAP */
 
-#if CH_USE_MEMPOOLS
+#ifdef CH_USE_MEMPOOLS
 static MemoryPool mp1;
 
 static char *dyn2_gettest(void) {
@@ -83,6 +96,9 @@ static char *dyn2_gettest(void) {
 static void dyn2_setup(void) {
 
   chPoolInit(&mp1, THD_WA_SIZE(THREADS_STACK_SIZE));
+}
+
+static void dyn2_teardown(void) {
 }
 
 static void dyn2_execute(void) {
@@ -105,7 +121,7 @@ static void dyn2_execute(void) {
               (threads[2] != NULL) &&
               (threads[3] != NULL) &&
               (threads[4] != NULL),
-              "#1"); /* Thread creation failed.*/
+              "thread creation failed");
 
   /* Claiming the memory from terminated threads. */
   test_wait_threads();
@@ -113,31 +129,16 @@ static void dyn2_execute(void) {
 
   /* Now the pool must be full again. */
   for (i = 0; i < 5; i++)
-    test_assert(chPoolAlloc(&mp1) != NULL, "#2"); /* Pool list empty.*/
-  test_assert(chPoolAlloc(&mp1) == NULL, "#3"); /* Pool list not empty.*/
+    test_assert(chPoolAlloc(&mp1) != NULL, "pool list empty");
+  test_assert(chPoolAlloc(&mp1) == NULL, "pool list not empty");
 }
 
 const struct testcase testdyn2 = {
   dyn2_gettest,
   dyn2_setup,
-  NULL,
+  dyn2_teardown,
   dyn2_execute
 };
 #endif /* CH_USE_MEMPOOLS */
 
 #endif /* CH_USE_DYNAMIC */
-
-/*
- * Test sequence for dynamic APIs pattern.
- */
-const struct testcase * const patterndyn[] = {
-#if CH_USE_DYNAMIC
-#if CH_USE_HEAP
-  &testdyn1,
-#endif
-#if CH_USE_MEMPOOLS
-  &testdyn2,
-#endif
-#endif
-  NULL
-};
