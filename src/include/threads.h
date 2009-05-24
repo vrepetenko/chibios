@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,13 +15,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -169,12 +162,12 @@ typedef msg_t (*tfunc_t)(void *);
 #ifdef __cplusplus
 extern "C" {
 #endif
-  Thread *chThdInit(void *workspace, size_t wsize,
+  Thread *chThdInit(void *wsp, size_t size,
                     tprio_t prio, tfunc_t pf, void *arg);
-  Thread *chThdCreateStatic(void *workspace, size_t wsize,
+  Thread *chThdCreateStatic(void *wsp, size_t size,
                             tprio_t prio, tfunc_t pf, void *arg);
 #if CH_USE_DYNAMIC && CH_USE_WAITEXIT && CH_USE_HEAP
-  Thread *chThdCreateFromHeap(size_t wsize, tprio_t prio,
+  Thread *chThdCreateFromHeap(size_t size, tprio_t prio,
                               tfunc_t pf, void *arg);
 #endif
 #if CH_USE_DYNAMIC && CH_USE_WAITEXIT && CH_USE_MEMPOOLS
