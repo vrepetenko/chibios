@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,12 +15,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include <ch.h>
 
 #include "test.h"
-#include "testthd.h"
+#include "testrdy.h"
 #include "testsem.h"
 #include "testmtx.h"
 #include "testmsg.h"
@@ -29,15 +36,13 @@
 #include "testheap.h"
 #include "testpools.h"
 #include "testdyn.h"
-#include "testqueues.h"
-#include "testserial.h"
 #include "testbmk.h"
 
 /*
  * Array of all the test patterns.
  */
 static const struct testcase **patterns[] = {
-  patternthd,
+  patternrdy,
   patternsem,
   patternmtx,
   patternmsg,
@@ -46,67 +51,53 @@ static const struct testcase **patterns[] = {
   patternheap,
   patternpools,
   patterndyn,
-  patternqueues,
-  patternserial,
   patternbmk,
   NULL
 };
 
 static bool_t local_fail, global_fail;
-static unsigned failpoint;
+static char *failmsg;
 static char tokens_buffer[MAX_TOKENS];
 static char *tokp;
+static WORKING_AREA(waT0, THREADS_STACK_SIZE);
+static WORKING_AREA(waT1, THREADS_STACK_SIZE);
+static WORKING_AREA(waT2, THREADS_STACK_SIZE);
+static WORKING_AREA(waT3, THREADS_STACK_SIZE);
+static WORKING_AREA(waT4, THREADS_STACK_SIZE);
 
-/*
- * Static working areas, the following areas can be used for threads or
- * used as temporary buffers.
- */
-WORKING_AREA(waT0, THREADS_STACK_SIZE);
-WORKING_AREA(waT1, THREADS_STACK_SIZE);
-WORKING_AREA(waT2, THREADS_STACK_SIZE);
-WORKING_AREA(waT3, THREADS_STACK_SIZE);
-WORKING_AREA(waT4, THREADS_STACK_SIZE);
-
-/*
- * Pointers to the spawned threads.
- */
+void *wa[MAX_THREADS] = {waT0, waT1, waT2, waT3, waT4};
 Thread *threads[MAX_THREADS];
-
-/*
- * Pointers to the working areas.
- */
-void * const wa[5] = {waT0, waT1, waT2, waT3, waT4};
 
 /*
  * Console output.
  */
-static BaseChannel *chp;
+static FullDuplexDriver *comp;
 
 void test_printn(uint32_t n) {
   char buf[16], *p;
 
   if (!n)
-    chIOPut(chp, '0');
+    chFDDPut(comp, '0');
   else {
     p = buf;
     while (n)
       *p++ = (n % 10) + '0', n /= 10;
     while (p > buf)
-      chIOPut(chp, *--p);
+      chFDDPut(comp, *--p);
   }
 }
 
 void test_print(char *msgp) {
 
   while (*msgp)
-    chIOPut(chp, *msgp++);
+    chFDDPut(comp, *msgp++);
 }
 
 void test_println(char *msgp) {
 
   test_print(msgp);
-  chIOPut(chp, '\r');
-  chIOPut(chp, '\n');
+  chFDDPut(comp, '\r');
+  chFDDPut(comp, '\n');
 }
 
 /*
@@ -121,7 +112,7 @@ static void print_tokens(void) {
   char *cp = tokens_buffer;
 
   while (cp < tokp)
-    chIOPut(chp, *cp++);
+    chFDDPut(comp, *cp++);
 }
 
 void test_emit_token(char token) {
@@ -134,36 +125,36 @@ void test_emit_token(char token) {
 /*
  * Assertions.
  */
-bool_t _test_fail(unsigned point) {
+bool_t _test_fail(char * msg) {
 
   local_fail = TRUE;
   global_fail = TRUE;
-  failpoint = point;
+  failmsg = msg;
   return TRUE;
 }
 
-bool_t _test_assert(unsigned point, bool_t condition) {
+bool_t _test_assert(bool_t condition, char * msg) {
 
   if (!condition)
-    return _test_fail(point);
+    return _test_fail(msg);
   return FALSE;
 }
 
-bool_t _test_assert_sequence(unsigned point, char *expected) {
+bool_t _test_assert_sequence(char *expected) {
   char *cp = tokens_buffer;
   while (cp < tokp) {
     if (*cp++ != *expected++)
-     return _test_fail(point);
+     return _test_fail(NULL);
   }
   if (*expected)
-    return _test_fail(point);
+    return _test_fail(NULL);
   clear_tokens();
   return FALSE;
 }
 
-bool_t _test_assert_time_window(unsigned point, systime_t start, systime_t end) {
+bool_t _test_assert_time_window(systime_t start, systime_t end) {
 
-  return _test_assert(point, chTimeIsWithin(start, end));
+  return _test_assert(chTimeIsWithin(start, end), "time window error");
 }
 
 /*
@@ -181,10 +172,8 @@ void test_wait_threads(void) {
   int i;
 
   for (i = 0; i < MAX_THREADS; i++)
-    if (threads[i] != NULL) {
+    if (threads[i])
       chThdWait(threads[i]);
-      threads[i] = NULL;
-    }
 }
 
 #if CH_DBG_THREADS_PROFILING
@@ -247,34 +236,16 @@ static void execute_test(const struct testcase *tcp) {
   tcp->execute();
   if (tcp->teardown != NULL)
     tcp->teardown();
-
-  test_wait_threads();
-}
-
-static void print_line(void) {
-  unsigned i;
-
-  for (i = 0; i < 76; i++)
-    chIOPut(chp, '-');
-  chIOPut(chp, '\r');
-  chIOPut(chp, '\n');
 }
 
 msg_t TestThread(void *p) {
   int i, j;
 
-  chp = p;
+  comp = p;
   test_println("");
-  test_println("*** ChibiOS/RT test suite");
-  test_println("***");
-  test_print("*** Kernel:       ");
-  test_println(CH_KERNEL_VERSION);
-  test_print("*** Architecture: ");
-  test_println(CH_ARCHITECTURE_NAME);
-#ifdef __GNUC__
-  test_print("*** GCC Version:  ");
-  test_println(__VERSION__);
-#endif
+  test_println("*****************************");
+  test_println("*** ChibiOS/RT test suite ***");
+  test_println("*****************************");
   test_println("");
 
   global_fail = FALSE;
@@ -285,7 +256,7 @@ msg_t TestThread(void *p) {
 #if DELAY_BETWEEN_TESTS > 0
       chThdSleepMilliseconds(DELAY_BETWEEN_TESTS);
 #endif
-      print_line();
+      test_println("---------------------------------------------------------------------------");
       test_print("--- Test Case ");
       test_printn(i + 1);
       test_print(".");
@@ -295,11 +266,14 @@ msg_t TestThread(void *p) {
       test_println(")");
       execute_test(patterns[i][j]);
       if (local_fail) {
-        test_print("--- Result: FAILURE (#");
-        test_printn(failpoint);
-        test_print(" [");
-        print_tokens();
-        test_println("])");
+        test_print("--- Result: FAIL (");
+        if (failmsg)
+          test_print(failmsg);
+        else {
+          test_print("sequence error: ");
+          print_tokens();
+        }
+        test_println(")");
       }
       else
         test_println("--- Result: SUCCESS");
@@ -307,11 +281,11 @@ msg_t TestThread(void *p) {
     }
     i++;
   }
-  print_line();
+  test_println("---------------------------------------------------------------------------");
   test_println("");
   test_print("Final result: ");
   if (global_fail)
-    test_println("FAILURE");
+    test_println("FAIL");
   else
     test_println("SUCCESS");
 
