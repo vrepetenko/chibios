@@ -24,10 +24,10 @@
  * Tricks required to make the TRUE/FALSE declaration inside the library
  * compatible.
  */
-#ifndef __STM32F10x_MAP_H
+#ifndef __STM32F10x_H
 #undef FALSE
 #undef TRUE
-#include "stm32f10x_map.h"
+#include <stm32f10x.h>
 #define FALSE 0
 #define TRUE (!FALSE)
 #endif
@@ -110,5 +110,9 @@
 #define VAL_GPIODCRL            0x88888844      // PD0,PD1:FI
 #define VAL_GPIODCRH            0x88888888
 #define VAL_GPIODODR            0xFFFFFFFF
+
+#define VAL_GPIOECRL            0x88888888
+#define VAL_GPIOECRH            0x88888888
+#define VAL_GPIOEODR            0xFFFFFFFF
 
 #endif /* _BOARD_H_ */
