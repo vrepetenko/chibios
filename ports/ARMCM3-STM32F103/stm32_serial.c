@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,6 +15,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -29,6 +36,7 @@
 #include "board.h"
 #include "nvic.h"
 #include "stm32_serial.h"
+#include "stm32f10x_nvic.h"
 
 #if USE_STM32_USART1 || defined(__DOXYGEN__)
 /** @brief USART1 serial driver identifier.*/
@@ -62,13 +70,13 @@ static uint8_t ob3[SERIAL_BUFFERS_SIZE];
 static void SetError(uint16_t sr, FullDuplexDriver *com) {
   dflags_t sts = 0;
 
-  if (sr & USART_SR_ORE)
+  if (sr & SR_ORE)
     sts |= SD_OVERRUN_ERROR;
-  if (sr & USART_SR_PE)
+  if (sr & SR_PE)
     sts |= SD_PARITY_ERROR;
-  if (sr & USART_SR_FE)
+  if (sr & SR_FE)
     sts |= SD_FRAMING_ERROR;
-  if (sr & USART_SR_LBD)
+  if (sr & SR_LBD)
     sts |= SD_BREAK_DETECTED;
   chSysLockFromIsr();
   chFDDAddFlagsI(com, sts);
@@ -83,19 +91,19 @@ static void SetError(uint16_t sr, FullDuplexDriver *com) {
 static void ServeInterrupt(USART_TypeDef *u, FullDuplexDriver *com) {
   uint16_t sr = u->SR;
 
-  if (sr & (USART_SR_ORE | USART_SR_FE | USART_SR_PE | USART_SR_LBD))
+  if (sr & (SR_ORE | SR_FE | SR_PE | SR_LBD))
     SetError(sr, com);
-  if (sr & USART_SR_RXNE) {
+  if (sr & SR_RXNE) {
     chSysLockFromIsr();
     chFDDIncomingDataI(com, u->DR);
     chSysUnlockFromIsr();
   }
-  if (sr & USART_SR_TXE) {
+  if (sr & SR_TXE) {
     chSysLockFromIsr();
     msg_t b = chFDDRequestDataI(com);
     chSysUnlockFromIsr();
     if (b < Q_OK)
-      u->CR1 &= ~USART_CR1_TXEIE;
+      u->CR1 &= ~CR1_TXEIE;
     else
       u->DR = b;
   }
@@ -129,7 +137,7 @@ CH_IRQ_HANDLER(VectorD8) {
 
 static void OutNotify2(void) {
 
-  USART2->CR1 |= USART_CR1_TXEIE;
+  USART2->CR1 |= CR1_TXEIE;
 }
 #endif
 
@@ -174,10 +182,9 @@ void usart_setup(USART_TypeDef *u, uint32_t speed, uint16_t cr1,
   /*
    * Note that some bits are enforced.
    */
-  u->CR1 = cr1 | USART_CR1_UE | USART_CR1_PEIE | USART_CR1_RXNEIE |
-           USART_CR1_TE | USART_CR1_RE;
+  u->CR1 = cr1 | CR1_UE | CR1_PEIE | CR1_RXNEIE | CR1_TE | CR1_RE;
   u->CR2 = cr2;
-  u->CR3 = cr3 | USART_CR3_EIE;
+  u->CR3 = cr3 | CR3_EIE;
 }
 
 /**
@@ -193,29 +200,29 @@ void serial_init(uint32_t prio1, uint32_t prio2, uint32_t prio3) {
 
 #if USE_STM32_USART1
   chFDDInit(&COM1, ib1, sizeof ib1, NULL, ob1, sizeof ob1, OutNotify1);
-  RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+  RCC->APB2ENR |= 0x00004000;
   usart_setup(USART1, DEFAULT_USART_BITRATE, 0,
-              USART_CR2_STOP1_BITS | USART_CR2_LINEN, 0);
+              CR2_STOP1_BITS | CR2_LINEN, 0);
   GPIOA->CRH = (GPIOA->CRH & 0xFFFFF00F) | 0x000004B0;
-  NVICEnableVector(USART1_IRQn, prio1);
+  NVICEnableVector(USART1_IRQChannel, prio1);
 #endif
 
 #if USE_STM32_USART2
   chFDDInit(&COM2, ib2, sizeof ib2, NULL, ob2, sizeof ob2, OutNotify2);
-  RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+  RCC->APB1ENR |= 0x00020000;
   usart_setup(USART2, DEFAULT_USART_BITRATE, 0,
-              USART_CR2_STOP1_BITS | USART_CR2_LINEN, 0);
+              CR2_STOP1_BITS | CR2_LINEN, 0);
   GPIOA->CRL = (GPIOA->CRL & 0xFFFF00FF) | 0x00004B00;
-  NVICEnableVector(USART2_IRQn, prio2);
+  NVICEnableVector(USART2_IRQChannel, prio2);
 #endif
 
 #if USE_STM32_USART3
   chFDDInit(&COM3, ib3, sizeof ib3, NULL, ob3, sizeof ob3, OutNotify3);
-  RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
+  RCC->APB1ENR |= 0x00040000;
   usart_setup(USART3, DEFAULT_USART_BITRATE, 0,
-              USART_CR2_STOP1_BITS | USART_CR2_LINEN, 0);
+              CR2_STOP1_BITS | CR2_LINEN, 0);
   GPIOB->CRH = (GPIOB->CRH & 0xFFFF00FF) | 0x00004B00;
-  NVICEnableVector(USART3_IRQn, prio3);
+  NVICEnableVector(USART3_IRQChannel, prio3);
 #endif
 }
 

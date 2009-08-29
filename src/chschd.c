@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,6 +15,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -37,7 +44,7 @@ ReadyList rlist;
  */
 void scheduler_init(void) {
 
-  queue_init(&rlist);
+  queue_init(&rlist.r_queue);
   rlist.r_prio = NOPRIO;
 #if CH_USE_ROUNDROBIN
   rlist.r_preempt = CH_TIME_QUANTUM;
@@ -73,8 +80,8 @@ Thread *chSchReadyI(Thread *tp) {
 
 /**
  * @brief Puts the current thread to sleep into the specified state.
- * @details The thread goes into a sleeping state. The @ref thread_states are
- *          described into @p threads.h.
+ * @details The next highest priority thread becomes running. The threads
+ *          states are described into @p threads.h.
  *
  * @param[in] newstate the new thread state
  */
@@ -82,7 +89,7 @@ void chSchGoSleepS(tstate_t newstate) {
   Thread *otp;
 
   (otp = currp)->p_state = newstate;
-  (currp = fifo_remove((void *)&rlist))->p_state = PRCURR;
+  (currp = fifo_remove(&rlist.r_queue))->p_state = PRCURR;
 #if CH_USE_ROUNDROBIN
   rlist.r_preempt = CH_TIME_QUANTUM;
 #endif
@@ -117,12 +124,9 @@ static void wakeup(void *p) {
 }
 
 /**
- * @brief Puts the current thread to sleep into the specified state with
- *        timeout specification.
- * @details The thread goes into a sleeping state, if it is not awakened
- *          explicitly within the specified timeout then it is forcibly
- *          awakened with a @p RDY_TIMEOUT low level message. The @ref
- *          thread_states are described into @p threads.h.
+ * @brief Puts the current thread to sleep into the specified state.
+ * @details The next highest priority thread becomes running. The thread put
+ *          to sleep is awakened after the specified time has elapsed.
  *
  * @param[in] newstate the new thread state
  * @param[in] time the number of ticks before the operation timeouts, the
@@ -194,7 +198,7 @@ void chSchDoRescheduleI(void) {
 
   Thread *otp = currp;
   /* pick the first thread from the ready queue and makes it current */
-  (currp = fifo_remove((void *)&rlist))->p_state = PRCURR;
+  (currp = fifo_remove(&rlist.r_queue))->p_state = PRCURR;
   chSchReadyI(otp);
 #if CH_USE_ROUNDROBIN
   rlist.r_preempt = CH_TIME_QUANTUM;
@@ -211,7 +215,7 @@ void chSchDoRescheduleI(void) {
 void chSchRescheduleS(void) {
   /* first thread in the runnable queue has higher priority than the running
    * thread? */
-  if (firstprio(&rlist) > currp->p_prio)
+  if (firstprio(&rlist.r_queue) > currp->p_prio)
     chSchDoRescheduleI();
 }
 
@@ -224,7 +228,7 @@ void chSchRescheduleS(void) {
  * @retval FALSE if a reschedulation is not required.
  */
 bool_t chSchRescRequiredI(void) {
-  tprio_t p1 = firstprio(&rlist);
+  tprio_t p1 = firstprio(&rlist.r_queue);
   tprio_t p2 = currp->p_prio;
 #if CH_USE_ROUNDROBIN
   /* If the running thread has not reached its time quantum, reschedule only

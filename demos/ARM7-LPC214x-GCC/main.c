@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,19 +15,23 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include <ch.h>
-#include <pal.h>
 #include <test.h>
 
-#include "board.h"
+#include "lpc214x.h"
 #include "lpc214x_serial.h"
 #include "mmcsd.h"
 #include "buzzer.h"
 #include "evtimer.h"
-
-#define BOTH_BUTTONS (PAL_PORT_BIT(PA_BUTTON1) | PAL_PORT_BIT(PA_BUTTON2))
 
 /*
  * Red LEDs blinker thread, times are in milliseconds.
@@ -36,13 +40,13 @@ static WORKING_AREA(waThread1, 128);
 static msg_t Thread1(void *arg) {
 
   while (TRUE) {
-    palClearPort(IOPORT_A, PAL_PORT_BIT(PA_LED2));
+    IO0CLR = 0x00000800;
     chThdSleepMilliseconds(200);
-    palSetPort(IOPORT_A, PAL_PORT_BIT(PA_LED1) | PAL_PORT_BIT(PA_LED2));
+    IO0SET = 0x00000C00;
     chThdSleepMilliseconds(800);
-    palClearPort(IOPORT_A, PAL_PORT_BIT(PA_LED1));
+    IO0CLR = 0x00000400;
     chThdSleepMilliseconds(200);
-    palSetPort(IOPORT_A, PAL_PORT_BIT(PA_LED1) | PAL_PORT_BIT(PA_LED2));
+    IO0SET = 0x00000C00;
     chThdSleepMilliseconds(800);
   }
   return 0;
@@ -55,9 +59,9 @@ static WORKING_AREA(waThread2, 128);
 static msg_t Thread2(void *arg) {
 
   while (TRUE) {
-    palClearPad(IOPORT_A, PA_LEDUSB);
+    IO0CLR = 0x80000000;
     chThdSleepMilliseconds(200);
-    palSetPad(IOPORT_A, PA_LEDUSB);
+    IO0SET = 0x80000000;
     chThdSleepMilliseconds(300);
   }
   return 0;
@@ -70,16 +74,16 @@ static WORKING_AREA(waTestThread, 128);
  */
 static void TimerHandler(eventid_t id) {
 
-  if (!(palReadPort(IOPORT_A) & BOTH_BUTTONS)) {
+  if (!(IO0PIN & 0x00018000)) { // Both buttons
     Thread *tp = chThdCreateStatic(waTestThread, sizeof(waTestThread),
                                    NORMALPRIO, TestThread, &COM1);
     chThdWait(tp);
     PlaySound(500, MS2ST(100));
   }
   else {
-    if (!palReadPad(IOPORT_A, PA_BUTTON1))
+    if (!(IO0PIN & 0x00008000)) // Button 1
       PlaySound(1000, MS2ST(100));
-    if (!palReadPad(IOPORT_A, PA_BUTTON2)) {
+    if (!(IO0PIN & 0x00010000)) { // Button 2
       chFDDWrite(&COM1, (uint8_t *)"Hello World!\r\n", 14);
       PlaySound(2000, MS2ST(100));
     }
@@ -132,7 +136,7 @@ int main(int argc, char **argv) {
    * If a button is pressed during the reset then the blinking leds threads
    * are not started in order to make accurate benchmarks.
    */
-  if ((palReadPort(IOPORT_A) & BOTH_BUTTONS) == BOTH_BUTTONS) {
+  if ((IO0PIN & 0x00018000) == 0x00018000) {
     chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
     chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
   }

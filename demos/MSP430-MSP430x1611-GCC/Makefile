@@ -45,7 +45,6 @@ include ../../test/test.mk
 # C sources here.
 CSRC = ../../ports/MSP430/chcore.c \
        ../../ports/MSP430/msp430_serial.c \
-       ../../ports/MSP430/pal_lld.c \
        ${KERNSRC} \
        ${TESTSRC} \
        ../../src/lib/evtimer.c \

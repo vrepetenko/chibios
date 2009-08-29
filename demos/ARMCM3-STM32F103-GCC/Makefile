@@ -61,14 +61,11 @@ include ../../test/test.mk
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CSRC = ../../ports/ARMCM3/cmsis/core_cm3.c \
-       ../../ports/ARMCM3/chcore.c \
+CSRC = ../../ports/ARMCM3/chcore.c \
        ../../ports/ARMCM3/nvic.c \
        ../../ports/ARMCM3-STM32F103/stm32_serial.c \
-       ../../ports/ARMCM3-STM32F103/pal_lld.c \
        ${KERNSRC} \
        ${TESTSRC} \
-       ../../src/lib/pal.c \
        ../../src/lib/evtimer.c \
        board.c main.c
 
@@ -103,7 +100,6 @@ ASMSRC =  ../../ports/ARMCM3/crt0.s \
 INCDIR = $(KERNINC) $(TESTINC) \
          ../../src/lib \
          ../../ports/ARMCM3 \
-         ../../ports/ARMCM3/cmsis \
          ../../ports/ARMCM3-STM32F103 \
          ./stm32lib/inc
 
@@ -196,7 +192,9 @@ ULIBS =
 ifeq ($(USE_FWLIB),yes)
   include ./stm32lib/stm32lib.mk
   CSRC += ${STM32SRC}
-  USE_OPT += -DUSE_STDPERIPH_DRIVER
+  # The thing generates a lot of aliasing warnings, this disables an
+  # optimization and the warning disappears, the code is a bit larger however.
+  USE_OPT += -fno-strict-aliasing
 endif
 
 include ../../ports/ARM/rules.mk

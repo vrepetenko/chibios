@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2009 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -15,18 +15,22 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include <ch.hpp>
-#include <pal.h>
 
 #include <evtimer.h>
 #include <test.h>
 
-#include <board.h>
+#include <lpc214x.h>
 #include <lpc214x_serial.h>
-
-#define BOTH_BUTTONS (PAL_PORT_BIT(PA_BUTTON1) | PAL_PORT_BIT(PA_BUTTON2))
 
 using namespace chibios_rt;
 
@@ -50,9 +54,9 @@ typedef struct {
 // Flashing sequence for LED1.
 static const seqop_t LED1_sequence[] =
 {
-  {BITCLEAR, PAL_PORT_BIT(PA_LED1)},
+  {BITCLEAR, 0x00000400},
   {SLEEP,    200},
-  {BITSET,   PAL_PORT_BIT(PA_LED1)},
+  {BITSET,   0x00000400},
   {SLEEP,    1800},
   {GOTO,     0}
 };
@@ -61,9 +65,9 @@ static const seqop_t LED1_sequence[] =
 static const seqop_t LED2_sequence[] =
 {
   {SLEEP,    1000},
-  {BITCLEAR, PAL_PORT_BIT(PA_LED2)},
+  {BITCLEAR, 0x00000800},
   {SLEEP,    200},
-  {BITSET,   PAL_PORT_BIT(PA_LED2)},
+  {BITSET,   0x00000800},
   {SLEEP,    1800},
   {GOTO,     1}
 };
@@ -71,9 +75,9 @@ static const seqop_t LED2_sequence[] =
 // Flashing sequence for LED3.
 static const seqop_t LED3_sequence[] =
 {
-  {BITCLEAR, PAL_PORT_BIT(PA_LEDUSB)},
+  {BITCLEAR, 0x80000000},
   {SLEEP,    200},
-  {BITSET,   PAL_PORT_BIT(PA_LEDUSB)},
+  {BITSET,   0x80000000},
   {SLEEP,    300},
   {GOTO,     0}
 };
@@ -83,7 +87,7 @@ static const seqop_t LED3_sequence[] =
  * Any sequencer is just an instance of this class, all the details are
  * totally encapsulated and hidden to the application level.
  */
-class SequencerThread : public EnhancedThread<128> {
+class SequencerThread : EnhancedThread<128> {
 private:
   const seqop_t *base, *curr;                   // Thread local variables.
 
@@ -100,10 +104,10 @@ protected:
       case STOP:
         return 0;
       case BITCLEAR:
-        palClearPort(IOPORT_A, curr->value);
+        IO0CLR = curr->value;
         break;
       case BITSET:
-        palSetPort(IOPORT_A, curr->value);
+        IO0SET = curr->value;
         break;
       }
       curr++;
@@ -118,30 +122,12 @@ public:
 };
 
 /*
- * Tester thread class. This thread executes the test suite.
- */
-class TesterThread : public EnhancedThread<128> {
-
-protected:
-  virtual msg_t Main(void) {
-
-    return TestThread(&COM1);
-  }
-
-public:
-  TesterThread(void) : EnhancedThread<128>("tester") {
-  }
-};
-
-/*
  * Executed as an event handler at 500mS intervals.
  */
 static void TimerHandler(eventid_t id) {
 
-  if (!(palReadPort(IOPORT_A) & BOTH_BUTTONS)) { // Both buttons
-    TesterThread tester;
-    tester.Wait();
-  };
+  if (!(IO0PIN & 0x00018000))   // Both buttons
+    TestThread(&COM1);
 }
 
 /*
