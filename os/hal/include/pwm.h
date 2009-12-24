@@ -39,21 +39,13 @@ typedef enum {
 } pwmstate_t;
 
 /**
- * @brief PWM edge for callbacks.
- */
-typedef enum {
-  PWM_NONE = 0,                         /**< @brief No callback.            */
-  PWM_TO_ACTIVE_EDGE = 1,               /**< @brief Enable on idle->active. */
-  PWM_TO_IDLE_EDGE = 2,                 /**< @brief Enable on active->idle. */
-  PWM_BOTH_EDGES = 3                    /**< @brief Enable on both edges.   */
-} pwmedge_t;
-
-/**
  * @brief PWM logic mode.
  */
 typedef enum {
-  PWM_ACTIVE_LOW = 0,                   /**< @brief Idle is logic level 1.  */
-  PWM_ACTIVE_HIGH = 1                   /**< @brief Idle is logic level 0.  */
+  PWM_OUTPUT_DISABLED = 0,              /**< @brief Output not driven, callback
+                                                    only.                   */
+  PWM_OUTPUT_ACTIVE_HIGH = 1,           /**< @brief Idle is logic level 0.  */
+  PWM_OUTPUT_ACTIVE_LOW = 2             /**< @brief Idle is logic level 1.  */
 } pwmmode_t;
 
 /**
@@ -61,7 +53,7 @@ typedef enum {
  *
  * @param[in] active    current channel output state
  */
-typedef void (*pwmcallback_t)(bool_t active);
+typedef void (*pwmcallback_t)(void);
 
 #include "pwm_lld.h"
 
@@ -72,10 +64,6 @@ extern "C" {
   void pwmObjectInit(PWMDriver *pwmp);
   void pwmStart(PWMDriver *pwmp, const PWMConfig *config);
   void pwmStop(PWMDriver *pwmp);
-  void pwmSetCallback(PWMDriver *pwmp,
-                      pwmchannel_t channel,
-                      pwmedge_t edge,
-                      pwmcallback_t callback);
   void pwmEnableChannel(PWMDriver *pwmp,
                         pwmchannel_t channel,
                         pwmcnt_t width);

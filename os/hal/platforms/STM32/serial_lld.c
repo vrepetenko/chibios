@@ -29,6 +29,10 @@
 
 #if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
 
+/*===========================================================================*/
+/* Low Level Driver exported variables.                                      */
+/*===========================================================================*/
+
 #if USE_STM32_USART1 || defined(__DOXYGEN__)
 /** @brief USART1 serial driver identifier.*/
 SerialDriver SD1;
@@ -43,6 +47,10 @@ SerialDriver SD2;
 /** @brief USART3 serial driver identifier.*/
 SerialDriver SD3;
 #endif
+
+/*===========================================================================*/
+/* Low Level Driver local variables.                                         */
+/*===========================================================================*/
 
 /** @brief Driver default configuration.*/
 static const SerialDriverConfig default_config =
@@ -212,17 +220,14 @@ void sd_lld_init(void) {
 
 #if USE_STM32_USART1
   sdObjectInit(&SD1, NULL, notify1);
-  GPIOA->CRH = (GPIOA->CRH & 0xFFFFF00F) | 0x000004B0;
 #endif
 
 #if USE_STM32_USART2
   sdObjectInit(&SD2, NULL, notify2);
-  GPIOA->CRL = (GPIOA->CRL & 0xFFFF00FF) | 0x00004B00;
 #endif
 
 #if USE_STM32_USART3
   sdObjectInit(&SD3, NULL, notify3);
-  GPIOB->CRH = (GPIOB->CRH & 0xFFFF00FF) | 0x00004B00;
 #endif
 }
 

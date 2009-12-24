@@ -30,8 +30,19 @@
 #if CH_HAL_USE_SPI || defined(__DOXYGEN__)
 
 /*===========================================================================*/
+/* Driver constants.                                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
+
+/**
+ * @brief Enables the mutual exclusion APIs on the SPI bus.
+ */
+#if !defined(SPI_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
+#define SPI_USE_MUTUAL_EXCLUSION    TRUE
+#endif
 
 /**
  * @brief SPI1 driver enable switch.
@@ -103,6 +114,14 @@
  */
 #if !defined(STM32_SPI2_DMA_ERROR_HOOK) || defined(__DOXYGEN__)
 #define STM32_SPI2_DMA_ERROR_HOOK() chSysHalt()
+#endif
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+#if SPI_USE_MUTUAL_EXCLUSION && !CH_USE_MUTEXES && !CH_USE_SEMAPHORES
+#error "SPI_USE_MUTUAL_EXCLUSION requires CH_USE_MUTEXES and/or CH_USE_SEMAPHORES"
 #endif
 
 /*===========================================================================*/

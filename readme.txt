@@ -2,6 +2,31 @@
 *** Releases                                                              ***
 *****************************************************************************
 
+*** 1.3.6 ***
+- FIX: Fixed missing STM32 PWM low level driver error in platform.mk by
+  adding the driver files (bug 2913560).
+- NEW: The Linux simulator now works again, also supports the serial
+  drivers over TCP/IP and has a command line interface like the Win32
+  simulator.
+- NEW: STM32 PWM driver implementation.
+- NEW: LPC214x SPI driver implementation (SSP only, polled mode, no IRQ), this
+  driver replaces the old, not HAL compatible, SSP driver.
+- NEW: LPC214x FatFS demo added, LPC214x minimal demo removed, LPC214x "normal"
+  demo reduced to work like all the other generic demos.
+- NEW: Added custom mode settings to the STM32 PAL driver:
+  - PAL_MODE_STM32_ALTERNATE_PUSHPULL
+  - PAL_MODE_STM32_ALTERNATE_OPENDRAIN
+- NEW: Included all the board-specific files into a new directories structure
+  under ./boards, this allows to not duplicate the board files into each demo.
+- CHANGE: Changes to the PWM driver model, made it simpler.
+- CHANGE: The STM32 device drivers now no more configure the I/O pins on
+  initialization. Pins must be configured in board.h, the change was required
+  in order to support the STM32 AFIO remapping feature.
+- CHANGE: Removed the mmcsd.c driver, it is replaced by the generic MMC_SPI
+  driver present into the HAL.
+- CHANGE: Updated the GPL exception text in the documentation, this should be
+  the final text for the stable version 1.4.x.
+
 *** 1.3.5 ***
 - FIX: Fixed problem with memory core allocator (bug 2912528).
 - FIX: Fixed problem with CH_USE_MEMCORE option (bug 2912522).
