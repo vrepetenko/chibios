@@ -30,7 +30,7 @@
 #if CH_HAL_USE_PWM || defined(__DOXYGEN__)
 
 /*===========================================================================*/
-/* Low Level Driver exported variables.                                      */
+/* Driver exported variables.                                                */
 /*===========================================================================*/
 
 /**
@@ -66,11 +66,11 @@ PWMDriver PWMD4;
 #endif
 
 /*===========================================================================*/
-/* Low Level Driver local variables.                                         */
+/* Driver local variables.                                                   */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver local functions.                                         */
+/* Driver local functions.                                                   */
 /*===========================================================================*/
 
 /**
@@ -78,7 +78,7 @@ PWMDriver PWMD4;
  *
  * @param[in] pwmp pointer to a @p PWMDriver object
  */
-void stop_channels(PWMDriver *pwmp) {
+static void stop_channels(PWMDriver *pwmp) {
 
   pwmp->pd_enabled_channels = 0;            /* All channels disabled.       */
   pwmp->pd_tim->CCER = 0;                   /* Outputs disabled.            */
@@ -90,6 +90,7 @@ void stop_channels(PWMDriver *pwmp) {
   pwmp->pd_tim->CCMR2 = 0;                  /* Channels 3 and 4 frozen.     */
 }
 
+#if USE_STM32_PWM2 || USE_STM32_PWM3 || USE_STM32_PWM4 || defined(__DOXYGEN__)
 /**
  * @brief Common TIM2...TIM4 IRQ handler.
  * @note It is assumed that the various sources are only activated if the
@@ -113,9 +114,10 @@ static void serve_interrupt(PWMDriver *pwmp) {
   if ((sr & TIM_SR_UIF) != 0)
     pwmp->pd_config->pc_callback();
 }
+#endif /* USE_STM32_PWM2 || USE_STM32_PWM3 || USE_STM32_PWM4 */
 
 /*===========================================================================*/
-/* Low Level Driver interrupt handlers.                                      */
+/* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
 #if USE_STM32_PWM1
@@ -204,7 +206,7 @@ CH_IRQ_HANDLER(VectorB8) {
 #endif /* USE_STM32_PWM4 */
 
 /*===========================================================================*/
-/* Low Level Driver exported functions.                                      */
+/* Driver exported functions.                                                */
 /*===========================================================================*/
 
 /**

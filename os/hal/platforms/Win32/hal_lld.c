@@ -28,26 +28,26 @@
 #include "hal.h"
 
 /*===========================================================================*/
-/* Low Level Driver exported variables.                                      */
+/* Driver exported variables.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver local variables.                                         */
+/* Driver local variables.                                                   */
 /*===========================================================================*/
 
 static LARGE_INTEGER nextcnt;
 static LARGE_INTEGER slice;
 
 /*===========================================================================*/
-/* Low Level Driver local functions.                                         */
+/* Driver local functions.                                                   */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver interrupt handlers.                                      */
+/* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver exported functions.                                      */
+/* Driver exported functions.                                                */
 /*===========================================================================*/
 
 /**
@@ -62,12 +62,11 @@ void hal_lld_init(void) {
     exit(1);
   }
 
-  printf("Win32 ChibiOS/RT simulator\n\n");
+  printf("ChibiOS/RT simulator (Win32)\n");
   if (!QueryPerformanceFrequency(&slice)) {
     printf("QueryPerformanceFrequency() error");
     exit(1);
   }
-  printf("Core Frequency   %u Hz\n", (int)slice.LowPart);
   slice.QuadPart /= CH_FREQUENCY;
   QueryPerformanceCounter(&nextcnt);
   nextcnt.QuadPart += slice.QuadPart;

@@ -2,6 +2,22 @@
 *** Releases                                                              ***
 *****************************************************************************
 
+*** 1.3.7 ***
+- FIX: Fixed duplicated definition of SPI_USE_MUTUAL_EXCLUSION (bug 2922495).
+- FIX: Fixed coverage tool hanging during execution (bug 2921120).
+- FIX: Fixed Linux simulator startup message (bug 2921012).
+- FIX: Fixed section separators comments into the HAL-related files. Now all
+  the files should use the same style.
+- NEW: Improved HAL configuration file.
+- NEW: Introduced a new, per-project, MCU configuration file mcuconf.h that
+  contains all the drivers related settings.
+- NEW: Readability improvements to the channels code.
+- NEW: Serial driver model improvements, added states management and checks,
+  added a new SD_NOISE_ERROR error event.
+- NEW: Improvements and optimizations in the various serial driver
+  implementations.
+- Documentation fixes and improvements.
+
 *** 1.3.6 ***
 - FIX: Fixed missing STM32 PWM low level driver error in platform.mk by
   adding the driver files (bug 2913560).

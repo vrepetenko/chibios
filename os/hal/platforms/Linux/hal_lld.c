@@ -32,26 +32,26 @@
 #include "hal.h"
 
 /*===========================================================================*/
-/* Low Level Driver exported variables.                                      */
+/* Driver exported variables.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver local variables.                                         */
+/* Driver local variables.                                                   */
 /*===========================================================================*/
 
 static struct timeval nextcnt;
 static struct timeval tick = {0, 1000000 / CH_FREQUENCY};
 
 /*===========================================================================*/
-/* Low Level Driver local functions.                                         */
+/* Driver local functions.                                                   */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver interrupt handlers.                                      */
+/* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver exported functions.                                      */
+/* Driver exported functions.                                                */
 /*===========================================================================*/
 
 /**
@@ -59,7 +59,7 @@ static struct timeval tick = {0, 1000000 / CH_FREQUENCY};
  */
 void hal_lld_init(void) {
 
-  puts("Win32 ChibiOS/RT simulator (Linux)\n");
+  puts("ChibiOS/RT simulator (Linux)\n");
   gettimeofday(&nextcnt, NULL);
   timeradd(&nextcnt, &tick, &nextcnt);
 }

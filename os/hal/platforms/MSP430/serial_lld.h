@@ -30,27 +30,12 @@
 #if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
+/* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @brief Serial buffers size.
- * @details Configuration parameter, you can change the depth of the queue
- * buffers depending on the requirements of your application.
- * @note The default is 32 bytes for both the transmission and receive buffers.
- */
-#if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
-#define SERIAL_BUFFERS_SIZE 32
-#endif
-
-/**
- * @brief Default bit rate.
- * @details Configuration parameter, at startup the UARTs are configured at
- * this speed.
- */
-#if !defined(DEFAULT_USART_BITRATE) || defined(__DOXYGEN__)
-#define DEFAULT_USART_BITRATE 38400
-#endif
+/*===========================================================================*/
+/* Driver pre-compile time settings.                                         */
+/*===========================================================================*/
 
 /**
  * @brief USART0 driver enable switch.
@@ -58,7 +43,7 @@
  * @note The default is @p TRUE.
  */
 #if !defined(USE_MSP430_USART0) || defined(__DOXYGEN__)
-#define USE_MSP430_USART0 TRUE
+#define USE_MSP430_USART0           TRUE
 #endif
 
 /**
@@ -67,11 +52,11 @@
  * @note The default is @p FALSE.
  */
 #if !defined(USE_MSP430_USART1) || defined(__DOXYGEN__)
-#define USE_MSP430_USART1 FALSE
+#define USE_MSP430_USART1           TRUE
 #endif
 
 /*===========================================================================*/
-/* Unsupported event flags and custom events.                                */
+/* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -84,54 +69,76 @@
 typedef uint8_t sdflags_t;
 
 /**
+ * @brief MSP430 Serial Driver configuration structure.
+ * @details An instance of this structure must be passed to @p sdStart()
+ *          in order to configure and start a serial driver operations.
+ */
+typedef struct {
+  /**
+   * @brief Initialization value for the UBRx registers.
+   */
+  uint16_t                  sc_div;
+  /**
+   * @brief Initialization value for the MOD register.
+   */
+  uint8_t                   sc_mod;
+  /**
+   * @brief Initialization value for the CTL register.
+   */
+  uint8_t                   sc_ctl;
+} SerialConfig;
+
+/**
  * @brief @p SerialDriver specific data.
  */
 struct _serial_driver_data {
   /**
-   * Input queue, incoming data can be read from this input queue by
-   * using the queues APIs.
+   * @brief Driver state.
    */
-  InputQueue            iqueue;
+  sdstate_t                 state;
   /**
-   * Output queue, outgoing data can be written to this output queue by
-   * using the queues APIs.
+   * @brief Current configuration data.
    */
-  OutputQueue           oqueue;
+  const SerialConfig        *config;
   /**
-   * Status Change @p EventSource. This event is generated when one or more
-   * condition flags change.
+   * @brief Input queue, incoming data can be read from this input queue by
+   *        using the queues APIs.
    */
-  EventSource           sevent;
+  InputQueue                iqueue;
   /**
-   * I/O driver status flags.
+   * @brief Output queue, outgoing data can be written to this output queue by
+   *        using the queues APIs.
    */
-  sdflags_t             flags;
+  OutputQueue               oqueue;
   /**
-   * Input circular buffer.
+   * @brief Status Change @p EventSource. This event is generated when one or
+   *        more condition flags change.
    */
-  uint8_t               ib[SERIAL_BUFFERS_SIZE];
+  EventSource               sevent;
   /**
-   * Output circular buffer.
+   * @brief I/O driver status flags.
    */
-  uint8_t               ob[SERIAL_BUFFERS_SIZE];
+  sdflags_t                 flags;
+  /**
+   * @brief Input circular buffer.
+   */
+  uint8_t                   ib[SERIAL_BUFFERS_SIZE];
+  /**
+   * @brief Output circular buffer.
+   */
+  uint8_t                   ob[SERIAL_BUFFERS_SIZE];
+  /* End of the mandatory fields.*/
 };
+
+/*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
 
 /**
  * @brief Macro for baud rate computation.
  * @note Make sure the final baud rate is within tolerance.
  */
 #define UBR(b) (SMCLK / (b))
-
-/**
- * @brief MSP430 Serial Driver configuration structure.
- * @details An instance of this structure must be passed to @p sdStart()
- *          in order to configure and start a serial driver operations.
- */
-typedef struct {
-  uint16_t              div;
-  uint8_t               mod;
-  uint8_t               ctl;
-} SerialDriverConfig;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -149,7 +156,7 @@ extern SerialDriver SD2;
 extern "C" {
 #endif
   void sd_lld_init(void);
-  void sd_lld_start(SerialDriver *sdp, const SerialDriverConfig *config);
+  void sd_lld_start(SerialDriver *sdp);
   void sd_lld_stop(SerialDriver *sdp);
 #ifdef __cplusplus
 }

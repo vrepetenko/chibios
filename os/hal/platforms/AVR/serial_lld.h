@@ -30,30 +30,12 @@
 #if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
+/* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @brief Serial buffers size.
- * @details Configuration parameter, you can change the depth of the queue
- * buffers depending on the requirements of your application.
- * @note The default is 32 bytes for both the transmission and receive buffers.
- */
-#if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
-#define SERIAL_BUFFERS_SIZE 32
-#endif
-
-/**
- * @brief Default bit rate.
- * @details Configuration parameter, at startup the UARTs are configured at
- * this speed.
- * @note It is possible to use @p SetUART() in order to change the working
- *       parameters at runtime.
- */
-#if !defined(DEFAULT_USART_BITRATE) || defined(__DOXYGEN__)
-#define DEFAULT_USART_BITRATE 38400
-#endif
-
+/*===========================================================================*/
+/* Driver pre-compile time settings.                                         */
+/*===========================================================================*/
 
 /**
  * @brief USART0 driver enable switch.
@@ -61,7 +43,7 @@
  * @note The default is @p FALSE.
  */
 #if !defined(USE_AVR_USART0) || defined(__DOXYGEN__)
-#define USE_AVR_USART0 FALSE
+#define USE_AVR_USART0              TRUE
 #endif
 
 /**
@@ -70,11 +52,11 @@
  * @note The default is @p TRUE.
  */
 #if !defined(USE_AVR_USART1) || defined(__DOXYGEN__)
-#define USE_AVR_USART1 TRUE
+#define USE_AVR_USART1              TRUE
 #endif
 
 /*===========================================================================*/
-/* Unsupported event flags and custom events.                                */
+/* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -82,48 +64,9 @@
 /*===========================================================================*/
 
 /**
- * Serial Driver condition flags type.
+ * @brief Serial Driver condition flags type.
  */
 typedef uint8_t sdflags_t;
-
-/**
- * @brief @p SerialDriver specific data.
- */
-struct _serial_driver_data {
-  /**
-   * Input queue, incoming data can be read from this input queue by
-   * using the queues APIs.
-   */
-  InputQueue            iqueue;
-  /**
-   * Output queue, outgoing data can be written to this output queue by
-   * using the queues APIs.
-   */
-  OutputQueue           oqueue;
-  /**
-   * Status Change @p EventSource. This event is generated when one or more
-   * condition flags change.
-   */
-  EventSource           sevent;
-  /**
-   * I/O driver status flags.
-   */
-  sdflags_t             flags;
-  /**
-   * Input circular buffer.
-   */
-  uint8_t               ib[SERIAL_BUFFERS_SIZE];
-  /**
-   * Output circular buffer.
-   */
-  uint8_t               ob[SERIAL_BUFFERS_SIZE];
-};
-
-/**
- * @brief Macro for baud rate computation.
- * @note Make sure the final baud rate is within tolerance.
- */
-#define UBRR(b) ((F_CPU / (b << 4)) - 1)
 
 /**
  * @brief AVR Serial Driver configuration structure.
@@ -131,9 +74,67 @@ struct _serial_driver_data {
  *          in order to configure and start a serial driver operations.
  */
 typedef struct {
-  uint16_t              brr;
-  uint8_t               csrc;
-} SerialDriverConfig;
+  /**
+   * @brief Initialization value for the BRR register.
+   */
+  uint16_t                  sc_brr;
+  /**
+   * @brief Initialization value for the CSRC register.
+   */
+  uint8_t                   sc_csrc;
+} SerialConfig;
+
+/**
+ * @brief @p SerialDriver specific data.
+ */
+struct _serial_driver_data {
+  /**
+   * @brief Driver state.
+   */
+  sdstate_t                 state;
+  /**
+   * @brief Current configuration data.
+   */
+  const SerialConfig        *config;
+  /**
+   * @brief Input queue, incoming data can be read from this input queue by
+   *        using the queues APIs.
+   */
+  InputQueue                iqueue;
+  /**
+   * @brief Output queue, outgoing data can be written to this output queue by
+   *        using the queues APIs.
+   */
+  OutputQueue               oqueue;
+  /**
+   * @brief Status Change @p EventSource. This event is generated when one or
+   *        more condition flags change.
+   */
+  EventSource               sevent;
+  /**
+   * @brief I/O driver status flags.
+   */
+  sdflags_t                 flags;
+  /**
+   * @brief Input circular buffer.
+   */
+  uint8_t                   ib[SERIAL_BUFFERS_SIZE];
+  /**
+   * @brief Output circular buffer.
+   */
+  uint8_t                   ob[SERIAL_BUFFERS_SIZE];
+  /* End of the mandatory fields.*/
+};
+
+/*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
+
+/**
+ * @brief Macro for baud rate computation.
+ * @note Make sure the final baud rate is within tolerance.
+ */
+#define UBRR(b) ((F_CPU / (b << 4)) - 1)
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -151,7 +152,7 @@ extern SerialDriver SD2;
 extern "C" {
 #endif
   void sd_lld_init(void);
-  void sd_lld_start(SerialDriver *sdp, const SerialDriverConfig *config);
+  void sd_lld_start(SerialDriver *sdp);
   void sd_lld_stop(SerialDriver *sdp);
 #ifdef __cplusplus
 }

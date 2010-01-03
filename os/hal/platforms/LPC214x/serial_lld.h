@@ -30,17 +30,29 @@
 #if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
+/* Driver constants.                                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
 
 /**
- * @brief Serial buffers size.
- * @details Configuration parameter, you can change the depth of the queue
- * buffers depending on the requirements of your application.
- * @note The default is 128 bytes for both the transmission and receive buffers.
+ * @brief UART0 driver enable switch.
+ * @details If set to @p TRUE the support for USART1 is included.
+ * @note The default is @p TRUE .
  */
-#if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
-#define SERIAL_BUFFERS_SIZE 128
+#if !defined(USE_LPC214x_UART0) || defined(__DOXYGEN__)
+#define USE_LPC214x_UART0           TRUE
+#endif
+
+/**
+ * @brief UART1 driver enable switch.
+ * @details If set to @p TRUE the support for USART2 is included.
+ * @note The default is @p TRUE.
+ */
+#if !defined(USE_LPC214x_UART1) || defined(__DOXYGEN__)
+#define USE_LPC214x_UART1           TRUE
 #endif
 
 /**
@@ -56,43 +68,25 @@
  *       smaller and simpler.
  */
 #if !defined(UART_FIFO_PRELOAD) || defined(__DOXYGEN__)
-#define UART_FIFO_PRELOAD 16
-#endif
-
-/**
- * @brief UART0 driver enable switch.
- * @details If set to @p TRUE the support for USART1 is included.
- * @note The default is @p TRUE .
- */
-#if !defined(USE_LPC214x_UART0) || defined(__DOXYGEN__)
-#define USE_LPC214x_UART0 TRUE
-#endif
-
-/**
- * @brief UART1 driver enable switch.
- * @details If set to @p TRUE the support for USART2 is included.
- * @note The default is @p TRUE.
- */
-#if !defined(USE_LPC214x_UART1) || defined(__DOXYGEN__)
-#define USE_LPC214x_UART1 TRUE
+#define LPC214x_UART_FIFO_PRELOAD   16
 #endif
 
 /**
  * @brief UART1 interrupt priority level setting.
  */
 #if !defined(LPC214x_UART1_PRIORITY) || defined(__DOXYGEN__)
-#define LPC214x_UART1_PRIORITY  1
+#define LPC214x_UART1_PRIORITY      1
 #endif
 
 /**
  * @brief UART2 interrupt priority level setting.
  */
 #if !defined(LPC214x_UART2_PRIORITY) || defined(__DOXYGEN__)
-#define LPC214x_UART2_PRIORITY   2
+#define LPC214x_UART2_PRIORITY      2
 #endif
 
 /*===========================================================================*/
-/* Unsupported event flags and custom events.                                */
+/* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -100,42 +94,9 @@
 /*===========================================================================*/
 
 /**
- * Serial Driver condition flags type.
+ * @brief Serial Driver condition flags type.
  */
 typedef uint32_t sdflags_t;
-
-/**
- * @brief @p SerialDriver specific data.
- */
-struct _serial_driver_data {
-  /**
-   * Input queue, incoming data can be read from this input queue by
-   * using the queues APIs.
-   */
-  InputQueue            iqueue;
-  /**
-   * Output queue, outgoing data can be written to this output queue by
-   * using the queues APIs.
-   */
-  OutputQueue           oqueue;
-  /**
-   * Status Change @p EventSource. This event is generated when one or more
-   * condition flags change.
-   */
-  EventSource           sevent;
-  /**
-   * I/O driver status flags.
-   */
-  sdflags_t             flags;
-  /**
-   * Input circular buffer.
-   */
-  uint8_t               ib[SERIAL_BUFFERS_SIZE];
-  /**
-   * Output circular buffer.
-   */
-  uint8_t               ob[SERIAL_BUFFERS_SIZE];
-};
 
 /**
  * @brief LPC214x Serial Driver configuration structure.
@@ -143,10 +104,69 @@ struct _serial_driver_data {
  *          in order to configure and start a serial driver operations.
  */
 typedef struct {
-  uint32_t              speed;
-  uint32_t              lcr;
-  uint32_t              fcr;
-} SerialDriverConfig;
+  /**
+   * @brief Bit rate.
+   */
+  uint32_t                  sc_speed;
+  /**
+   * @brief Initialization value for the LCR register.
+   */
+  uint32_t                  sc_lcr;
+  /**
+   * @brief Initialization value for the FCR register.
+   */
+  uint32_t                  sc_fcr;
+} SerialConfig;
+
+/**
+ * @brief @p SerialDriver specific data.
+ */
+struct _serial_driver_data {
+  /**
+   * @brief Driver state.
+   */
+  sdstate_t                 state;
+  /**
+   * @brief Current configuration data.
+   */
+  const SerialConfig        *config;
+  /**
+   * @brief Input queue, incoming data can be read from this input queue by
+   *        using the queues APIs.
+   */
+  InputQueue                iqueue;
+  /**
+   * @brief Output queue, outgoing data can be written to this output queue by
+   *        using the queues APIs.
+   */
+  OutputQueue               oqueue;
+  /**
+   * @brief Status Change @p EventSource. This event is generated when one or
+   *        more condition flags change.
+   */
+  EventSource               sevent;
+  /**
+   * @brief I/O driver status flags.
+   */
+  sdflags_t                 flags;
+  /**
+   * @brief Input circular buffer.
+   */
+  uint8_t                   ib[SERIAL_BUFFERS_SIZE];
+  /**
+   * @brief Output circular buffer.
+   */
+  uint8_t                   ob[SERIAL_BUFFERS_SIZE];
+  /* End of the mandatory fields.*/
+  /**
+   * @brief Pointer to the USART registers block.
+   */
+  UART                      *uart;
+};
+
+/*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -164,7 +184,7 @@ extern SerialDriver SD2;
 extern "C" {
 #endif
   void sd_lld_init(void);
-  void sd_lld_start(SerialDriver *sdp, const SerialDriverConfig *config);
+  void sd_lld_start(SerialDriver *sdp);
   void sd_lld_stop(SerialDriver *sdp);
 #ifdef __cplusplus
 }

@@ -30,18 +30,12 @@
 #if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
+/* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @brief Serial buffers size setting.
- * @details Configuration parameter, you can change the depth of the queue
- * buffers depending on the requirements of your application.
- * @note The default is 128 bytes for both the transmission and receive buffers.
- */
-#if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
-#define SERIAL_BUFFERS_SIZE 128
-#endif
+/*===========================================================================*/
+/* Driver pre-compile time settings.                                         */
+/*===========================================================================*/
 
 /**
  * @brief USART1 driver enable switch.
@@ -49,7 +43,7 @@
  * @note The default is @p FALSE.
  */
 #if !defined(USE_STM32_USART1) || defined(__DOXYGEN__)
-#define USE_STM32_USART1 FALSE
+#define USE_STM32_USART1            TRUE
 #endif
 
 /**
@@ -58,7 +52,7 @@
  * @note The default is @p TRUE.
  */
 #if !defined(USE_STM32_USART2) || defined(__DOXYGEN__)
-#define USE_STM32_USART2 TRUE
+#define USE_STM32_USART2            TRUE
 #endif
 
 /**
@@ -67,7 +61,7 @@
  * @note The default is @p FALSE.
  */
 #if !defined(USE_STM32_USART3) || defined(__DOXYGEN__)
-#define USE_STM32_USART3 FALSE
+#define USE_STM32_USART3            TRUE
 #endif
 
 /**
@@ -75,7 +69,7 @@
  * @note @p BASEPRI_KERNEL >= @p STM32_USART1_PRIORITY > @p PRIORITY_PENDSV.
  */
 #if !defined(STM32_USART1_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_USART1_PRIORITY   0xC0
+#define STM32_USART1_PRIORITY       0xC0
 #endif
 
 /**
@@ -83,7 +77,7 @@
  * @note @p BASEPRI_KERNEL >= @p STM32_USART2_PRIORITY > @p PRIORITY_PENDSV.
  */
 #if !defined(STM32_USART2_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_USART2_PRIORITY   0xC0
+#define STM32_USART2_PRIORITY       0xC0
 #endif
 
 /**
@@ -91,8 +85,95 @@
  * @note @p BASEPRI_KERNEL >= @p STM32_USART3_PRIORITY > @p PRIORITY_PENDSV.
  */
 #if !defined(STM32_USART3_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_USART3_PRIORITY   0xC0
+#define STM32_USART3_PRIORITY       0xC0
 #endif
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Driver data structures and types.                                         */
+/*===========================================================================*/
+
+/**
+ * @brief Serial Driver condition flags type.
+ */
+typedef uint32_t sdflags_t;
+
+/**
+ * @brief STM32 Serial Driver configuration structure.
+ * @details An instance of this structure must be passed to @p sdStart()
+ *          in order to configure and start a serial driver operations.
+ *
+ * @note This structure content is architecture dependent, each driver
+ *       implementation defines its own version and the custom static
+ *       initializers.
+ */
+typedef struct {
+  /**
+   * @brief Bit rate.
+   */
+  uint32_t                  sc_speed;
+  /**
+   * @brief Initialization value for the CR1 register.
+   */
+  uint16_t                  sc_cr1;
+  /**
+   * @brief Initialization value for the CR2 register.
+   */
+  uint16_t                  sc_cr2;
+  /**
+   * @brief Initialization value for the CR3 register.
+   */
+  uint16_t                  sc_cr3;
+} SerialConfig;
+
+/**
+ * @brief @p SerialDriver specific data.
+ */
+struct _serial_driver_data {
+  /**
+   * @brief Driver state.
+   */
+  sdstate_t                 state;
+  /**
+   * @brief Current configuration data.
+   */
+  const SerialConfig        *config;
+  /**
+   * @brief Input queue, incoming data can be read from this input queue by
+   *        using the queues APIs.
+   */
+  InputQueue                iqueue;
+  /**
+   * @brief Output queue, outgoing data can be written to this output queue by
+   *        using the queues APIs.
+   */
+  OutputQueue               oqueue;
+  /**
+   * @brief Status Change @p EventSource. This event is generated when one or
+   *        more condition flags change.
+   */
+  EventSource               sevent;
+  /**
+   * @brief I/O driver status flags.
+   */
+  sdflags_t                 flags;
+  /**
+   * @brief Input circular buffer.
+   */
+  uint8_t                   ib[SERIAL_BUFFERS_SIZE];
+  /**
+   * @brief Output circular buffer.
+   */
+  uint8_t                   ob[SERIAL_BUFFERS_SIZE];
+  /* End of the mandatory fields.*/
+  /**
+   * @brief Pointer to the USART registers block.
+   */
+  USART_TypeDef             *usart;
+};
 
 /*===========================================================================*/
 /* Driver macros.                                                            */
@@ -105,65 +186,6 @@
 #define USART_CR2_STOP0P5_BITS  (1 << 12)   /**< @brief CR2 0.5 stop bit value.*/
 #define USART_CR2_STOP2_BITS    (2 << 12)   /**< @brief CR2 2 stop bit value.*/
 #define USART_CR2_STOP1P5_BITS  (3 << 12)   /**< @brief CR2 1.5 stop bit value.*/
-
-/*===========================================================================*/
-/* Driver data structures and types.                                         */
-/*===========================================================================*/
-
-/**
- * Serial Driver condition flags type.
- */
-typedef uint32_t sdflags_t;
-
-/**
- * @brief @p SerialDriver specific data.
- */
-struct _serial_driver_data {
-  /**
-   * Input queue, incoming data can be read from this input queue by
-   * using the queues APIs.
-   */
-  InputQueue            iqueue;
-  /**
-   * Output queue, outgoing data can be written to this output queue by
-   * using the queues APIs.
-   */
-  OutputQueue           oqueue;
-  /**
-   * Status Change @p EventSource. This event is generated when one or more
-   * condition flags change.
-   */
-  EventSource           sevent;
-  /**
-   * I/O driver status flags.
-   */
-  sdflags_t             flags;
-  /**
-   * Input circular buffer.
-   */
-  uint8_t               ib[SERIAL_BUFFERS_SIZE];
-  /**
-   * Output circular buffer.
-   */
-  uint8_t               ob[SERIAL_BUFFERS_SIZE];
-};
-
-/**
- * @brief STM32 Serial Driver configuration structure.
- * @details An instance of this structure must be passed to @p sdStart()
- *          in order to configure and start a serial driver operations.
- *
- * @note This structure content is architecture dependent, each driver
- *       implementation defines its own version and the custom static
- *       initializers.
- */
-typedef struct {
-
-  uint32_t              speed;
-  uint16_t              cr1;
-  uint16_t              cr2;
-  uint16_t              cr3;
-} SerialDriverConfig;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -184,7 +206,7 @@ extern SerialDriver SD3;
 extern "C" {
 #endif
   void sd_lld_init(void);
-  void sd_lld_start(SerialDriver *sdp, const SerialDriverConfig *config);
+  void sd_lld_start(SerialDriver *sdp);
   void sd_lld_stop(SerialDriver *sdp);
 #ifdef __cplusplus
 }

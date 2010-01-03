@@ -29,30 +29,51 @@
 
 #if CH_HAL_USE_CAN || defined(__DOXYGEN__)
 
-#if !CH_USE_SEMAPHORES
-#error "CAN driver requires CH_USE_SEMAPHORES"
-#endif
+/*===========================================================================*/
+/* Driver constants.                                                         */
+/*===========================================================================*/
 
 /**
  * @brief Errors rate warning.
  */
-#define CAN_LIMIT_WARNING       1
+#define CAN_LIMIT_WARNING           1
 /**
  * @brief Errors rate error.
  */
-#define CAN_LIMIT_ERROR         2
+#define CAN_LIMIT_ERROR             2
 /**
  * @brief Bus off condition reached.
  */
-#define CAN_BUS_OFF_ERROR       4
+#define CAN_BUS_OFF_ERROR           4
 /**
  * @brief Framing error of some kind on the CAN bus.
  */
-#define CAN_FRAMING_ERROR       8
+#define CAN_FRAMING_ERROR           8
 /**
  * @brief Overflow in receive queue.
  */
-#define CAN_OVERFLOW_ERROR      16
+#define CAN_OVERFLOW_ERROR          16
+
+/*===========================================================================*/
+/* Driver pre-compile time settings.                                         */
+/*===========================================================================*/
+
+/**
+ * @brief Sleep mode related APIs inclusion switch.
+ */
+#define CAN_USE_SLEEP_MODE          TRUE
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+#if !CH_USE_SEMAPHORES || !CH_USE_EVENTS
+#error "CAN driver requires CH_USE_SEMAPHORES and CH_USE_EVENTS"
+#endif
+
+/*===========================================================================*/
+/* Driver data structures and types.                                         */
+/*===========================================================================*/
 
 /**
  * @brief Driver state machine possible states.
@@ -67,6 +88,10 @@ typedef enum {
 
 #include "can_lld.h"
 
+/*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
+
 /**
  * @brief Adds some flags to the CAN status mask.
  *
@@ -74,6 +99,10 @@ typedef enum {
  * @param[in] mask      flags to be added to the status mask
  */
 #define canAddFlagsI(canp, mask) ((canp)->cd_status |= (mask))
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
 
 #ifdef __cplusplus
 extern "C" {

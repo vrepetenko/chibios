@@ -18,9 +18,9 @@
 */
 
 /**
- * @file templates/spi_lld.h
- * @brief SPI Driver subsystem low level driver header template.
- * @addtogroup SPI_LLD
+ * @file LPC214x/spi_lld.h
+ * @brief LPC214x low level SPI driver header.
+ * @addtogroup LPC214x_SPI
  * @{
  */
 
@@ -38,13 +38,6 @@
 /*===========================================================================*/
 
 /**
- * @brief Enables the mutual exclusion APIs on the SPI bus.
- */
-#if !defined(SPI_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
-#define SPI_USE_MUTUAL_EXCLUSION    TRUE
-#endif
-
-/**
  * @brief SPI1 (SSP) driver enable switch.
  * @details If set to @p TRUE the support for SPI0 is included.
  * @note The default is @p TRUE.
@@ -56,10 +49,6 @@
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
-
-#if SPI_USE_MUTUAL_EXCLUSION && !CH_USE_MUTEXES && !CH_USE_SEMAPHORES
-#error "SPI_USE_MUTUAL_EXCLUSION requires CH_USE_MUTEXES and/or CH_USE_SEMAPHORES"
-#endif
 
 /*===========================================================================*/
 /* Driver data structures and types.                                         */
@@ -115,6 +104,10 @@ typedef struct {
   const SPIConfig       *spd_config;
   /* End of the mandatory fields.*/
 } SPIDriver;
+
+/*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
 
 /*===========================================================================*/
 /* External declarations.                                                    */

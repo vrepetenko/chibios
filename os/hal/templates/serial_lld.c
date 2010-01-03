@@ -29,28 +29,28 @@
 
 #if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
 
+/*===========================================================================*/
+/* Driver exported variables.                                                */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Driver local variables.                                                   */
+/*===========================================================================*/
+
 /** @brief Driver default configuration.*/
-static const SerialDriverConfig default_config = {
+static const SerialConfig default_config = {
 };
 
 /*===========================================================================*/
-/* Low Level Driver exported variables.                                      */
+/* Driver local functions.                                                   */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver local variables.                                         */
+/* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Low Level Driver local functions.                                         */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Low Level Driver interrupt handlers.                                      */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Low Level Driver exported functions.                                      */
+/* Driver exported functions.                                                */
 /*===========================================================================*/
 
 /**
@@ -64,14 +64,11 @@ void sd_lld_init(void) {
  * @brief Low level serial driver configuration and (re)start.
  *
  * @param[in] sdp pointer to a @p SerialDriver object
- * @param[in] config the architecture-dependent serial driver configuration.
- *                   If this parameter is set to @p NULL then a default
- *                   configuration is used.
  */
-void sd_lld_start(SerialDriver *sdp, const SerialDriverConfig *config) {
+void sd_lld_start(SerialDriver *sdp) {
 
-  if (config == NULL)
-    config = &default_config;
+  if (sdp->sd.config == NULL)
+    sdp->sd.config = &default_config;
 
 }
 

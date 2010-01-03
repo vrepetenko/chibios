@@ -30,18 +30,12 @@
 #if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
+/* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @brief Serial buffers size.
- * @details Configuration parameter, you can change the depth of the queue
- * buffers depending on the requirements of your application.
- * @note The default is 128 bytes for both the transmission and receive buffers.
- */
-#if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
-#define SERIAL_BUFFERS_SIZE 128
-#endif
+/*===========================================================================*/
+/* Driver pre-compile time settings.                                         */
+/*===========================================================================*/
 
 /**
  * @brief UART0 driver enable switch.
@@ -49,7 +43,7 @@
  * @note The default is @p TRUE.
  */
 #if !defined(USE_SAM7_USART0) || defined(__DOXYGEN__)
-#define USE_SAM7_USART0 TRUE
+#define USE_SAM7_USART0             TRUE
 #endif
 
 /**
@@ -58,25 +52,25 @@
  * @note The default is @p TRUE.
  */
 #if !defined(USE_SAM7_USART1) || defined(__DOXYGEN__)
-#define USE_SAM7_USART1 TRUE
+#define USE_SAM7_USART1             TRUE
 #endif
 
 /**
  * @brief UART1 interrupt priority level setting.
  */
 #if !defined(SAM7_USART0_PRIORITY) || defined(__DOXYGEN__)
-#define SAM7_USART0_PRIORITY (AT91C_AIC_PRIOR_HIGHEST - 2)
+#define SAM7_USART0_PRIORITY        (AT91C_AIC_PRIOR_HIGHEST - 2)
 #endif
 
 /**
  * @brief UART2 interrupt priority level setting.
  */
 #if !defined(SAM7_USART1_PRIORITY) || defined(__DOXYGEN__)
-#define SAM7_USART1_PRIORITY (AT91C_AIC_PRIOR_HIGHEST - 2)
+#define SAM7_USART1_PRIORITY        (AT91C_AIC_PRIOR_HIGHEST - 2)
 #endif
 
 /*===========================================================================*/
-/* Unsupported event flags and custom events.                                */
+/* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -84,42 +78,9 @@
 /*===========================================================================*/
 
 /**
- * Serial Driver condition flags type.
+ * @brief Serial Driver condition flags type.
  */
 typedef uint32_t sdflags_t;
-
-/**
- * @brief @p SerialDriver specific data.
- */
-struct _serial_driver_data {
-  /**
-   * Input queue, incoming data can be read from this input queue by
-   * using the queues APIs.
-   */
-  InputQueue            iqueue;
-  /**
-   * Output queue, outgoing data can be written to this output queue by
-   * using the queues APIs.
-   */
-  OutputQueue           oqueue;
-  /**
-   * Status Change @p EventSource. This event is generated when one or more
-   * condition flags change.
-   */
-  EventSource           sevent;
-  /**
-   * I/O driver status flags.
-   */
-  sdflags_t             flags;
-  /**
-   * Input circular buffer.
-   */
-  uint8_t               ib[SERIAL_BUFFERS_SIZE];
-  /**
-   * Output circular buffer.
-   */
-  uint8_t               ob[SERIAL_BUFFERS_SIZE];
-};
 
 /**
  * @brief AT91SAM7 Serial Driver configuration structure.
@@ -127,9 +88,65 @@ struct _serial_driver_data {
  *          in order to configure and start a serial driver operations.
  */
 typedef struct {
-  uint32_t              speed;
-  uint32_t              mr;
-} SerialDriverConfig;
+  /**
+   * @brief Bit rate.
+   */
+  uint32_t                  sc_speed;
+  /**
+   * @brief Initialization value for the MR register.
+   */
+  uint32_t                  sc_mr;
+} SerialConfig;
+
+/**
+ * @brief @p SerialDriver specific data.
+ */
+struct _serial_driver_data {
+  /**
+   * @brief Driver state.
+   */
+  sdstate_t                 state;
+  /**
+   * @brief Current configuration data.
+   */
+  const SerialConfig        *config;
+  /**
+   * @brief Input queue, incoming data can be read from this input queue by
+   *        using the queues APIs.
+   */
+  InputQueue                iqueue;
+  /**
+   * @brief Output queue, outgoing data can be written to this output queue by
+   *        using the queues APIs.
+   */
+  OutputQueue               oqueue;
+  /**
+   * @brief Status Change @p EventSource. This event is generated when one or
+   *        more condition flags change.
+   */
+  EventSource               sevent;
+  /**
+   * @brief I/O driver status flags.
+   */
+  sdflags_t                 flags;
+  /**
+   * @brief Input circular buffer.
+   */
+  uint8_t                   ib[SERIAL_BUFFERS_SIZE];
+  /**
+   * @brief Output circular buffer.
+   */
+  uint8_t                   ob[SERIAL_BUFFERS_SIZE];
+  /* End of the mandatory fields.*/
+  /**
+   * @brief Pointer to the USART registers block.
+   */
+  AT91PS_USART              usart;
+};
+
+/*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -147,7 +164,7 @@ extern SerialDriver SD2;
 extern "C" {
 #endif
   void sd_lld_init(void);
-  void sd_lld_start(SerialDriver *sdp, const SerialDriverConfig *config);
+  void sd_lld_start(SerialDriver *sdp);
   void sd_lld_stop(SerialDriver *sdp);
 #ifdef __cplusplus
 }

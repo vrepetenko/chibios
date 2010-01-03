@@ -29,6 +29,10 @@
 
 #if CH_HAL_USE_CAN || defined(__DOXYGEN__)
 
+/*===========================================================================*/
+/* Driver constants.                                                         */
+/*===========================================================================*/
+
 /*
  * The following macros from the ST header file are replaced with better
  * equivalents.
@@ -38,10 +42,6 @@
 #undef CAN_BTR_TS2
 #undef CAN_BTR_SJW
 
-/*===========================================================================*/
-/* Driver constants.                                                         */
-/*===========================================================================*/
-
 /**
  * @brief This switch defines whether the driver implementation supports
  *        a low power switch mode with automatic an wakeup feature.
@@ -49,7 +49,7 @@
 #define CAN_SUPPORTS_SLEEP          TRUE
 
 /**
- * @brief Manimum number of CAN filters.
+ * @brief Minimum number of CAN filters.
  */
 #if defined(STM32F10X_CL) || defined(__DOXYGEN__)
 #define CAN_MAX_FILTERS             28
@@ -89,25 +89,12 @@
 #define STM32_CAN1_IRQ_PRIORITY     0xB0
 #endif
 
-/**
- * @brief Sleep mode related APIs inclusion switch.
- * @note This switch is enforced to @p FALSE if the driver implementation
- *       does not support the sleep mode.
- */
-#if CAN_SUPPORTS_SLEEP || defined(__DOXYGEN__)
-#if !defined(CAN_USE_SLEEP_MODE) || defined(__DOXYGEN__)
-#define CAN_USE_SLEEP_MODE  TRUE
-#endif
-#else /* !CAN_SUPPORTS_SLEEP */
-#define CAN_USE_SLEEP_MODE  FALSE
-#endif /* !CAN_SUPPORTS_SLEEP */
-
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-#if !CH_USE_SEMAPHORES || !CH_USE_EVENTS
-#error "the ADC driver requires CH_USE_SEMAPHORES and CH_USE_EVENTS"
+#if CAN_USE_SLEEP_MODE && !CAN_SUPPORTS_SLEEP
+#error "CAN sleep mode not supported in this architecture"
 #endif
 
 /*===========================================================================*/
@@ -296,6 +283,10 @@ typedef struct {
    */
   CAN_TypeDef               *cd_can;
 } CANDriver;
+
+/*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
 
 /*===========================================================================*/
 /* External declarations.                                                    */
