@@ -35,7 +35,7 @@
 /**
  * Kernel version string.
  */
-#define CH_KERNEL_VERSION       "1.3.7unstable"
+#define CH_KERNEL_VERSION       "1.3.8unstable"
 
 /**
  * Kernel version major number.
@@ -50,7 +50,7 @@
 /**
  * Kernel version patch number.
  */
-#define CH_KERNEL_PATCH         7
+#define CH_KERNEL_PATCH         8
 
 /*
  * Common values.
@@ -81,6 +81,7 @@
 #include "threads.h"
 #include "inline.h"
 #include "queues.h"
+#include "streams.h"
 #include "channels.h"
 #include "debug.h"
 

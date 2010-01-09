@@ -1,6 +1,78 @@
 *****************************************************************************
+*** Files Organization                                                    ***
+*****************************************************************************
+
+--{root}                - ChibiOS/RT directory.
+  +--readme.txt         - This file.
+  +--todo.txt           - Current plan (development/unstable versions only).
+  +--license.txt        - GPL license text.
+  +--exception.txt      - GPL exception text (stable releases only).
+  +--boards/            - Board support files.
+  +--demos/             - Demo projects.
+  +--docs/              - Documentation.
+  |  +--html/           - HTML documentation.
+  |  +--reports/        - Test reports.
+  |  +--src/            - Documentation source files (required for rebuild).
+  |  +--rsc/            - Documentation resource files (required for rebuild).
+  |  +--index.html      - Documentation access.
+  +--ext/               - External libraries, not part of ChibiOS/RT.
+  +--os/                - ChibiOS/RT files.
+  |  +--hal/            - Hardware Abstraction Layer.
+  |  |  +--include/     - HAL high level headers.
+  |  |  +--src/         - HAL high level source.
+  |  |  +--platforms/   - HAL low level drivers implementations.
+  |  |  |  +--AT91SAM7/ - Drivers for AT91SAM7 platform.
+  |  |  |  +--AVR/      - Drivers for AVR platform.
+  |  |  |  +--LPC214x/  - Drivers for LPC214x platform.
+  |  |  |  +--MSP430/   - Drivers for MSP430 platform.
+  |  |  |  +--STM32/    - Drivers for STM32 platform.
+  |  |  |  +--Linux/    - Drivers for x86 Linux simulator platform.
+  |  |  |  +--LPC214x/  - Drivers for x86 Win32 simulator platform.
+  |  |  +--templates/   - Driver template files.
+  |  |     +--meta/     - Driver meta templates.
+  |  +--ports/          - Port files for the various architectures.
+  |  |  +--GCC/         - Ports for the GCC compiler.
+  |  |     +--ARM/      - Port files for generic ARM architecture.
+  |  |     +--ARM7/     - Port files for ARM7 architecture.
+  |  |     +--ARMCM3/   - Port files for ARMCM3 architecture.
+  |  |     +--AVR/      - Port files for AVR architecture.
+  |  |     +--MSP430/   - Port files for MSP430 architecture.
+  |  |     +--SIMIA32/  - Port files for SIMIA32 simulator architecture.
+  |  +--kernel/         - Kernel portable files.
+  |  |  +--include/     - Kernel headers.
+  |  |  +--src/         - Kernel source.
+  |  |  +--templates/   - Kernel port template files.
+  |  +--various/        - Various portable support files.
+  +--test/              - Kernel test suite source code.
+  |  +--coverage/       - Code coverage project.
+  +--testhal/           - HAL integration test demos.
+ 
+*****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 1.3.8 ***
+- FIX: Fixed dequeuing in lifo_remove() function (bug 2928142).
+- FIX: Fixed spurious character generation in MSP430 serial driver (bug
+  2926838).
+- NEW: Introduced an abstract streams interface BaseSequentialStream.
+- NEW: Added timeout specification to the I/O queues read/write primitives.
+- NEW: Added support for HD and CL STM32 devices in the vectors table.
+- CHANGE: Modified the BaseChannel interface in order to make it a
+  BaseSequentialStream descendant.
+- CHANGE: Updated the serial driver model in order to expose the
+  BaseSequentialStream methods.
+- CHANGE: The behavior of the read/write primitives is changed, now the
+  functions are synchronous and do not return until the specified number of
+  bytes have been transferred or a timeout occurs, the old behavior can be
+  replicated by specifying TIME_IMMEDIATE as timeout. Another difference is
+  that specifying zero as bytes number is like specifying the largest size_t
+  plus one, zero was an illegal value before.
+- CHANGE: Simplified the LPC214x driver by removing the option to not use the
+  FIFO preload feature. Setting LPC214x_UART_FIFO_PRELOAD to 1 results in
+  the same behavior.
+- Documentation fixes and improvements, testing strategy explained.
+- Added article about waking up threads from IRQ handlers.
 
 *** 1.3.7 ***
 - FIX: Fixed duplicated definition of SPI_USE_MUTUAL_EXCLUSION (bug 2922495).
