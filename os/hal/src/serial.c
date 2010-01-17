@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2010 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -141,7 +148,7 @@ void sdObjectInit(SerialDriver *sdp, qnotify_t inotify, qnotify_t onotify) {
  */
 void sdStart(SerialDriver *sdp, const SerialConfig *config) {
 
-  chDbgCheck((sdp != NULL) && (config != NULL), "sdStart");
+  chDbgCheck(sdp != NULL, "sdStart");
 
   chSysLock();
   chDbgAssert((sdp->sd.state == SD_STOP) || (sdp->sd.state == SD_READY),
@@ -251,8 +258,10 @@ sdflags_t sdGetAndClearFlags(SerialDriver *sdp) {
 
   chDbgCheck(sdp != NULL, "sdGetAndClearFlags");
 
+  chSysLock();
   mask = sdp->sd.flags;
   sdp->sd.flags = SD_NO_ERROR;
+  chSysUnlock();
   return mask;
 }
 
