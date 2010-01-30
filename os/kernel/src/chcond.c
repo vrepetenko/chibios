@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
    Concepts and parts of this file are contributed by and Copyright (C) 2008
@@ -79,7 +72,7 @@ void chCondSignalI(CondVar *cp) {
   chDbgCheck(cp != NULL, "chCondSignalI");
 
   if (notempty(&cp->c_queue))                           /* any thread ? */
-    chSchReadyI(fifo_remove(&cp->c_queue))->p_rdymsg = RDY_OK;
+    chSchReadyI(fifo_remove(&cp->c_queue))->p_u.rdymsg = RDY_OK;
 }
 
 /**
@@ -104,11 +97,11 @@ void chCondBroadcastI(CondVar *cp) {
 
   chDbgCheck(cp != NULL, "chCondBroadcastI");
 
-  /* empties the condition variable queue and inserts all the Threads into the
+  /* Empties the condition variable queue and inserts all the Threads into the
    * ready list in FIFO order. The wakeup message is set to @p RDY_RESET in
-   * order to make a chCondBroadcast() detectable from a chCondSignal(). */
+   * order to make a chCondBroadcast() detectable from a chCondSignal().*/
   while (cp->c_queue.p_next != (void *)&cp->c_queue)
-    chSchReadyI(fifo_remove(&cp->c_queue))->p_rdymsg = RDY_RESET;
+    chSchReadyI(fifo_remove(&cp->c_queue))->p_u.rdymsg = RDY_RESET;
 }
 
 /**
@@ -145,21 +138,22 @@ msg_t chCondWait(CondVar *cp) {
  *        @p chCondWaitS().
  */
 msg_t chCondWaitS(CondVar *cp) {
+  Thread *ctp = currp;
   Mutex *mp;
   msg_t msg;
 
   chDbgCheck(cp != NULL, "chCondWaitS");
-  chDbgAssert(currp->p_mtxlist != NULL,
+  chDbgAssert(ctp->p_mtxlist != NULL,
               "chCondWaitS(), #1",
               "not owning a mutex");
 
-  mp = chMtxUnlockS();                  /* unlocks the condvar mutex */
-  prio_insert(currp, &cp->c_queue);     /* enters the condvar queue */
-  currp->p_wtcondp = cp;                /* needed by the tracer */
-  chSchGoSleepS(PRWTCOND);              /* waits on the condvar */
-  msg = currp->p_rdymsg;                /* fetches the wakeup message */
-  chMtxLockS(mp);                       /* atomically relocks the mutex */
-  return msg;                           /* returns the wakeup message */
+  mp = chMtxUnlockS();
+  prio_insert(ctp, &cp->c_queue);
+  ctp->p_u.wtobjp = cp;
+  chSchGoSleepS(THD_STATE_WTCOND);
+  msg = ctp->p_u.rdymsg;
+  chMtxLockS(mp);
+  return msg;
 }
 
 #if CH_USE_CONDVARS_TIMEOUT
@@ -211,21 +205,22 @@ msg_t chCondWaitTimeout(CondVar *cp, systime_t time) {
  *        @p chCondWaitTimeoutS().
  */
 msg_t chCondWaitTimeoutS(CondVar *cp, systime_t time) {
+  Thread *ctp = currp;
   Mutex *mp;
   msg_t msg;
 
   chDbgCheck(cp != NULL, "chCondWaitTimeoutS");
-  chDbgAssert(currp->p_mtxlist != NULL,
+  chDbgAssert(ctp->p_mtxlist != NULL,
               "chCondWaitTimeoutS(), #1",
               "not owning a mutex");
 
-  mp = chMtxUnlockS();                  /* unlocks the condvar mutex */
-  prio_insert(currp, &cp->c_queue);     /* enters the condvar queue */
-  currp->p_wtcondp = cp;                /* needed by the tracer */
-  chSchGoSleepTimeoutS(PRWTCOND, time); /* waits on the condvar */
-  msg = currp->p_rdymsg;                /* fetches the wakeup message */
-  chMtxLockS(mp);                       /* atomically relocks the mutex */
-  return msg;                           /* returns the wakeup message */
+  mp = chMtxUnlockS();
+  prio_insert(ctp, &cp->c_queue);
+  ctp->p_u.wtobjp = cp;
+  chSchGoSleepTimeoutS(THD_STATE_WTCOND, time);
+  msg = ctp->p_u.rdymsg;
+  chMtxLockS(mp);
+  return msg;
 }
 #endif /* CH_USE_CONDVARS_TIMEOUT */
 

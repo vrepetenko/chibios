@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2007 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -93,7 +86,7 @@ void chSemResetI(Semaphore *sp, cnt_t n) {
   cnt = sp->s_cnt;
   sp->s_cnt = n;
   while (cnt++ < 0)
-    chSchReadyI(lifo_remove(&sp->s_queue))->p_rdymsg = RDY_RESET;
+    chSchReadyI(lifo_remove(&sp->s_queue))->p_u.rdymsg = RDY_RESET;
 }
 
 /**
@@ -127,9 +120,9 @@ msg_t chSemWaitS(Semaphore *sp) {
 
   if (--sp->s_cnt < 0) {
     sem_insert(currp, &sp->s_queue);
-    currp->p_wtsemp = sp;
-    chSchGoSleepS(PRWTSEM);
-    return currp->p_rdymsg;
+    currp->p_u.wtobjp = sp;
+    chSchGoSleepS(THD_STATE_WTSEM);
+    return currp->p_u.rdymsg;
   }
   return RDY_OK;
 }
@@ -181,8 +174,8 @@ msg_t chSemWaitTimeoutS(Semaphore *sp, systime_t time) {
       return RDY_TIMEOUT;
     }
     sem_insert(currp, &sp->s_queue);
-    currp->p_wtsemp = sp;
-    return chSchGoSleepTimeoutS(PRWTSEM, time);
+    currp->p_u.wtobjp = sp;
+    return chSchGoSleepTimeoutS(THD_STATE_WTSEM, time);
   }
   return RDY_OK;
 }
@@ -220,7 +213,7 @@ void chSemSignalI(Semaphore *sp) {
     /* NOTE: It is done this way in order to allow a tail call on
              chSchReadyI().*/
     Thread *tp = fifo_remove(&sp->s_queue);
-    tp->p_rdymsg = RDY_OK;
+    tp->p_u.rdymsg = RDY_OK;
     chSchReadyI(tp);
   }
 }
@@ -243,12 +236,12 @@ msg_t chSemSignalWait(Semaphore *sps, Semaphore *spw) {
 
   chSysLock();
   if (sps->s_cnt++ < 0)
-    chSchReadyI(fifo_remove(&sps->s_queue))->p_rdymsg = RDY_OK;
+    chSchReadyI(fifo_remove(&sps->s_queue))->p_u.rdymsg = RDY_OK;
   if (--spw->s_cnt < 0) {
     sem_insert(currp, &spw->s_queue);
-    currp->p_wtsemp = spw;
-    chSchGoSleepS(PRWTSEM);
-    msg = currp->p_rdymsg;
+    currp->p_u.wtobjp = spw;
+    chSchGoSleepS(THD_STATE_WTSEM);
+    msg = currp->p_u.rdymsg;
   }
   else {
     chSchRescheduleS();
