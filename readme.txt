@@ -51,6 +51,27 @@
 *** Releases                                                              ***
 *****************************************************************************
 
+*** 1.5.1 ***
+- FIX: Fixed insufficient stack space for the idle thread in the ARMCM3 port
+  when compiling without optimizations (bug 2946233)(backported in 1.4.1).
+- FIX: Fixed wrong notes on function chThdResume() (bug 2943160).
+- NEW: Implemented the concept of thread references, this mechanism ensures
+  that a dynamic thread's memory is not freed while some other thread still
+  owns a reference to the thread. Static threads are not affected by the new
+  mechanism. Two new APIs have been added: chThdAddRef() and chThdRelease().
+- NEW: Now more than one thread can be waiting in chThdWait() as long they
+  own a reference.
+- NEW: Implemented a new threads registry subsystem, the registry allows to
+  enumerate the active threads at runtime and/or from a debugger. This is
+  a preparatory step for a dedicated ChibiOS/RT debugger.
+- NEW: New chCoreFree() API that returns the core memory left.
+- NEW: Added to the simulators shell demos two new commands: threads and mem,
+  that show the currently active threads (using the new registry) and the
+  memory allocators state.
+- CHANGE: Doxygen tags cleanup in all the system code, comments are better
+  looking now.
+- CHANGE: Documentation improvements.
+
 *** 1.5.0 ***
 - FIX: Fixed missing dependencies check for CH_USE_DYNAMIC (bug 2942757)
   (backported in 1.4.1).
