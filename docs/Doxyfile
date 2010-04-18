@@ -31,7 +31,7 @@ PROJECT_NAME           = ChibiOS/RT
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.5.4
+PROJECT_NUMBER         = 1.5.5
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
@@ -603,7 +603,8 @@ INPUT                  = ../docs/src \
                          ../os/ports/GCC/ARMCMx \
                          ../os/ports/GCC/ARMCMx/crt0.s \
                          ../os/ports/GCC/ARMCMx/STM32F10x \
-                         ../os/ports/GCC/ARMCMx/LPC111x \
+                         ../os/ports/GCC/ARMCMx/LPC11xx \
+                         ../os/ports/GCC/ARMCMx/LPC13xx \
                          ../os/ports/GCC/PPC \
                          ../os/ports/GCC/PPC/crt0.s \
                          ../os/ports/GCC/MSP430 \
@@ -614,7 +615,8 @@ INPUT                  = ../docs/src \
                          ../os/hal/templates \
                          ../os/hal/platforms/AT91SAM7 \
                          ../os/hal/platforms/AVR \
-                         ../os/hal/platforms/LPC111x \
+                         ../os/hal/platforms/LPC11xx \
+                         ../os/hal/platforms/LPC13xx \
                          ../os/hal/platforms/LPC214x \
                          ../os/hal/platforms/MSP430 \
                          ../os/hal/platforms/SPC56x \
@@ -679,8 +681,10 @@ RECURSIVE              = NO
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = ../os/hal/platforms/STM32/stm32f10x.h \
-                         ../os/hal/platforms/LPC111x/LPC11xx.h \
-                         ../os/hal/platforms/LPC111x/system_LPC11xx.h
+                         ../os/hal/platforms/LPC11xx/LPC11xx.h \
+                         ../os/hal/platforms/LPC11xx/system_LPC11xx.h \
+                         ../os/hal/platforms/LPC13xx/LPC13xx.h \
+                         ../os/hal/platforms/LPC13xx/system_LPC13xx.h
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 

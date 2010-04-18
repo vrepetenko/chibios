@@ -52,10 +52,10 @@ LDSCRIPT= ch.ld
 
 # Imported source files
 CHIBIOS = ../..
-include $(CHIBIOS)/boards/EA_LPCXPRESSO_BB_1114/board.mk
-include $(CHIBIOS)/os/hal/platforms/LPC11xx/platform.mk
+include $(CHIBIOS)/boards/EA_LPCXPRESSO_BB_1343/board.mk
+include $(CHIBIOS)/os/hal/platforms/LPC13xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/LPC11xx/port.mk
+include $(CHIBIOS)/os/ports/GCC/ARMCMx/LPC13xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
 include $(CHIBIOS)/test/test.mk
 
@@ -97,7 +97,7 @@ TCPPSRC =
 
 # List ASM source files here
 ASMSRC = $(PORTASM) \
-         $(CHIBIOS)/os/ports/GCC/ARMCMx/LPC11xx/vectors.s
+         $(CHIBIOS)/os/ports/GCC/ARMCMx/LPC13xx/vectors.s
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
@@ -111,8 +111,9 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 # Compiler settings
 #
 
-MCU  = cortex-m0
+MCU  = cortex-m3
 
+#TRGT = arm-elf-
 TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
@@ -148,7 +149,7 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all default C defines here, like -D_DEBUG=1
-DDEFS = -DLPC1114 -D__NEWLIB__
+DDEFS = -DLPC1348 -D__NEWLIB__
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =

@@ -18,10 +18,10 @@
 */
 
 /**
- * @file    LPC111x/serial_lld.h
- * @brief   LPC111x low level serial driver header.
+ * @file    LPC13xx/serial_lld.h
+ * @brief   LPC13xx low level serial driver header.
  *
- * @addtogroup LPC111x_SERIAL
+ * @addtogroup LPC13xx_SERIAL
  * @{
  */
 
@@ -88,8 +88,8 @@
  * @details If set to @p TRUE the support for UART0 is included.
  * @note The default is @p TRUE .
  */
-#if !defined(USE_LPC111x_UART0) || defined(__DOXYGEN__)
-#define USE_LPC111x_UART0           TRUE
+#if !defined(USE_LPC13xx_UART0) || defined(__DOXYGEN__)
+#define USE_LPC13xx_UART0           TRUE
 #endif
 
 /**
@@ -101,22 +101,22 @@
  *       also increase the worst case interrupt response time because the
  *       preload loops.
  */
-#if !defined(LPC111x_UART_FIFO_PRELOAD) || defined(__DOXYGEN__)
-#define LPC111x_UART_FIFO_PRELOAD   16
+#if !defined(LPC13xx_UART_FIFO_PRELOAD) || defined(__DOXYGEN__)
+#define LPC13xx_UART_FIFO_PRELOAD   16
 #endif
 
 /**
  * @brief UART0 interrupt priority level setting.
  */
-#if !defined(LPC111x_UART0_PRIORITY) || defined(__DOXYGEN__)
-#define LPC111x_UART0_PRIORITY      3
+#if !defined(LPC13xx_UART0_PRIORITY) || defined(__DOXYGEN__)
+#define LPC13xx_UART0_PRIORITY      3
 #endif
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-#if (LPC111x_UART_FIFO_PRELOAD < 1) || (LPC111x_UART_FIFO_PRELOAD > 16)
+#if (LPC13xx_UART_FIFO_PRELOAD < 1) || (LPC13xx_UART_FIFO_PRELOAD > 16)
 #error "invalid LPC214x_UART_FIFO_PRELOAD setting"
 #endif
 
@@ -182,7 +182,7 @@ typedef struct {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if USE_LPC111x_UART0 && !defined(__DOXYGEN__)
+#if USE_LPC13xx_UART0 && !defined(__DOXYGEN__)
 extern SerialDriver SD1;
 #endif
 

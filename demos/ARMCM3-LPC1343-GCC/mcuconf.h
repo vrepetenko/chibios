@@ -17,40 +17,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * @file    ARMCMx/LPC111x/cmparams.h
- * @brief   ARM Cortex-M0 LPC111x Specific Parameters.
+/*
+ * LPC13xx drivers configuration.
+ * The following settings override the default settings present in
+ * the various device driver implementation headers.
+ * Note that the settings for each driver only have effect if the driver
+ * is enabled in halconf.h.
  *
- * @defgroup ARMCMx_LPC111x LPC111x Specific Parameters
- * @ingroup ARMCMx
- * @details This file contains the Cortex-M0 specific parameters for the
- *          LPC111x platform.
- * @{
+ * IRQ priorities:
+ * 7...0        Lowest...highest.
  */
 
-#ifndef _CMPARAMS_H_
-#define _CMPARAMS_H_
-
-/**
- * @brief   Cortex core model.
+/*
+ * HAL driver system settings.
  */
-#define CORTEX_MODEL            CORTEX_M0
 
-/**
- * @brief   Systick unit presence.
+/*
+ * ADC driver system settings.
  */
-#define CORTEX_HAS_ST           TRUE
 
-/**
- * @brief   Memory Protection unit presence.
+/*
+ * CAN driver system settings.
  */
-#define CORTEX_HAS_MPU          FALSE
 
-/**
- * @brief   Number of bits in priority masks.
+/*
+ * PWM driver system settings.
  */
-#define CORTEX_PRIORITY_BITS    2
 
-#endif /* _CMPARAMS_H_ */
+/*
+ * SERIAL driver system settings.
+ */
 
-/** @} */
+/*
+ * SPI driver system settings.
+ */

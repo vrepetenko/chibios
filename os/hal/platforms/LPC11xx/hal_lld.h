@@ -18,10 +18,10 @@
 */
 
 /**
- * @file    LPC111x/hal_lld.h
+ * @file    LPC11xx/hal_lld.h
  * @brief   HAL subsystem low level driver header template.
  *
- * @addtogroup LPC111x_HAL
+ * @addtogroup LPC11xx_HAL
  * @{
  */
 
@@ -38,17 +38,17 @@
 /**
  * @brief   Platform name.
  */
-#define PLATFORM_NAME           "LPC111x"
+#define PLATFORM_NAME           "LPC11xx"
 
 #define IRCOSCCLK               12000000    /**< High speed internal clock. */
 #define WDGOSCCLK               1600000     /**< Watchdog internal clock.   */
 
-#define SYSPLLCLKSEL_IRCOCS     0           /**< Internal RC oscillator
+#define SYSPLLCLKSEL_IRCOSC     0           /**< Internal RC oscillator
                                                  clock source.              */
 #define SYSPLLCLKSEL_SYSOSC     1           /**< System oscillator clock
                                                  source.                    */
 
-#define SYSMAINCLKSEL_IRCOCS    0           /**< Clock source is IRC.       */
+#define SYSMAINCLKSEL_IRCOSC    0           /**< Clock source is IRC.       */
 #define SYSMAINCLKSEL_PLLIN     1           /**< Clock source is PLLIN.     */
 #define SYSMAINCLKSEL_WDGOSC    2           /**< Clock source is WDGOSC.    */
 #define SYSMAINCLKSEL_PLLOUT    3           /**< Clock source is PLLOUT.    */
@@ -183,9 +183,8 @@
 /**
  * @brief   AHB clock.
  */
-#if (LPC11xx_SYSCLK <= 50000000) || defined(__DOXYGEN__)
 #define  LPC11xx_SYSCLK     (LPC11xx_MAINCLK / LPC11xx_SYSABHCLK_DIV)
-#else
+#if LPC11xx_SYSCLK > 50000000
 #error "AHB clock frequency out of the acceptable range (50MHz max)"
 #endif
 

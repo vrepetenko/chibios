@@ -37,9 +37,32 @@
  * @brief   Interrupt saved context.
  * @details This structure represents the stack frame saved during a
  *          preemption-capable interrupt handler.
- * @note    It is implemented to match the Cortex-Mx exception context.
+ * @note    This structure is empty in this port.
  */
 struct extctx {
+};
+#endif
+
+#if !defined(__DOXYGEN__)
+/**
+ * @brief   System saved context.
+ * @details This structure represents the inner stack frame during a context
+ *          switching.
+ */
+struct intctx {
+  regarm_t      basepri;
+  regarm_t      r4;
+  regarm_t      r5;
+  regarm_t      r6;
+#ifndef CH_CURRP_REGISTER_CACHE
+  regarm_t      r7;
+#endif
+  regarm_t      r8;
+  regarm_t      r9;
+  regarm_t      r10;
+  regarm_t      r11;
+  regarm_t      lr_exc;
+  /* Start of the hardware saved frame.*/
   regarm_t      r0;
   regarm_t      r1;
   regarm_t      r2;
@@ -51,39 +74,21 @@ struct extctx {
 };
 #endif
 
-#if !defined(__DOXYGEN__)
-/**
- * @brief   System saved context.
- * @details This structure represents the inner stack frame during a context
- *          switching.
- */
-struct intctx {
-  regarm_t      r4;
-  regarm_t      r5;
-  regarm_t      r6;
-#ifndef CH_CURRP_REGISTER_CACHE
-  regarm_t      r7;
-#endif
-  regarm_t      r8;
-  regarm_t      r9;
-  regarm_t      r10;
-  regarm_t      r11;
-  regarm_t      lr;
-};
-#endif
-
 /**
  * @brief   Platform dependent part of the @p chThdInit() API.
  * @details This code usually setup the context switching frame represented
  *          by an @p intctx structure.
  */
-#define SETUP_CONTEXT(workspace, wsize, pf, arg) {                          \
-  tp->p_ctx.r13 = (struct intctx *)((uint8_t *)workspace +                  \
-                                     wsize -                                \
-                                     sizeof(struct intctx));                \
-  tp->p_ctx.r13->r4 = pf;                                                   \
-  tp->p_ctx.r13->r5 = arg;                                                  \
-  tp->p_ctx.r13->lr = _port_thread_start;                                   \
+#define SETUP_CONTEXT(workspace, wsize, pf, arg) {                      \
+  tp->p_ctx.r13 = (struct intctx *)((uint8_t *)workspace +              \
+                                     wsize -                            \
+                                     sizeof(struct intctx));            \
+  tp->p_ctx.r13->basepri = CORTEX_BASEPRI_DISABLED;                     \
+  tp->p_ctx.r13->lr_exc = (regarm_t)0xFFFFFFFD;                         \
+  tp->p_ctx.r13->r0 = arg;                                              \
+  tp->p_ctx.r13->lr_thd = chThdExit;                                    \
+  tp->p_ctx.r13->pc = pf;                                               \
+  tp->p_ctx.r13->xpsr = (regarm_t)0x01000000;                           \
 }
 
 /**
@@ -123,7 +128,12 @@ struct intctx {
  * @details This macro must be inserted at the end of all IRQ handlers
  *          enabled to invoke system APIs.
  */
-#define PORT_IRQ_EPILOGUE() _port_irq_epilogue()
+#define PORT_IRQ_EPILOGUE() {                                           \
+  chSysLockFromIsr();                                                   \
+  if (chSchIsRescRequiredI())                                           \
+    SCB_ICSR = ICSR_PENDSVSET;                                          \
+  chSysUnlockFromIsr();                                                 \
+}
 
 /**
  * @brief   IRQ handler function declaration.
@@ -139,6 +149,8 @@ struct intctx {
   SCB_AIRCR = AIRCR_VECTKEY | AIRCR_PRIGROUP(0);                            \
   NVICSetSystemHandlerPriority(HANDLER_SVCALL,                              \
     CORTEX_PRIORITY_MASK(CORTEX_PRIORITY_SVCALL));                          \
+  NVICSetSystemHandlerPriority(HANDLER_PENDSV,                              \
+    CORTEX_PRIORITY_MASK(CORTEX_PRIORITY_PENDSV));                          \
   NVICSetSystemHandlerPriority(HANDLER_SYSTICK,                             \
     CORTEX_PRIORITY_MASK(CORTEX_PRIORITY_SYSTICK));                         \
 }
@@ -150,13 +162,13 @@ struct intctx {
  * @note    In this port this it raises the base priority to kernel level.
  */
 #if CH_OPTIMIZE_SPEED
-#define port_lock() {                                                       \
-  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_KERNEL;                 \
-  asm volatile ("msr     BASEPRI, %0" : : "r" (tmp));                       \
+#define port_lock() {                                                   \
+  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_KERNEL;             \
+  asm volatile ("msr     BASEPRI, %0" : : "r" (tmp));                   \
 }
 #else
-#define port_lock() {                                                       \
-  asm volatile ("bl      _port_lock" : : : "r3", "lr");                     \
+#define port_lock() {                                                   \
+  asm volatile ("bl      _port_lock" : : : "r3", "lr");                 \
 }
 #endif
 
@@ -164,16 +176,16 @@ struct intctx {
  * @brief   Kernel-unlock action.
  * @details Usually this function just disables interrupts but may perform
  *          more actions.
- * @note    In this port this it lowers the base priority to user level.
+ * @note    In this port this it lowers the base priority to kernel level.
  */
 #if CH_OPTIMIZE_SPEED
-#define port_unlock() {                                                     \
-  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_DISABLED;               \
-  asm volatile ("msr     BASEPRI, %0" : : "r" (tmp));                       \
+#define port_unlock() {                                                 \
+  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_DISABLED;           \
+  asm volatile ("msr     BASEPRI, %0" : : "r" (tmp));                   \
 }
 #else
-#define port_unlock() {                                                     \
-  asm volatile ("bl      _port_unlock" : : : "r3", "lr");                   \
+#define port_unlock() {                                                 \
+  asm volatile ("bl      _port_unlock" : : : "r3", "lr");               \
 }
 #endif
 
@@ -208,20 +220,20 @@ struct intctx {
  * @note    Interrupt sources above kernel level remains enabled.
  * @note    In this port it raises/lowers the base priority to kernel level.
  */
-#define port_suspend() {                                                    \
-  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_KERNEL;                 \
-  asm volatile ("msr     BASEPRI, %0                    \n\t"               \
-                "cpsie   i" : : "r" (tmp));                                 \
+#define port_suspend() {                                                \
+  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_KERNEL;             \
+  asm volatile ("msr     BASEPRI, %0                    \n\t"           \
+                "cpsie   i" : : "r" (tmp));                             \
 }
 
 /**
  * @brief   Enables all the interrupt sources.
  * @note    In this port it lowers the base priority to user level.
  */
-#define port_enable() {                                                     \
-  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_DISABLED;               \
-  asm volatile ("msr     BASEPRI, %0                    \n\t"               \
-                "cpsie   i" : : "r" (tmp));                                 \
+#define port_enable() {                                                 \
+  register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_DISABLED;           \
+  asm volatile ("msr     BASEPRI, %0                    \n\t"           \
+                "cpsie   i" : : "r" (tmp));                             \
 }
 
 /**
@@ -233,21 +245,40 @@ struct intctx {
  * @note    Implemented as an inlined @p WFI instruction.
  */
 #if CORTEX_ENABLE_WFI_IDLE || defined(__DOXYGEN__)
-#define port_wait_for_interrupt() {                                         \
-  asm volatile ("wfi");                                                     \
+#define port_wait_for_interrupt() {                                     \
+  asm volatile ("wfi");                                                 \
 }
 #else
 #define port_wait_for_interrupt()
 #endif
 
+/**
+ * @brief   Performs a context switch between two threads.
+ * @details This is the most critical code in any port, this function
+ *          is responsible for the context switch between 2 threads.
+ * @note    The implementation of this code affects <b>directly</b> the context
+ *          switch performance so optimize here as much as you can.
+ * @note    Implemented as inlined code for performance reasons.
+ *
+ * @param[in] ntp       the thread to be switched in
+ * @param[in] otp       the thread to be switched out
+ */
+static INLINE void port_switch(Thread *ntp, Thread *otp) {
+  register Thread *_ntp asm ("r0") = (ntp);
+  register Thread *_otp asm ("r1") = (otp);
+#if CH_DBG_ENABLE_STACK_CHECK
+  register char *sp asm ("sp");
+  if (sp - sizeof(struct intctx) - sizeof(Thread) < (char *)_otp)
+    asm volatile ("movs    r0, #0                               \n\t"
+                  "b       chDbgPanic");
+#endif /* CH_DBG_ENABLE_STACK_CHECK */
+  asm volatile ("svc     #0" : : "r" (_otp), "r" (_ntp) : "memory");
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
   void port_halt(void);
-  void port_switch(Thread *ntp, Thread *otp);
-  void _port_irq_epilogue(void);
-  void _port_switch_from_isr(void);
-  void _port_thread_start(void);
 #if !CH_OPTIMIZE_SPEED
   void _port_lock(void);
   void _port_unlock(void);

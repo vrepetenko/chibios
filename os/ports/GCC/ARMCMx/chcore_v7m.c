@@ -27,6 +27,22 @@
 
 #include "ch.h"
 
+/**
+ * @brief   Internal context stacking.
+ */
+#define PUSH_CONTEXT(sp) {                                                  \
+  asm volatile ("push    {r4, r5, r6, r7, r8, r9, r10, r11, lr}");          \
+}
+
+
+/**
+ * @brief   Internal context unstacking.
+ */
+#define POP_CONTEXT(sp) {                                                   \
+  asm volatile ("pop     {r4, r5, r6, r7, r8, r9, r10, r11, pc}"            \
+                :  : "r" (sp));                                             \
+}
+
 #if !CH_OPTIMIZE_SPEED
 void _port_lock(void) {
   register uint32_t tmp asm ("r3") = CORTEX_BASEPRI_KERNEL;
@@ -44,135 +60,112 @@ void _port_unlock(void) {
  * @details This interrupt is used as system tick.
  * @note    The timer must be initialized in the startup code.
  */
-void SysTickVector(void) {
+CH_IRQ_HANDLER(SysTickVector) {
+
+  CH_IRQ_PROLOGUE();
 
   chSysLockFromIsr();
   chSysTimerHandlerI();
-  if (chSchIsRescRequiredExI())
-    SCB_ICSR = ICSR_PENDSVSET;
   chSysUnlockFromIsr();
-}
 
-#if CORTEX_MODEL == CORTEX_M0
-#define PUSH_CONTEXT(sp, prio) {                                        \
-  asm volatile ("mrs     %0, PSP                                \n\t"   \
-                "sub     %0, %0, #40                            \n\t"   \
-                "stmia   %0!, {r3-r7}                           \n\t"   \
-                "sub     %0, %0, #20                            \n\t"   \
-                "mov     r3, r8                                 \n\t"   \
-                "str     r3, [%0, #20]                          \n\t"   \
-                "mov     r3, r9                                 \n\t"   \
-                "str     r3, [%0, #24]                          \n\t"   \
-                "mov     r3, r10                                \n\t"   \
-                "str     r3, [%0, #28]                          \n\t"   \
-                "mov     r3, r11                                \n\t"   \
-                "str     r3, [%0, #32]                          \n\t"   \
-                "mov     r3, lr                                 \n\t"   \
-                "str     r3, [%0, #36]                          \n\t"   \
-                : "=r" (sp) : "r" (sp), "r" (prio));                    \
+  CH_IRQ_EPILOGUE();
 }
-
-#define POP_CONTEXT(sp) {                                               \
-  asm volatile ("ldr     r3, [%0, #20]                          \n\t"   \
-                "mov     r8, r3                                 \n\t"   \
-                "ldr     r3, [%0, #24]                          \n\t"   \
-                "mov     r9, r3                                 \n\t"   \
-                "ldr     r3, [%0, #28]                          \n\t"   \
-                "mov     r10, r3                                \n\t"   \
-                "ldr     r3, [%0, #32]                          \n\t"   \
-                "mov     r11, r3                                \n\t"   \
-                "ldr     r3, [%0, #36]                          \n\t"   \
-                "mov     lr, r3                                 \n\t"   \
-                "ldmia   %0!, {r3-r7}                           \n\t"   \
-                "add     %0, %0, #20                            \n\t"   \
-                "msr     PSP, %0                                \n\t"   \
-                "msr     BASEPRI, r3                            \n\t"   \
-                "bx      lr" : "=r" (sp) : "r" (sp));                   \
-}
-#else /* CORTEX_MODEL != CORTEX_M0 */
-#if !defined(CH_CURRP_REGISTER_CACHE)
-#define PUSH_CONTEXT(sp, prio) {                                        \
-  asm volatile ("mrs     %0, PSP                                \n\t"   \
-                "stmdb   %0!, {r3-r11,lr}" :                            \
-                "=r" (sp) : "r" (sp), "r" (prio));                      \
-}
-
-#define POP_CONTEXT(sp) {                                               \
-  asm volatile ("ldmia   %0!, {r3-r11, lr}                      \n\t"   \
-                "msr     PSP, %0                                \n\t"   \
-                "msr     BASEPRI, r3                            \n\t"   \
-                "bx      lr" : "=r" (sp) : "r" (sp));                   \
-}
-#else /* defined(CH_CURRP_REGISTER_CACHE) */
-#define PUSH_CONTEXT(sp, prio) {                                        \
-  asm volatile ("mrs     %0, PSP                                \n\t"   \
-                "stmdb   %0!, {r3-r6,r8-r11, lr}" :                     \
-                "=r" (sp) : "r" (sp), "r" (prio));                      \
-}
-
-#define POP_CONTEXT(sp) {                                               \
-  asm volatile ("ldmia   %0!, {r3-r6,r8-r11, lr}                \n\t"   \
-                "msr     PSP, %0                                \n\t"   \
-                "msr     BASEPRI, r3                            \n\t"   \
-                "bx      lr" : "=r" (sp) : "r" (sp));                   \
-}
-#endif /* defined(CH_CURRP_REGISTER_CACHE) */
-#endif /* CORTEX_MODEL != CORTEX_M0 */
 
 /**
  * @brief   SVC vector.
- * @details The SVC vector is used for commanded context switch. Structures
- *          @p intctx are saved and restored from the process stacks of the
- *          switched threads.
+ * @details The SVC vector is used for exception mode re-entering after a
+ *          context switch.
+ */
+void SVCallVector(void) {
+  register struct extctx *ctxp;
+
+  /* Discarding the current exception context and positioning the stack to
+     point to the real one.*/
+  asm volatile ("mrs     %0, PSP" : "=r" (ctxp) : );
+  ctxp++;
+  asm volatile ("msr     PSP, %0" :  : "r" (ctxp));
+  port_unlock_from_isr();
+}
+
+/**
+ * @brief   Reschedule verification and setup after an IRQ.
+ */
+void _port_irq_epilogue(void) {
+
+  port_lock_from_isr();
+  if ((SCB_ICSR & ICSR_RETTOBASE) && chSchIsRescRequiredExI()) {
+    register struct extctx *ctxp;
+
+    /* Adding an artificial exception return context, there is no need to
+       populate it fully.*/
+    asm volatile ("mrs     %0, PSP" : "=r" (ctxp) : );
+    ctxp--;
+    asm volatile ("msr     PSP, %0" :  : "r" (ctxp));
+    ctxp->pc = _port_switch_from_isr;
+    ctxp->xpsr = (regarm_t)0x01000000;
+    /* Note, returning without unlocking is intentional, this is done in
+       order to keep the rest of the context switching atomic.*/
+    return;
+  }
+  /* ISR exit without context switching.*/
+  port_unlock_from_isr();
+}
+
+/**
+ * @brief   Post-IRQ switch code.
+ * @details Exception handlers return here for context switching.
+ */
+#if !defined(__DOXYGEN__)
+__attribute__((naked))
+#endif
+void _port_switch_from_isr(void) {
+
+  chSchDoRescheduleI();
+  asm volatile ("svc     #0");
+}
+
+/**
+ * @brief   Performs a context switch between two threads.
+ * @details This is the most critical code in any port, this function
+ *          is responsible for the context switch between 2 threads.
+ * @note    The implementation of this code affects <b>directly</b> the context
+ *          switch performance so optimize here as much as you can.
  *
- * @param[in] ntp       the thread to be switched it
+ * @param[in] ntp       the thread to be switched in
  * @param[in] otp       the thread to be switched out
  */
 #if !defined(__DOXYGEN__)
 __attribute__((naked))
 #endif
-void SVCallVector(Thread *ntp, Thread *otp) {
-  register struct intctx *sp_thd asm("r2");
-  register uint32_t prio asm ("r3");
+void port_switch(Thread *ntp, Thread *otp) {
+  register struct intctx *r13 asm ("r13");
 
-  asm volatile ("mrs     r3, BASEPRI" : "=r" (prio) : );
-  PUSH_CONTEXT(sp_thd, prio)
+  /* Stack overflow check, if enabled.*/
+#if CH_DBG_ENABLE_STACK_CHECK
+  if ((void *)(r13 - 1) < (void *)(otp + 1))
+    asm volatile ("movs    r0, #0                               \n\t"
+                  "b       chDbgPanic");
+#endif /* CH_DBG_ENABLE_STACK_CHECK */
 
-  otp->p_ctx.r13 = sp_thd;
-  sp_thd = ntp->p_ctx.r13;
+  PUSH_CONTEXT(r13);
 
-  POP_CONTEXT(sp_thd)
+  otp->p_ctx.r13 = r13;
+  r13 = ntp->p_ctx.r13;
+
+  POP_CONTEXT(r13);
 }
 
 /**
- * @brief   Preemption code.
+ * @brief   Start a thread by invoking its work function.
+ * @details If the work function returns @p chThdExit() is automatically
+ *          invoked.
  */
-#if !defined(__DOXYGEN__)
-__attribute__((naked))
-#endif
-void PendSVVector(void) {
-  register struct intctx *sp_thd asm("r2");
-  register uint32_t prio asm ("r3");
-  Thread *otp, *ntp;
+void _port_thread_start(void) {
 
-  chSysLockFromIsr();
-
-  prio = CORTEX_BASEPRI_DISABLED;
-  PUSH_CONTEXT(sp_thd, prio)
-
-  (otp = currp)->p_ctx.r13 = sp_thd;
-  ntp = fifo_remove(&rlist.r_queue);
-  setcurrp(ntp);
-  ntp->p_state = THD_STATE_CURRENT;
-  chSchReadyI(otp);
-#if CH_TIME_QUANTUM > 0
-  /* Set the round-robin time quantum.*/
-  rlist.r_preempt = CH_TIME_QUANTUM;
-#endif
-  chDbgTrace(otp);
-  sp_thd = ntp->p_ctx.r13;
-
-  POP_CONTEXT(sp_thd)
+  port_unlock();
+  asm volatile ("mov     r0, r5                                 \n\t"
+                "blx     r4                                     \n\t"
+                "bl      chThdExit");
 }
 
 /** @} */
