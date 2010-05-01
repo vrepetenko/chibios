@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2010 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -10,17 +10,23 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
- * @file    STM32/spi_lld.h
- * @brief   STM32 SPI subsystem low level driver header.
- *
+ * @file STM32/spi_lld.h
+ * @brief STM32 SPI subsystem low level driver header.
  * @addtogroup STM32_SPI
  * @{
  */
@@ -78,16 +84,18 @@
 
 /**
  * @brief SPI1 interrupt priority level setting.
+ * @note @p BASEPRI_KERNEL >= @p STM32_SPI1_IRQ_PRIORITY > @p PRIORITY_PENDSV.
  */
 #if !defined(STM32_SPI1_IRQ_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_SPI1_IRQ_PRIORITY     10
+#define STM32_SPI1_IRQ_PRIORITY     0xA0
 #endif
 
 /**
  * @brief SPI2 interrupt priority level setting.
+ * @note @p BASEPRI_KERNEL >= @p STM32_SPI2_IRQ_PRIORITY > @p PRIORITY_PENDSV.
  */
 #if !defined(STM32_SPI2_IRQ_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_SPI2_IRQ_PRIORITY     10
+#define STM32_SPI2_IRQ_PRIORITY     0xA0
 #endif
 
 /**
@@ -187,11 +195,12 @@ typedef struct {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if USE_STM32_SPI1 && !defined(__DOXYGEN__)
+/** @cond never*/
+#if USE_STM32_SPI1
 extern SPIDriver SPID1;
 #endif
 
-#if USE_STM32_SPI2 && !defined(__DOXYGEN__)
+#if USE_STM32_SPI2
 extern SPIDriver SPID2;
 #endif
 
@@ -211,6 +220,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+/** @endcond*/
 
 #endif /* CH_HAL_USE_SPI */
 

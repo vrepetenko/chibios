@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2010 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -10,17 +10,23 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
- * @file    LPC214x/vic.c
- * @brief   LPC214x VIC peripheral support code.
- *
+ * @file LPC214x/vic.c
+ * @brief LPC214x VIC peripheral support code.
  * @addtogroup LPC214x_VIC
  * @{
  */
@@ -28,8 +34,8 @@
 #include "ch.h"
 
 /**
- * @brief   VIC Initialization.
- * @note    Better reset everything in the VIC, it is a HUGE source of trouble.
+ * @brief VIC Initialization.
+ * @note Better reset everything in the VIC, it is a HUGE source of trouble.
  */
 void vic_init(void) {
   int i;
@@ -46,12 +52,11 @@ void vic_init(void) {
 }
 
 /**
- * @brief   Initializes a VIC vector.
+ * @brief Initializes a VIC vector.
  * @details Set a vector for an interrupt source and enables it.
- *
- * @param[in] handler   the pointer to the IRQ service routine
- * @param[in] vector    the vector number
- * @param[in] source    the IRQ source to be associated to the vector
+ * @param[in] handler the pointer to the IRQ service routine
+ * @param[in] vector the vector number
+ * @param[in] source the IRQ source to be associated to the vector
  */
 void SetVICVector(void *handler, int vector, int source) {
 
