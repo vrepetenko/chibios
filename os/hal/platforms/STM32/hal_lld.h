@@ -18,8 +18,9 @@
 */
 
 /**
- * @file STM32/hal_lld.h
- * @brief STM32 HAL subsystem low level driver header.
+ * @file    STM32/hal_lld.h
+ * @brief   STM32 HAL subsystem low level driver header.
+ *
  * @addtogroup STM32_HAL
  * @{
  */
@@ -27,10 +28,8 @@
 #ifndef _HAL_LLD_H_
 #define _HAL_LLD_H_
 
-/*
- * Tricks required to make the TRUE/FALSE declaration inside the library
- * compatible.
- */
+/* Tricks required to make the TRUE/FALSE declaration inside the library
+   compatible.*/
 #undef FALSE
 #undef TRUE
 #include "stm32f10x.h"
@@ -40,70 +39,24 @@
 #include "nvic.h"
 #include "stm32_dma.h"
 
-/*===========================================================================*/
-/* Driver constants.                                                         */
-/*===========================================================================*/
-
 /**
  * @brief   Platform name.
  */
-#define PLATFORM_NAME               "STM32"
-
-/*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
-/*===========================================================================*/
-
-/**
- * @brief System clock setting.
- * @note Only 48MHz and 72MHz are currently supported.
- */
-#if !defined(STM32_SYSCLK) || defined(__DOXYGEN__)
-#define STM32_SYSCLK                72
-#endif
-
-/*===========================================================================*/
-/* Derived constants and error checks.                                       */
-/*===========================================================================*/
-
-/*
- * NOTES: PLLPRE can be 1 or 2, PLLMUL can be 2..16.
- */
-#define PLLPRE                      1
-#if STM32_SYSCLK == 48
-  #define PLLMUL                    6
-#elif STM32_SYSCLK == 72
-  #define PLLMUL                    9
+#if defined(STM32F10X_MD) || defined(__DOXYGEN__)
+#define PLATFORM_NAME           "STM32 MD"
+#include "hal_lld_f103.h"
+#elif defined(STM32F10X_LD)
+#define PLATFORM_NAME           "STM32 LD"
+#include "hal_lld_f103.h"
+#elif defined(STM32F10X_HD)
+#define PLATFORM_NAME           "STM32 HD"
+#include "hal_lld_f103.h"
+#elif defined(STM32F10X_CL)
+#define PLATFORM_NAME           "STM32 CL"
+#include "hal_lld_f105_f107.h"
 #else
-#error "unsupported STM32_SYSCLK setting"
+#error "STM32 platform unknown or not specified"
 #endif
-#define PLLCLK                      ((HSECLK / PLLPRE) * PLLMUL)
-#define SYSCLK                      PLLCLK
-#define APB1CLK                     (SYSCLK / 2)
-#define APB2CLK                     (SYSCLK / 2)
-#define AHB1CLK                     (SYSCLK / 1)
-#define TIMCLK2                     (APB2CLK * 2)
-#define TIMCLK1                     (APB1CLK * 2)
-
-/*
- * Values derived from the clock settings.
- */
-#define PLLPREBITS                  ((PLLPRE - 1) << 17)
-#define PLLMULBITS                  ((PLLMUL - 2) << 18)
-#if STM32_SYSCLK == 48
-  #define USBPREBITS                RCC_CFGR_USBPRE
-  #define FLASHBITS                 0x00000011
-#elif STM32_SYSCLK == 72
-  #define USBPREBITS                0
-  #define FLASHBITS                 0x00000012
-#endif
-
-/*===========================================================================*/
-/* Driver data structures and types.                                         */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Driver macros.                                                            */
-/*===========================================================================*/
 
 /*===========================================================================*/
 /* External declarations.                                                    */

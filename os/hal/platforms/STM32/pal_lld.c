@@ -18,8 +18,9 @@
 */
 
 /**
- * @file STM32/pal_lld.c
- * @brief STM32 GPIO low level driver code.
+ * @file    STM32/pal_lld.c
+ * @brief   STM32 GPIO low level driver code.
+ *
  * @addtogroup STM32_PAL
  * @{
  */
@@ -46,7 +47,7 @@
                        RCC_APB2ENR_IOPEEN | RCC_APB2ENR_IOPFEN |        \
                        RCC_APB2ENR_IOPGEN | RCC_APB2ENR_AFIOEN)
 #else
-  /* Defaults on Medium Density devices.*/
+  /* Defaults on Medium Density and Connection Line devices.*/
 #define APB2_RST_MASK (RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_IOPBRST |    \
                        RCC_APB2RSTR_IOPCRST | RCC_APB2RSTR_IOPDRST |    \
                        RCC_APB2RSTR_IOPERST | RCC_APB2RSTR_AFIORST);
@@ -76,12 +77,12 @@
 /*===========================================================================*/
 
 /**
- * @brief STM32 I/O ports configuration.
+ * @brief   STM32 I/O ports configuration.
  * @details Ports A-D(E, F, G) clocks enabled, AFIO clock enabled.
  *
- * @param[in] config the STM32 ports configuration
+ * @param[in] config    the STM32 ports configuration
  */
-void _pal_lld_init(const STM32GPIOConfig *config) {
+void _pal_lld_init(const PALConfig *config) {
 
   /*
    * Enables the GPIO related clocks.
@@ -122,20 +123,19 @@ void _pal_lld_init(const STM32GPIOConfig *config) {
 }
 
 /**
- * @brief Pads mode setup.
+ * @brief   Pads mode setup.
  * @details This function programs a pads group belonging to the same port
  *          with the specified mode.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
+ * @note    @p PAL_MODE_UNCONNECTED is implemented as push pull output at 2MHz.
+ * @note    Writing on pads programmed as pull-up or pull-down has the side
+ *          effect to modify the resistor setting because the output latched
+ *          data is used for the resistor selection.
  *
- * @param[in] port the port identifier
- * @param[in] mask the group mask
- * @param[in] mode the mode
- *
- * @note This function is not meant to be invoked directly by the application
- *       code.
- * @note @p PAL_MODE_UNCONNECTED is implemented as push pull output at 2MHz.
- * @note Writing on pads programmed as pull-up or pull-down has the side
- *       effect to modify the resistor setting because the output latched data
- *       is used for the resistor selection.
+ * @param[in] port      the port identifier
+ * @param[in] mask      the group mask
+ * @param[in] mode      the mode
  */
 void _pal_lld_setgroupmode(ioportid_t port,
                            ioportmask_t mask,

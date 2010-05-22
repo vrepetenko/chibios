@@ -33,9 +33,14 @@
 /*
  * Board frequencies.
  */
-#define LSECLK          32768
-#define HSECLK          8000000
-#define HSICLK          8000000
+#define STM32_LSECLK            32768
+#define STM32_HSECLK            8000000
+
+/*
+ * MCU type, this macro is used by both the ST library and the ChibiOS/RT
+ * native STM32 HAL.
+ */
+#define STM32F10X_MD
 
 /*
  * IO pins assignments.

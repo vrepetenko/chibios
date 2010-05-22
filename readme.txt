@@ -58,6 +58,38 @@
 *** Releases                                                              ***
 *****************************************************************************
 
+*** 1.5.7 ***
+- FIX: Fixed missing SPI driver reinitialization in the MMC driver (bug
+  3005628)(backported in 1.4.4).
+- FIX: Fixed wrong inclusion order of board.h and halconf.h into hal.h
+  (bug 3005041)(backported in 1.4.4).
+- FIX: Fixed wrong GPIO ports size in the STM8 PAL driver (bug 3001528).
+- NEW: Improved clock initialization for the STM32, now it is possible to
+  configure the clock using any clock source and any HSE frequency.
+- NEW: The STM32 clock tree parameters and checks are now calculated into
+  a separate file in order to support multiple clock trees for different
+  sub-families of the STM32 platform.
+- NEW: Added separated clock trees for the STM32 LD/MD/HD sub-family and
+  the CL sub-family. Now the selection of the sub-family is done in the
+  board.h file, there is no more the need to put -DSTM32F10X_xx into
+  the makefile.
+- NEW: Added the palSetBusMode() capability to the STM8 PAL driver.
+- NEW: Added the palSetBusMode() capability to the LPC11xx and LPC13xx
+  PAL drivers.
+- NEW: Updated the STM32 FW Library files to latest version 3.3.0.
+- CHANGE: Renamed the STM32, STM8, LPC214x, AT91SAM7x, MSP430 and simulators
+  PAL configuration structures to PALConfig, it is better to have the same
+  name for this structure in all ports (like for all the other drivers).
+- CHANGE: Modified the linker scripts in the ARM demos in order to increase
+  compatibility with the CodeSourcery toolchain.
+- Tested the STM8 port with the latest RKit-STM8_2.28.10.0092. It works but
+  the new compiler shows a slight performance regression except in one
+  test case.
+- Added credits page to the documentation, improved the article regarding
+  timings.
+- Performed another documentation revision cycle, fixed more bad English and
+  few errors.
+
 *** 1.5.6 ***
 - FIX: Fixed centralized ARM makefile (bug 2992747)(backported in 1.4.3).
 - FIX: Fixed write problems in MMC_SPI driver (bug 2991714)(backported in
