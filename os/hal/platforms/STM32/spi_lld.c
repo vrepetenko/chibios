@@ -10,23 +10,17 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
- * @file STM32/spi_lld.c
- * @brief STM32 SPI subsystem low level driver source.
+ * @file    STM32/spi_lld.c
+ * @brief   STM32 SPI subsystem low level driver source.
+ *
  * @addtogroup STM32_SPI
  * @{
  */
@@ -48,6 +42,11 @@ SPIDriver SPID1;
 /** @brief SPI2 driver identifier.*/
 #if USE_STM32_SPI2 || defined(__DOXYGEN__)
 SPIDriver SPID2;
+#endif
+
+/** @brief SPI3 driver identifier.*/
+#if USE_STM32_SPI3 || defined(__DOXYGEN__)
+SPIDriver SPID3;
 #endif
 
 /*===========================================================================*/
@@ -115,9 +114,9 @@ static void spi_start_wait(SPIDriver *spip, size_t n,
 
 #if USE_STM32_SPI1 || defined(__DOXYGEN__)
 /**
- * @brief SPI1 RX DMA interrupt handler (channel 2).
+ * @brief   SPI1 RX DMA interrupt handler (channel 2).
  */
-CH_IRQ_HANDLER(Vector70) {
+CH_IRQ_HANDLER(DMA1_Ch2_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -125,22 +124,22 @@ CH_IRQ_HANDLER(Vector70) {
   if ((DMA1->ISR & DMA_ISR_TEIF2) != 0) {
     STM32_SPI1_DMA_ERROR_HOOK();
   }
-  DMA1->IFCR |= DMA_IFCR_CGIF2  | DMA_IFCR_CTCIF2 |
-                DMA_IFCR_CHTIF2 | DMA_IFCR_CTEIF2;
+  DMA1->IFCR = DMA_IFCR_CGIF2  | DMA_IFCR_CTCIF2 |
+               DMA_IFCR_CHTIF2 | DMA_IFCR_CTEIF2;
 
   CH_IRQ_EPILOGUE();
 }
 
 /**
- * @brief SPI1 TX DMA interrupt handler (channel 3).
+ * @brief   SPI1 TX DMA interrupt handler (channel 3).
  */
-CH_IRQ_HANDLER(Vector74) {
+CH_IRQ_HANDLER(DMA1_Ch3_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
   STM32_SPI1_DMA_ERROR_HOOK();
-  DMA1->IFCR |= DMA_IFCR_CGIF3  | DMA_IFCR_CTCIF3 |
-                DMA_IFCR_CHTIF3 | DMA_IFCR_CTEIF3;
+  DMA1->IFCR = DMA_IFCR_CGIF3  | DMA_IFCR_CTCIF3 |
+               DMA_IFCR_CHTIF3 | DMA_IFCR_CTEIF3;
 
   CH_IRQ_EPILOGUE();
 }
@@ -148,9 +147,9 @@ CH_IRQ_HANDLER(Vector74) {
 
 #if USE_STM32_SPI2 || defined(__DOXYGEN__)
 /**
- * @brief SPI2 RX DMA interrupt handler (channel 4).
+ * @brief   SPI2 RX DMA interrupt handler (channel 4).
  */
-CH_IRQ_HANDLER(Vector78) {
+CH_IRQ_HANDLER(DMA1_Ch4_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -158,22 +157,55 @@ CH_IRQ_HANDLER(Vector78) {
   if ((DMA1->ISR & DMA_ISR_TEIF4) != 0) {
     STM32_SPI2_DMA_ERROR_HOOK();
   }
-  DMA1->IFCR |= DMA_IFCR_CGIF4  | DMA_IFCR_CTCIF4 |
-                DMA_IFCR_CHTIF4 | DMA_IFCR_CTEIF4;
+  DMA1->IFCR = DMA_IFCR_CGIF4  | DMA_IFCR_CTCIF4 |
+               DMA_IFCR_CHTIF4 | DMA_IFCR_CTEIF4;
 
   CH_IRQ_EPILOGUE();
 }
 
 /**
- * @brief SPI2 TX DMA interrupt handler (channel 5).
+ * @brief   SPI2 TX DMA interrupt handler (channel 5).
  */
-CH_IRQ_HANDLER(Vector7C) {
+CH_IRQ_HANDLER(DMA1_Ch5_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
   STM32_SPI2_DMA_ERROR_HOOK();
-  DMA1->IFCR |= DMA_IFCR_CGIF5  | DMA_IFCR_CTCIF5 |
-                DMA_IFCR_CHTIF5 | DMA_IFCR_CTEIF5;
+  DMA1->IFCR = DMA_IFCR_CGIF5  | DMA_IFCR_CTCIF5 |
+               DMA_IFCR_CHTIF5 | DMA_IFCR_CTEIF5;
+
+  CH_IRQ_EPILOGUE();
+}
+#endif
+
+#if USE_STM32_SPI3 || defined(__DOXYGEN__)
+/**
+ * @brief   SPI3 RX DMA interrupt handler (DMA2, channel 1).
+ */
+CH_IRQ_HANDLER(DMA2_Ch1_IRQHandler) {
+
+  CH_IRQ_PROLOGUE();
+
+  spi_stop(&SPID3);
+  if ((DMA2->ISR & DMA_ISR_TEIF1) != 0) {
+    STM32_SPI3_DMA_ERROR_HOOK();
+  }
+  DMA2->IFCR = DMA_IFCR_CGIF1  | DMA_IFCR_CTCIF1 |
+               DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
+
+  CH_IRQ_EPILOGUE();
+}
+
+/**
+ * @brief   SPI3 TX DMA2 interrupt handler (DMA2, channel 2).
+ */
+CH_IRQ_HANDLER(DMA2_Ch2_IRQHandler) {
+
+  CH_IRQ_PROLOGUE();
+
+  STM32_SPI3_DMA_ERROR_HOOK();
+  DMA2->IFCR = DMA_IFCR_CGIF2  | DMA_IFCR_CTCIF2 |
+               DMA_IFCR_CHTIF2 | DMA_IFCR_CTEIF2;
 
   CH_IRQ_EPILOGUE();
 }
@@ -184,7 +216,7 @@ CH_IRQ_HANDLER(Vector7C) {
 /*===========================================================================*/
 
 /**
- * @brief Low level SPI driver initialization.
+ * @brief   Low level SPI driver initialization.
  */
 void spi_lld_init(void) {
 
@@ -211,10 +243,21 @@ void spi_lld_init(void) {
   SPID2.spd_dmatx   = DMA1_Channel5;
   SPID2.spd_dmaprio = STM32_SPI2_DMA_PRIORITY << 12;
 #endif
+
+#if USE_STM32_SPI3
+  RCC->APB1RSTR     = RCC_APB1RSTR_SPI3RST;
+  RCC->APB1RSTR     = 0;
+  spiObjectInit(&SPID3);
+  SPID3.spd_thread  = NULL;
+  SPID3.spd_spi     = SPI3;
+  SPID3.spd_dmarx   = DMA2_Channel1;
+  SPID3.spd_dmatx   = DMA2_Channel2;
+  SPID3.spd_dmaprio = STM32_SPI3_DMA_PRIORITY << 12;
+#endif
 }
 
 /**
- * @brief Configures and activates the SPI peripheral.
+ * @brief   Configures and activates the SPI peripheral.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  */
@@ -242,19 +285,29 @@ void spi_lld_start(SPIDriver *spip) {
       RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
     }
 #endif
+#if USE_STM32_SPI3
+    if (&SPID3 == spip) {
+      dmaEnable(DMA2_ID);   /* NOTE: Must be enabled before the IRQs.*/
+      NVICEnableVector(DMA2_Channel1_IRQn,
+                       CORTEX_PRIORITY_MASK(STM32_SPI3_IRQ_PRIORITY));
+      NVICEnableVector(DMA2_Channel2_IRQn,
+                       CORTEX_PRIORITY_MASK(STM32_SPI3_IRQ_PRIORITY));
+      RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+    }
+#endif
+
+    /* DMA setup.*/
+    spip->spd_dmarx->CPAR = (uint32_t)&spip->spd_spi->DR;
+    spip->spd_dmatx->CPAR = (uint32_t)&spip->spd_spi->DR;
   }
 
   /* SPI setup.*/
   spip->spd_spi->CR1 = spip->spd_config->spc_cr1 | SPI_CR1_MSTR;
   spip->spd_spi->CR2 = SPI_CR2_SSOE | SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN;
-
-  /* DMA setup.*/
-  spip->spd_dmarx->CPAR = (uint32_t)&spip->spd_spi->DR;
-  spip->spd_dmatx->CPAR = (uint32_t)&spip->spd_spi->DR;
 }
 
 /**
- * @brief Deactivates the SPI peripheral.
+ * @brief   Deactivates the SPI peripheral.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  */
@@ -278,11 +331,19 @@ void spi_lld_stop(SPIDriver *spip) {
       RCC->APB1ENR &= ~RCC_APB1ENR_SPI2EN;
     }
 #endif
+#if USE_STM32_SPI3
+    if (&SPID3 == spip) {
+      NVICDisableVector(DMA2_Channel1_IRQn);
+      NVICDisableVector(DMA2_Channel2_IRQn);
+      dmaDisable(DMA2_ID);
+      RCC->APB1ENR &= ~RCC_APB1ENR_SPI3EN;
+    }
+#endif
   }
 }
 
 /**
- * @brief Asserts the slave select signal and prepares for transfers.
+ * @brief   Asserts the slave select signal and prepares for transfers.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  */
@@ -292,7 +353,7 @@ void spi_lld_select(SPIDriver *spip) {
 }
 
 /**
- * @brief Deasserts the slave select signal.
+ * @brief   Deasserts the slave select signal.
  * @details The previously selected peripheral is unselected.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
@@ -303,7 +364,7 @@ void spi_lld_unselect(SPIDriver *spip) {
 }
 
 /**
- * @brief Ignores data on the SPI bus.
+ * @brief   Ignores data on the SPI bus.
  * @details This function transmits a series of idle words on the SPI bus and
  *          ignores the received data. This function can be invoked even
  *          when a slave select signal has not been yet asserted.
@@ -319,16 +380,15 @@ void spi_lld_ignore(SPIDriver *spip, size_t n) {
 }
 
 /**
- * @brief Exchanges data on the SPI bus.
+ * @brief   Exchanges data on the SPI bus.
  * @details This function performs a simultaneous transmit/receive operation.
+ * @note The buffers are organized as uint8_t arrays for data sizes below or
+ *       equal to 8 bits else it is organized as uint16_t arrays.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] n         number of words to be exchanged
  * @param[in] txbuf     the pointer to the transmit buffer
  * @param[out] rxbuf    the pointer to the receive buffer
- *
- * @note The buffers are organized as uint8_t arrays for data sizes below or
- *       equal to 8 bits else it is organized as uint16_t arrays.
  */
 void spi_lld_exchange(SPIDriver *spip, size_t n,
                       const void *txbuf, void *rxbuf) {
@@ -339,14 +399,13 @@ void spi_lld_exchange(SPIDriver *spip, size_t n,
 }
 
 /**
- * @brief Sends data ever the SPI bus.
+ * @brief   Sends data ever the SPI bus.
+ * @note    The buffers are organized as uint8_t arrays for data sizes below or
+ *          equal to 8 bits else it is organized as uint16_t arrays.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] n         number of words to send
  * @param[in] txbuf     the pointer to the transmit buffer
- *
- * @note The buffers are organized as uint8_t arrays for data sizes below or
- *       equal to 8 bits else it is organized as uint16_t arrays.
  */
 void spi_lld_send(SPIDriver *spip, size_t n, const void *txbuf) {
 
@@ -356,14 +415,13 @@ void spi_lld_send(SPIDriver *spip, size_t n, const void *txbuf) {
 }
 
 /**
- * @brief Receives data from the SPI bus.
+ * @brief   Receives data from the SPI bus.
+ * @note    The buffers are organized as uint8_t arrays for data sizes below or
+ *          equal to 8 bits else it is organized as uint16_t arrays.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] n         number of words to receive
  * @param[out] rxbuf    the pointer to the receive buffer
- *
- * @note The buffers are organized as uint8_t arrays for data sizes below or
- *       equal to 8 bits else it is organized as uint16_t arrays.
  */
 void spi_lld_receive(SPIDriver *spip, size_t n, void *rxbuf) {
 

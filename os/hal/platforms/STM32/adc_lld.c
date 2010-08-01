@@ -10,23 +10,17 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
- * @file STM32/adc_lld.c
- * @brief STM32 ADC subsystem low level driver source.
+ * @file    STM32/adc_lld.c
+ * @brief   STM32 ADC subsystem low level driver source.
+ *
  * @addtogroup STM32_ADC
  * @{
  */
@@ -59,16 +53,16 @@ ADCDriver ADCD1;
 
 #if USE_STM32_ADC1 || defined(__DOXYGEN__)
 /**
- * @brief ADC1 DMA interrupt handler (channel 1).
+ * @brief   ADC1 DMA interrupt handler (channel 1).
  */
-CH_IRQ_HANDLER(Vector6C) {
+CH_IRQ_HANDLER(DMA1_Ch1_IRQHandler) {
   uint32_t isr;
 
   CH_IRQ_PROLOGUE();
 
   isr = DMA1->ISR;
-  DMA1->IFCR |= DMA_IFCR_CGIF1  | DMA_IFCR_CTCIF1 |
-                DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
+  DMA1->IFCR = DMA_IFCR_CGIF1  | DMA_IFCR_CTCIF1 |
+               DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
   if ((isr & DMA_ISR_HTIF1) != 0) {
     /* Half transfer processing.*/
     if (ADCD1.ad_callback != NULL) {
@@ -114,7 +108,7 @@ CH_IRQ_HANDLER(Vector6C) {
 /*===========================================================================*/
 
 /**
- * @brief Low level ADC driver initialization.
+ * @brief   Low level ADC driver initialization.
  */
 void adc_lld_init(void) {
 
@@ -151,7 +145,7 @@ void adc_lld_init(void) {
 }
 
 /**
- * @brief Configures and activates the ADC peripheral.
+ * @brief   Configures and activates the ADC peripheral.
  *
  * @param[in] adcp      pointer to the @p ADCDriver object
  */
@@ -177,7 +171,7 @@ void adc_lld_start(ADCDriver *adcp) {
 }
 
 /**
- * @brief Deactivates the ADC peripheral.
+ * @brief   Deactivates the ADC peripheral.
  *
  * @param[in] adcp      pointer to the @p ADCDriver object
  */
@@ -198,7 +192,7 @@ void adc_lld_stop(ADCDriver *adcp) {
 }
 
 /**
- * @brief Starts an ADC conversion.
+ * @brief   Starts an ADC conversion.
  *
  * @param[in] adcp      pointer to the @p ADCDriver object
  */
@@ -237,7 +231,7 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
 }
 
 /**
- * @brief Stops an ongoing conversion.
+ * @brief   Stops an ongoing conversion.
  *
  * @param[in] adcp      pointer to the @p ADCDriver object
  */

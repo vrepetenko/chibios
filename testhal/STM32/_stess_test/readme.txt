@@ -16,8 +16,8 @@ warned if you see anomalies in your debugger.
 
 ** Build Procedure **
 
-The demo has been tested by using the free Codesourcery GCC-based toolchain,
-YAGARTO and an experimental WinARM build including GCC 4.3.0.
+The demo has been tested by using the free Codesourcery GCC-based toolchain
+and YAGARTO.
 Just modify the TRGT line in the makefile in order to use different GCC ports.
 
 ** Notes **

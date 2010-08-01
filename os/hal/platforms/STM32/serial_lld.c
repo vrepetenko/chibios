@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -128,8 +121,11 @@ static void usart_deinit(USART_TypeDef *u) {
   u->CR3 = 0;
 }
 
+#if USE_STM32_USART1 || USE_STM32_USART2 || USE_STM32_USART3 ||             \
+    ((USE_STM32_USART4 || USE_STM32_USART5) &&                              \
+     (defined(STM32F10X_HD) || defined(STM32F10X_CL)))
 /**
- * @brief Error handling routine.
+ * @brief   Error handling routine.
  *
  * @param[in] sdp       pointer to a @p SerialDriver object
  * @param[in] sr        USART SR register value
@@ -186,6 +182,7 @@ static void serve_interrupt(SerialDriver *sdp) {
     chSysUnlockFromIsr();
   }
 }
+#endif
 
 #if USE_STM32_USART1 || defined(__DOXYGEN__)
 static void notify1(void) {
@@ -229,7 +226,7 @@ static void notify5(void) {
 /*===========================================================================*/
 
 #if USE_STM32_USART1 || defined(__DOXYGEN__)
-CH_IRQ_HANDLER(VectorD4) {
+CH_IRQ_HANDLER(USART1_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -240,7 +237,7 @@ CH_IRQ_HANDLER(VectorD4) {
 #endif
 
 #if USE_STM32_USART2 || defined(__DOXYGEN__)
-CH_IRQ_HANDLER(VectorD8) {
+CH_IRQ_HANDLER(USART2_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -251,7 +248,7 @@ CH_IRQ_HANDLER(VectorD8) {
 #endif
 
 #if USE_STM32_USART3 || defined(__DOXYGEN__)
-CH_IRQ_HANDLER(VectorDC) {
+CH_IRQ_HANDLER(USART3_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -263,7 +260,7 @@ CH_IRQ_HANDLER(VectorDC) {
 
 #if defined(STM32F10X_HD) || defined(STM32F10X_CL) || defined(__DOXYGEN__)
 #if USE_STM32_UART4 || defined(__DOXYGEN__)
-CH_IRQ_HANDLER(Vector110) {
+CH_IRQ_HANDLER(UART4_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -274,7 +271,7 @@ CH_IRQ_HANDLER(Vector110) {
 #endif
 
 #if USE_STM32_UART5 || defined(__DOXYGEN__)
-CH_IRQ_HANDLER(Vector114) {
+CH_IRQ_HANDLER(UART5_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 

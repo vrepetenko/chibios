@@ -10,23 +10,17 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
- * @file STM32/can_lld.c
- * @brief STM32 CAN subsystem low level driver source.
+ * @file    STM32/can_lld.c
+ * @brief   STM32 CAN subsystem low level driver source.
+ *
  * @addtogroup STM32_CAN
  * @{
  */
@@ -60,7 +54,7 @@ CANDriver CAND1;
 /*
  * CAN1 TX interrupt handler.
  */
-CH_IRQ_HANDLER(Vector8C) {
+CH_IRQ_HANDLER(CAN1_TX_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -78,7 +72,7 @@ CH_IRQ_HANDLER(Vector8C) {
 /*
  * CAN1 RX0 interrupt handler.
  */
-CH_IRQ_HANDLER(Vector90) {
+CH_IRQ_HANDLER(CAN1_RX0_IRQHandler) {
   uint32_t rf0r;
 
   CH_IRQ_PROLOGUE();
@@ -108,7 +102,7 @@ CH_IRQ_HANDLER(Vector90) {
 /*
  * CAN1 RX1 interrupt handler.
  */
-CH_IRQ_HANDLER(Vector94) {
+CH_IRQ_HANDLER(CAN1_RX1_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -120,7 +114,7 @@ CH_IRQ_HANDLER(Vector94) {
 /*
  * CAN1 SCE interrupt handler.
  */
-CH_IRQ_HANDLER(Vector98) {
+CH_IRQ_HANDLER(CAN1_SCE_IRQHandler) {
   uint32_t msr;
 
   CH_IRQ_PROLOGUE();
@@ -156,7 +150,7 @@ CH_IRQ_HANDLER(Vector98) {
 /*===========================================================================*/
 
 /**
- * @brief Low level CAN driver initialization.
+ * @brief   Low level CAN driver initialization.
  */
 void can_lld_init(void) {
 
@@ -172,9 +166,9 @@ void can_lld_init(void) {
 }
 
 /**
- * @brief Configures and activates the CAN peripheral.
+ * @brief   Configures and activates the CAN peripheral.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
  */
 void can_lld_start(CANDriver *canp) {
 
@@ -256,9 +250,9 @@ void can_lld_start(CANDriver *canp) {
 }
 
 /**
- * @brief Deactivates the CAN peripheral.
+ * @brief   Deactivates the CAN peripheral.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
  */
 void can_lld_stop(CANDriver *canp) {
 
@@ -279,13 +273,13 @@ void can_lld_stop(CANDriver *canp) {
 }
 
 /**
- * @brief Determines whether a frame can be transmitted.
+ * @brief   Determines whether a frame can be transmitted.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
  *
  * @return The queue space availability.
- * @retval FALSE no space in the transmit queue.
- * @retval TRUE transmit slot available.
+ * @retval FALSE        no space in the transmit queue.
+ * @retval TRUE         transmit slot available.
  */
 bool_t can_lld_can_transmit(CANDriver *canp) {
 
@@ -293,7 +287,7 @@ bool_t can_lld_can_transmit(CANDriver *canp) {
 }
 
 /**
- * @brief Inserts a frame into the transmit queue.
+ * @brief   Inserts a frame into the transmit queue.
  *
  * @param[in] canp      pointer to the @p CANDriver object
  * @param[in] ctfp      pointer to the CAN frame to be transmitted
@@ -318,13 +312,13 @@ void can_lld_transmit(CANDriver *canp, const CANTxFrame *ctfp) {
 }
 
 /**
- * @brief Determines whether a frame has been received.
+ * @brief   Determines whether a frame has been received.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
  *
  * @return The queue space availability.
- * @retval FALSE no space in the transmit queue.
- * @retval TRUE transmit slot available.
+ * @retval FALSE        no space in the transmit queue.
+ * @retval TRUE         transmit slot available.
  */
 bool_t can_lld_can_receive(CANDriver *canp) {
 
@@ -332,7 +326,7 @@ bool_t can_lld_can_receive(CANDriver *canp) {
 }
 
 /**
- * @brief Receives a frame from the input queue.
+ * @brief   Receives a frame from the input queue.
  *
  * @param[in] canp      pointer to the @p CANDriver object
  * @param[out] crfp     pointer to the buffer where the CAN frame is copied
@@ -366,7 +360,7 @@ void can_lld_receive(CANDriver *canp, CANRxFrame *crfp) {
 
 #if CAN_USE_SLEEP_MODE || defined(__DOXYGEN__)
 /**
- * @brief Enters the sleep mode.
+ * @brief   Enters the sleep mode.
  *
  * @param[in] canp      pointer to the @p CANDriver object
  */
@@ -376,7 +370,7 @@ void can_lld_sleep(CANDriver *canp) {
 }
 
 /**
- * @brief Enforces leaving the sleep mode.
+ * @brief   Enforces leaving the sleep mode.
  *
  * @param[in] canp      pointer to the @p CANDriver object
  */
