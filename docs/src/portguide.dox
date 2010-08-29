@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -78,7 +85,7 @@
  * core (a common example: ARM7) of a supported microcontroller but has
  * differences in the internal peripherals.<br>
  * If this is your case proceed as follow:
- * -# Create a new directory under @p <tt>./os/hal/platforms</tt> and
+ * -# Create a new directory under @p <tt>./os/io/platforms</tt> and
  *    name it with the microcontroller name (or family name).<br>
  *    In case of the ARM-based microcontroller you also need to create a
  *    equally named directory under
@@ -87,11 +94,11 @@
  *    see the existing ports as example.
  * -# Copy into the newly created directory the most closely related existing
  *    chip port or the naked template files from
- *    @p <tt>./os/hal/templates</tt>.
+ *    @p <tt>./os/io/templates</tt>.
  * -# Work out the differences in the drivers or implement them if you started
  *    from the templates.
  * -# Edit/create the documentation file @p <tt>platform.dox</tt>, this
- *    is only required if you want to regenerate this documentation including
+ *    is required if you want to regenerate this documentation including
  *    your work.
  * .
  * Usually this kind of port just requires a serial driver (and those are very

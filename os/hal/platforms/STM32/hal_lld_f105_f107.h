@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -315,7 +322,7 @@
  */
 #if ((STM32_PLL2MUL_VALUE >= 8) && (STM32_PLL2MUL_VALUE <= 14)) ||          \
     defined(__DOXYGEN__)
-#define STM32_PLL2MUL               ((STM32_PLLMUL_VALUE - 2) << 8)
+#define STM32_PLL2MUL               ((STM32_PLL2MUL_VALUE - 2) << 8)
 #elif (STM32_PLL2MUL_VALUE == 16)
 #define STM32_PLL2MUL               (14 << 8)
 #elif (STM32_PLL2MUL_VALUE == 20)
@@ -429,8 +436,8 @@
 #endif
 
 /* AHB frequency check.*/
-#if STM32_HPRE > 72000000
-#error "STM32_HPRE exceeding maximum frequency (72MHz)"
+#if STM32_HCLK > 72000000
+#error "STM32_HCLK exceeding maximum frequency (72MHz)"
 #endif
 
 /**

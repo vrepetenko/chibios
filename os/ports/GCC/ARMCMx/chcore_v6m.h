@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -159,16 +166,14 @@ struct intctx {
  * @note    @p id can be a function name or a vector number depending on the
  *          port implementation.
  */
-#define PORT_IRQ_HANDLER(id)                                                \
-  __attribute__((interrupt("IRQ"))) void id(void)
+#define PORT_IRQ_HANDLER(id) void id(void)
 
 /**
  * @brief   Fast IRQ handler function declaration.
  * @note    @p id can be a function name or a vector number depending on the
  *          port implementation.
  */
-#define PORT_FAST_IRQ_HANDLER(id)                                           \
-  __attribute__((interrupt("IRQ"))) void id(void)
+#define PORT_FAST_IRQ_HANDLER(id) void id(void)
 
 /**
  * @brief   Port-related initialization code.

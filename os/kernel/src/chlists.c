@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -48,9 +55,9 @@ void prio_insert(Thread *tp, ThreadsQueue *tqp) {
     cp = cp->p_next;
     /* Not end of queue? and cp has equal or higher priority than tp?.*/
   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
-  /* Insert before cp, point tp to next and prev in queue.*/
-  tp->p_prev = (tp->p_next = cp)->p_prev;
-  /* Make prev point to tp, and cp point back to tp.*/
+  /* Insertion on p_prev.*/
+  tp->p_next = cp;
+  tp->p_prev = cp->p_prev;
   tp->p_prev->p_next = cp->p_prev = tp;
 }
 
@@ -63,7 +70,8 @@ void prio_insert(Thread *tp, ThreadsQueue *tqp) {
  */
 void queue_insert(Thread *tp, ThreadsQueue *tqp) {
 
-  tp->p_prev = (tp->p_next = (Thread *)tqp)->p_prev;
+  tp->p_next = (Thread *)tqp;
+  tp->p_prev = tqp->p_prev;
   tp->p_prev->p_next = tqp->p_prev = tp;
 }
 

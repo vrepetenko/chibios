@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -100,7 +107,9 @@ void adcStop(ADCDriver *adcp) {
   chDbgCheck(adcp != NULL, "adcStop");
 
   chSysLock();
-  chDbgAssert((adcp->ad_state == ADC_STOP) || (adcp->ad_state == ADC_READY),
+  chDbgAssert((adcp->ad_state == ADC_STOP) ||
+              (adcp->ad_state == ADC_READY) ||
+              (adcp->ad_state == ADC_COMPLETE),
               "adcStop(), #1",
               "invalid state");
   adc_lld_stop(adcp);
@@ -112,11 +121,10 @@ void adcStop(ADCDriver *adcp) {
  * @brief   Starts an ADC conversion.
  * @details Starts a conversion operation, there are two kind of conversion
  *          modes:
- *          - <b>LINEAR</b>, this mode is activated when the @p callback
- *            parameter is set to @p NULL, in this mode the buffer is filled
- *            once and then the conversion stops automatically.
- *          - <b>CIRCULAR</b>, when a callback function is defined the
- *            conversion never stops and the buffer is filled circularly.
+ *          - <b>LINEAR</b>, in this mode the buffer is filled once and then
+ *            the conversion stops automatically.
+ *          - <b>CIRCULAR</b>, in this mode the conversion never stops and
+ *            the buffer is filled circularly.<br>
  *            During the conversion the callback function is invoked when
  *            the buffer is 50% filled and when the buffer is 100% filled,
  *            this way is possible to process the conversion stream in real
@@ -133,7 +141,8 @@ void adcStop(ADCDriver *adcp) {
  * @param[out] samples  pointer to the samples buffer
  * @param[in] depth     buffer depth (matrix rows number). The buffer depth
  *                      must be one or an even number.
- * @param[in] callback  pointer to the conversion callback function
+ * @param[in] callback  pointer to the conversion callback function, this
+ *                      parameter can be @p NULL if a callback is not required
  * @return              The operation status.
  * @retval FALSE        the conversion has been started.
  * @retval TRUE         the driver is busy, conversion not started.

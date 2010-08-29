@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -59,7 +66,7 @@
  * @brief Enables the ADC subsystem.
  */
 #if !defined(CH_HAL_USE_ADC) || defined(__DOXYGEN__)
-#define CH_HAL_USE_ADC              FALSE
+#define CH_HAL_USE_ADC              TRUE
 #endif
 
 /*===========================================================================*/
@@ -70,7 +77,7 @@
  * @brief Enables the CAN subsystem.
  */
 #if !defined(CH_HAL_USE_CAN) || defined(__DOXYGEN__)
-#define CH_HAL_USE_CAN              FALSE
+#define CH_HAL_USE_CAN              TRUE
 #endif
 
 /*===========================================================================*/
@@ -92,7 +99,7 @@
  * @brief Enables the PWM subsystem.
  */
 #if !defined(CH_HAL_USE_PWM) || defined(__DOXYGEN__)
-#define CH_HAL_USE_PWM              FALSE
+#define CH_HAL_USE_PWM              TRUE
 #endif
 
 /*===========================================================================*/
@@ -110,7 +117,7 @@
  * Default SERIAL settings overrides (uncomment to override).
  */
 /*#define SERIAL_DEFAULT_BITRATE      38400*/
-#define SERIAL_BUFFERS_SIZE         16
+/*#define SERIAL_BUFFERS_SIZE         64*/
 
 /*===========================================================================*/
 /* SPI driver related settings.                                              */
@@ -120,7 +127,7 @@
  * @brief Enables the SPI subsystem.
  */
 #if !defined(CH_HAL_USE_SPI) || defined(__DOXYGEN__)
-#define CH_HAL_USE_SPI              FALSE
+#define CH_HAL_USE_SPI              TRUE
 #endif
 
 /*
@@ -146,17 +153,6 @@
 /*#define MMC_NICE_WAITING            TRUE*/
 /*#define MMC_POLLING_INTERVAL        10*/
 /*#define MMC_POLLING_DELAY           10*/
-
-/*===========================================================================*/
-/* UART driver related settings.                                             */
-/*===========================================================================*/
-
-/**
- * @brief   Enables the UART subsystem.
- */
-#if !defined(CH_HAL_USE_UART) || defined(__DOXYGEN__)
-#define CH_HAL_USE_UART             FALSE
-#endif
 
 #endif /* _HALCONF_H_ */
 

@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -126,7 +133,7 @@
  * <br>
  * When designing a system it is recommended to proceed as follow:
  * -# Use static objects and initializers whenever possible.
- * -# Where dynamic allocation is required without having to free the allocated
+ * -# Where dynamic allocation is required without have to free the allocated
  *    memory then use the Core Memory Manager allocation APIs.
  * -# Where dynamic allocation is required evaluate if one or more memory
  *    pools can be used.
