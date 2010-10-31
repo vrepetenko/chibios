@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -37,6 +30,8 @@
 /**
  * @brief   VIC Initialization.
  * @note    Better reset everything in the VIC, it is a HUGE source of trouble.
+ *
+ * @notapi
  */
 void vic_init(void) {
   int i;
@@ -59,6 +54,8 @@ void vic_init(void) {
  * @param[in] handler   the pointer to the IRQ service routine
  * @param[in] vector    the vector number
  * @param[in] source    the IRQ source to be associated to the vector
+ *
+ * @api
  */
 void SetVICVector(void *handler, int vector, int source) {
 

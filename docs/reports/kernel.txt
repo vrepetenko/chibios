@@ -2,19 +2,19 @@ Platform : PowerPC
 OS Setup : Full kernel
 Compiler : powerpc-eabi-gcc (Sourcery G++ Lite 4.4-79) 4.4.1
 Options  : -O2 -DCH_OPTIMIZE_SPEED=TRUE
-Kernel Size = 11092
+Kernel Size = 11084
 
 Platform : PowerPC
 OS Setup : Full kernel
 Compiler : powerpc-eabi-gcc (Sourcery G++ Lite 4.4-79) 4.4.1
 Options  : -O2 -DCH_OPTIMIZE_SPEED=FALSE
-Kernel Size = 10652
+Kernel Size = 10644
 
 Platform : PowerPC
 OS Setup : Minimal kernel
 Compiler : powerpc-eabi-gcc (Sourcery G++ Lite 4.4-79) 4.4.1
 Options  : -O2
-Kernel Size = 2244
+Kernel Size = 2236
 
 Platform : PowerPC
 OS Setup : Full kernel
@@ -38,19 +38,19 @@ Platform : ARM Cortex-M3
 OS Setup : Full kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -O2 -mthumb -DCH_OPTIMIZE_SPEED=TRUE
-Kernel Size = 5844
+Kernel Size = 5848
 
 Platform : ARM Cortex-M3
 OS Setup : Full kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -O2 -mthumb -DCH_OPTIMIZE_SPEED=FALSE
-Kernel Size = 5360
+Kernel Size = 5364
 
 Platform : ARM Cortex-M3
 OS Setup : Minimal kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -O2 -mthumb
-Kernel Size = 1516
+Kernel Size = 1520
 
 Platform : ARM Cortex-M3
 OS Setup : Full kernel
@@ -236,37 +236,37 @@ Platform : ARM7TDMI (THUMB mode)
 OS Setup : Full kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -O2 -mthumb -ffixed-r7 -DCH_CURRP_REGISTER_CACHE=\"r7\" -DCH_OPTIMIZE_SPEED=TRUE -DTHUMB -DTHUMB_PRESENT -DTHUMB_NO_INTERWORKING
-Kernel Size = 5532
+Kernel Size = 5528
 
 Platform : ARM7TDMI (THUMB mode)
 OS Setup : Full kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -O2 -mthumb -ffixed-r7 -DCH_CURRP_REGISTER_CACHE=\"r7\" -DCH_OPTIMIZE_SPEED=FALSE -DTHUMB -DTHUMB_PRESENT -DTHUMB_NO_INTERWORKING
-Kernel Size = 5344
+Kernel Size = 5340
 
 Platform : ARM7TDMI (THUMB mode)
 OS Setup : Minimal kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -O2 -mthumb -ffixed-r7 -DCH_CURRP_REGISTER_CACHE=\"r7\" -DTHUMB -DTHUMB_PRESENT -DTHUMB_NO_INTERWORKING
-Kernel Size = 1340
+Kernel Size = 1336
 
 Platform : ARM7TDMI (THUMB mode)
 OS Setup : Full kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -Os -mthumb -ffixed-r7 -DCH_CURRP_REGISTER_CACHE=\"r7\" -DCH_OPTIMIZE_SPEED=TRUE -DTHUMB -DTHUMB_PRESENT -DTHUMB_NO_INTERWORKING
-Kernel Size = 5076
+Kernel Size = 5072
 
 Platform : ARM7TDMI (THUMB mode)
 OS Setup : Full kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -Os -mthumb -ffixed-r7 -DCH_CURRP_REGISTER_CACHE=\"r7\" -DCH_OPTIMIZE_SPEED=FALSE -DTHUMB -DTHUMB_PRESENT -DTHUMB_NO_INTERWORKING
-Kernel Size = 4916
+Kernel Size = 4912
 
 Platform : ARM7TDMI (THUMB mode)
 OS Setup : Minimal kernel
 Compiler : arm-none-eabi-gcc (GCC) 4.5.1
 Options  : -Os -mthumb -ffixed-r7 -DCH_CURRP_REGISTER_CACHE=\"r7\" -DTHUMB -DTHUMB_PRESENT -DTHUMB_NO_INTERWORKING
-Kernel Size = 1240
+Kernel Size = 1236
 
 Platform : MSP430
 OS Setup : Full kernel
