@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ch.h"
@@ -85,11 +78,6 @@ static msg_t thread(void *p) {
 }
 
 #if CH_USE_HEAP
-static char *dyn1_gettest(void) {
-
-  return "Dynamic APIs, threads creation from heap";
-}
-
 static void dyn1_setup(void) {
 
   chHeapInit(&heap1, test.buffer, sizeof(union test_buffers));
@@ -129,8 +117,8 @@ static void dyn1_execute(void) {
   test_assert(4, n == sz, "heap size changed");
 }
 
-const struct testcase testdyn1 = {
-  dyn1_gettest,
+ROMCONST struct testcase testdyn1 = {
+  "Dynamic APIs, threads creation from heap",
   dyn1_setup,
   NULL,
   dyn1_execute
@@ -147,11 +135,6 @@ const struct testcase testdyn1 = {
  * The test expects the first four threads to successfully start and the last
  * one to fail.
  */
-
-static char *dyn2_gettest(void) {
-
-  return "Dynamic APIs, threads creation from memory pool";
-}
 
 static void dyn2_setup(void) {
 
@@ -190,8 +173,8 @@ static void dyn2_execute(void) {
   test_assert(4, chPoolAlloc(&mp1) == NULL, "pool list not empty");
 }
 
-const struct testcase testdyn2 = {
-  dyn2_gettest,
+ROMCONST struct testcase testdyn2 = {
+  "Dynamic APIs, threads creation from memory pool",
   dyn2_setup,
   NULL,
   dyn2_execute
@@ -207,21 +190,16 @@ const struct testcase testdyn2 = {
  * coverage.
  */
 
-static unsigned regscan(void) {
-  Thread *tp;
-  unsigned i = 0;
+static bool_t regfind(Thread *tp) {
+  Thread *ftp;
+  bool_t found = FALSE;
 
-  tp = chRegFirstThread();
+  ftp = chRegFirstThread();
   do {
-    i++;
-    tp = chRegNextThread(tp);
-  } while (tp != NULL);
-  return i;
-}
-
-static char *dyn3_gettest(void) {
-
-  return "Dynamic APIs, registry and references";
+    found |= ftp == tp;
+    ftp = chRegNextThread(ftp);
+  } while (ftp != NULL);
+  return found;
 }
 
 static void dyn3_setup(void) {
@@ -230,14 +208,8 @@ static void dyn3_setup(void) {
 }
 
 static void dyn3_execute(void) {
-  unsigned n1, n2, n3;
   Thread *tp;
   tprio_t prio = chThdGetPriority();
-
-  /* Current number of threads in the system, two times just in case some
-     external detached thread terminated.*/
-  (void)regscan();
-  n1 = regscan();
 
   /* Testing references increase/decrease and final detach.*/
   tp = chThdCreateFromHeap(&heap1, WA_SIZE, prio-1, thread, "A");
@@ -248,22 +220,25 @@ static void dyn3_execute(void) {
   test_assert(3, tp->p_refs == 1, "references decrease failure");
 
   /* Verify the new threads count.*/
-  n2 = regscan();
-  test_assert(4, n1 == n2 - 1, "unexpected threads count");
+  test_assert(4, regfind(tp), "thread missing from registry");
+  test_assert(5, regfind(tp), "thread disappeared");
 
   /* Detach and let the thread execute and terminate.*/
   chThdRelease(tp);
-  test_assert(5, tp->p_refs == 0, "detach failure");
+  test_assert(6, tp->p_refs == 0, "detach failure");
+  test_assert(7, tp->p_state == THD_STATE_READY, "invalid state");
+  test_assert(8, regfind(tp), "thread disappeared");
+  test_assert(9, regfind(tp), "thread disappeared");
   chThdSleepMilliseconds(50);           /* The thread just terminates.      */
-  test_assert(6, tp->p_state == THD_STATE_FINAL, "invalid state");
+  test_assert(10, tp->p_state == THD_STATE_FINAL, "invalid state");
 
   /* Clearing the zombie by scanning the registry.*/
-  n3 = regscan();
-  test_assert(7, n1 == n3, "unexpected threads count");
+  test_assert(11, regfind(tp), "thread disappeared");
+  test_assert(12, !regfind(tp), "thread still in registry");
 }
 
-const struct testcase testdyn3 = {
-  dyn3_gettest,
+ROMCONST struct testcase testdyn3 = {
+  "Dynamic APIs, registry and references",
   dyn3_setup,
   NULL,
   dyn3_execute
@@ -274,7 +249,7 @@ const struct testcase testdyn3 = {
 /**
  * @brief   Test sequence for dynamic APIs.
  */
-const struct testcase * const patterndyn[] = {
+ROMCONST struct testcase * ROMCONST patterndyn[] = {
 #if CH_USE_DYNAMIC
 #if CH_USE_HEAP
   &testdyn1,
