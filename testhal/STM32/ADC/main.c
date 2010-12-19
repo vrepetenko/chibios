@@ -55,7 +55,7 @@ static const ADCConversionGroup adcgrpcfg = {
   ADC_GRP1_NUM_CHANNELS,
   adccallback,
   0,
-  ADC_CR2_EXTSEL_SWSTART | ADC_CR2_TSVREFE | ADC_CR2_CONT,
+  ADC_CR2_TSVREFE,
   0,
   0,
   ADC_SQR1_NUM_CH(ADC_GRP1_NUM_CHANNELS),
@@ -82,13 +82,22 @@ static msg_t Thread1(void *arg) {
 }
 
 /*
- * Entry point, note, the main() function is already a thread in the system
- * on entry.
+ * Application entry point.
  */
 int main(int argc, char **argv) {
 
   (void)argc;
   (void)argv;
+
+  /*
+   * System initializations.
+   * - HAL initialization, this also initializes the configured device drivers
+   *   and performs the board-specific initializations.
+   * - Kernel initialization, the main() function becomes a thread and the
+   *   RTOS is active.
+   */
+  halInit();
+  chSysInit();
 
   /*
    * Setting up analog inputs used by the demo.

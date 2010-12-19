@@ -48,7 +48,7 @@ static const ADCConversionGroup adcgrpcfg = {
   adccb,
   /* HW dependent part.*/
   0,
-  ADC_CR2_EXTSEL_SWSTART | ADC_CR2_TSVREFE | ADC_CR2_CONT,
+  ADC_CR2_TSVREFE,
   ADC_SMPR1_SMP_AN10(ADC_SAMPLE_41P5) | ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_239P5),
   0,
   ADC_SQR1_NUM_CH(ADC_GRP1_NUM_CHANNELS),
@@ -170,13 +170,22 @@ static msg_t Thread1(void *arg) {
 }
 
 /*
- * Entry point, note, the main() function is already a thread in the system
- * on entry.
+ * Application entry point.
  */
 int main(int argc, char **argv) {
 
   (void)argc;
   (void)argv;
+
+  /*
+   * System initializations.
+   * - HAL initialization, this also initializes the configured device drivers
+   *   and performs the board-specific initializations.
+   * - Kernel initialization, the main() function becomes a thread and the
+   *   RTOS is active.
+   */
+  halInit();
+  chSysInit();
 
   /*
    * Activates the serial driver 1 using the driver default configuration.

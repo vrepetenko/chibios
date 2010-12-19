@@ -17,7 +17,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+/**
+ * @file    IAR/ARMCMx/chcore.c
+ * @brief   ARM Cortex-Mx port code.
+ *
+ * @addtogroup IAR_ARMCMx_CORE
+ * @{
+ */
 
-#endif /* _BOARD_H_ */
+#include "ch.h"
+
+/**
+ * @brief   Halts the system.
+ * @note    The function is declared as a weak symbol, it is possible
+ *          to redefine it in your application code.
+ */
+#if !defined(__DOXYGEN__)
+__weak
+#endif
+void port_halt(void) {
+
+  port_disable();
+  while (TRUE) {
+  }
+}
+
+/** @} */

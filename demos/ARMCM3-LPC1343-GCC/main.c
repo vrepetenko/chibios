@@ -33,7 +33,9 @@ static uint8_t digits[32] = {
   0x00, 0x02, 0x01, 0x18, 0x54, 0x88, 0x50, 0x51
 };
 
-/* Maximum speed SPI configuration (1MHz, CPHA=0, CPOL=0).*/
+/*
+ * SPI configuration (1MHz, CPHA=0, CPOL=0).
+ */
 static SPIConfig spicfg = {
   NULL,
   GPIO1,
@@ -90,14 +92,23 @@ static msg_t Thread2(void *arg) {
 }
 
 /*
- * Entry point, note, the main() function is already a thread in the system
- * on entry.
+ * Application entry point.
  */
 int main(int argc, char **argv) {
   uint8_t i;
 
   (void)argc;
   (void)argv;
+
+  /*
+   * System initializations.
+   * - HAL initialization, this also initializes the configured device drivers
+   *   and performs the board-specific initializations.
+   * - Kernel initialization, the main() function becomes a thread and the
+   *   RTOS is active.
+   */
+  halInit();
+  chSysInit();
 
   /*
    * Activates the SD1 and SPI1 drivers.

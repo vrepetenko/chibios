@@ -17,7 +17,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#include "ch.h"
+#include "hal.h"
 
-#endif /* _BOARD_H_ */
+/**
+ * @brief PAL setup.
+ * @details Digital I/O ports static configuration as defined in @p board.h.
+ */
+#if HAL_USE_PAL || defined(__DOXYGEN__)
+const PALConfig pal_default_config = {
+ {0, 0, 0},
+ {0, 0, 0}
+};
+#endif
+
+/*
+ * Board-specific initialization code.
+ */
+void boardInit(void) {
+}
