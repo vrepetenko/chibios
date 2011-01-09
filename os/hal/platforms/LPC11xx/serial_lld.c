@@ -10,38 +10,31 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
  * @file    LPC11xx/serial_lld.c
  * @brief   LPC11xx low level serial driver code.
  *
- * @addtogroup LPC11xx_SERIAL
+ * @addtogroup SERIAL
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-#if USE_LPC11xx_UART0 || defined(__DOXYGEN__)
+#if LPC11xx_SERIAL_USE_UART0 || defined(__DOXYGEN__)
 /** @brief UART0 serial driver identifier.*/
 SerialDriver SD1;
 #endif
@@ -70,7 +63,7 @@ static const SerialConfig default_config = {
 static void uart_init(SerialDriver *sdp, const SerialConfig *config) {
   LPC_UART_TypeDef *u = sdp->uart;
 
-  uint32_t div = LPC11xx_UART_PCLK / (config->sc_speed << 4);
+  uint32_t div = LPC11xx_SERIAL_UART0_PCLK / (config->sc_speed << 4);
   u->LCR = config->sc_lcr | LCR_DLAB;
   u->DLL = div;
   u->DLM = div >> 8;
@@ -107,7 +100,7 @@ static void uart_deinit(LPC_UART_TypeDef *u) {
  * @param[in] err       UART LSR register value
  */
 static void set_error(SerialDriver *sdp, IOREG32 err) {
-  sdflags_t sts = 0;
+  ioflags_t sts = 0;
 
   if (err & LSR_OVERRUN)
     sts |= SD_OVERRUN_ERROR;
@@ -118,7 +111,7 @@ static void set_error(SerialDriver *sdp, IOREG32 err) {
   if (err & LSR_BREAK)
     sts |= SD_BREAK_DETECTED;
   chSysLockFromIsr();
-  sdAddFlagsI(sdp, sts);
+  chIOAddFlagsI(sdp, sts);
   chSysUnlockFromIsr();
 }
 
@@ -144,19 +137,19 @@ static void serve_interrupt(SerialDriver *sdp) {
     case IIR_SRC_TIMEOUT:
     case IIR_SRC_RX:
       chSysLockFromIsr();
-      if (chIQIsEmpty(&sdp->iqueue))
-        chEvtBroadcastI(&sdp->ievent);
+      if (chIQIsEmptyI(&sdp->iqueue))
+        chIOAddFlagsI(sdp, IO_INPUT_AVAILABLE);
       chSysUnlockFromIsr();
       while (u->LSR & LSR_RBR_FULL) {
         chSysLockFromIsr();
         if (chIQPutI(&sdp->iqueue, u->RBR) < Q_OK)
-           sdAddFlagsI(sdp, SD_OVERRUN_ERROR);
+          chIOAddFlagsI(sdp, SD_OVERRUN_ERROR);
         chSysUnlockFromIsr();
       }
       break;
     case IIR_SRC_TX:
       {
-        int i = LPC11xx_UART_FIFO_PRELOAD;
+        int i = LPC11xx_SERIAL_FIFO_PRELOAD;
         do {
           msg_t b;
 
@@ -166,7 +159,7 @@ static void serve_interrupt(SerialDriver *sdp) {
           if (b < Q_OK) {
             u->IER &= ~IER_THRE;
             chSysLockFromIsr();
-            chEvtBroadcastI(&sdp->oevent);
+            chIOAddFlagsI(sdp, IO_OUTPUT_EMPTY);
             chSysUnlockFromIsr();
             break;
           }
@@ -188,11 +181,11 @@ static void preload(SerialDriver *sdp) {
   LPC_UART_TypeDef *u = sdp->uart;
 
   if (u->LSR & LSR_THRE) {
-    int i = LPC11xx_UART_FIFO_PRELOAD;
+    int i = LPC11xx_SERIAL_FIFO_PRELOAD;
     do {
       msg_t b = chOQGetI(&sdp->oqueue);
       if (b < Q_OK) {
-        chEvtBroadcastI(&sdp->oevent);
+        chIOAddFlagsI(sdp, IO_OUTPUT_EMPTY);
         return;
       }
       u->THR = b;
@@ -204,9 +197,10 @@ static void preload(SerialDriver *sdp) {
 /**
  * @brief   Driver SD1 output notification.
  */
-#if USE_LPC11xx_UART0 || defined(__DOXYGEN__)
-static void notify1(void) {
+#if LPC11xx_SERIAL_USE_UART0 || defined(__DOXYGEN__)
+static void notify1(GenericQueue *qp) {
 
+  (void)qp;
   preload(&SD1);
 }
 #endif
@@ -217,8 +211,10 @@ static void notify1(void) {
 
 /**
  * @brief   UART0 IRQ handler.
+ *
+ * @isr
  */
-#if USE_LPC11xx_UART0 || defined(__DOXYGEN__)
+#if LPC11xx_SERIAL_USE_UART0 || defined(__DOXYGEN__)
 CH_IRQ_HANDLER(Vector94) {
 
   CH_IRQ_PROLOGUE();
@@ -235,10 +231,12 @@ CH_IRQ_HANDLER(Vector94) {
 
 /**
  * @brief   Low level serial driver initialization.
+ *
+ * @notapi
  */
 void sd_lld_init(void) {
 
-#if USE_LPC11xx_UART0
+#if LPC11xx_SERIAL_USE_UART0
   sdObjectInit(&SD1, NULL, notify1);
   SD1.uart = LPC_UART;
   LPC_IOCON->PIO1_6 = 0xC1;                 /* RDX without resistors.       */
@@ -253,6 +251,8 @@ void sd_lld_init(void) {
  * @param[in] config    the architecture-dependent serial driver configuration.
  *                      If this parameter is set to @p NULL then a default
  *                      configuration is used.
+ *
+ * @notapi
  */
 void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
 
@@ -260,11 +260,12 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
     config = &default_config;
 
   if (sdp->state == SD_STOP) {
-#if USE_LPC11xx_UART0
+#if LPC11xx_SERIAL_USE_UART0
     if (&SD1 == sdp) {
       LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 12);
+      LPC_SYSCON->UARTCLKDIV = LPC11xx_SERIAL_UART0CLKDIV;
       NVICEnableVector(UART_IRQn,
-                       CORTEX_PRIORITY_MASK(LPC11xx_UART0_PRIORITY));
+                       CORTEX_PRIORITY_MASK(LPC11xx_SERIAL_UART0_IRQ_PRIORITY));
     }
 #endif
   }
@@ -277,13 +278,16 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
  *          interrupt vector.
  *
  * @param[in] sdp       pointer to a @p SerialDriver object
+ *
+ * @notapi
  */
 void sd_lld_stop(SerialDriver *sdp) {
 
   if (sdp->state == SD_READY) {
     uart_deinit(sdp->uart);
-#if USE_LPC11xx_UART0
+#if LPC11xx_SERIAL_USE_UART0
     if (&SD1 == sdp) {
+      LPC_SYSCON->UARTCLKDIV = 0;
       LPC_SYSCON->SYSAHBCLKCTRL &= ~(1 << 12);
       NVICDisableVector(UART_IRQn);
       return;
@@ -292,6 +296,6 @@ void sd_lld_stop(SerialDriver *sdp) {
   }
 }
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 /** @} */

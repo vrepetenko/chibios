@@ -10,25 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
  * @file    MSP430/serial_lld.c
  * @brief   MSP430 low level serial driver code.
  *
- * @addtogroup MSP430_SERIAL
+ * @addtogroup SERIAL
  * @{
  */
 
@@ -37,7 +30,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -68,7 +61,7 @@ static const SerialConfig default_config = {
 /*===========================================================================*/
 
 static void set_error(SerialDriver *sdp, uint8_t urctl) {
-  sdflags_t sts = 0;
+  ioflags_t sts = 0;
 
   if (urctl & OE)
     sts |= SD_OVERRUN_ERROR;
@@ -79,13 +72,14 @@ static void set_error(SerialDriver *sdp, uint8_t urctl) {
   if (urctl & BRK)
     sts |= SD_BREAK_DETECTED;
   chSysLockFromIsr();
-  sdAddFlagsI(sdp, sts);
+  chIOAddFlagsI(sdp, sts);
   chSysUnlockFromIsr();
 }
 
 #if USE_MSP430_USART0 || defined(__DOXYGEN__)
-static void notify1(void) {
+static void notify1(GenericQueue *qp) {
 
+  (void)qp;
   if (!(U0IE & UTXIE0)) {
     msg_t b = sdRequestDataI(&SD1);
     if (b != Q_EMPTY) {
@@ -128,8 +122,9 @@ static void usart0_deinit(void) {
 #endif /* USE_MSP430_USART0 */
 
 #if USE_MSP430_USART1 || defined(__DOXYGEN__)
-static void notify2(void) {
+static void notify2(GenericQueue *qp) {
 
+  (void)qp;
   if (!(U1IE & UTXIE1)) {
     msg_t b = sdRequestDataI(&SD2);
     if (b != Q_EMPTY) {
@@ -176,6 +171,11 @@ static void usart1_deinit(void) {
 /*===========================================================================*/
 
 #if USE_MSP430_USART0 || defined(__DOXYGEN__)
+/**
+ * @brief   USART0 TX interrupt handler.
+ *
+ * @isr
+ */
 CH_IRQ_HANDLER(USART0TX_VECTOR) {
   msg_t b;
 
@@ -192,6 +192,11 @@ CH_IRQ_HANDLER(USART0TX_VECTOR) {
   CH_IRQ_EPILOGUE();
 }
 
+/**
+ * @brief   USART0 RX interrupt handler.
+ *
+ * @isr
+ */
 CH_IRQ_HANDLER(USART0RX_VECTOR) {
   uint8_t urctl;
 
@@ -208,6 +213,11 @@ CH_IRQ_HANDLER(USART0RX_VECTOR) {
 #endif /* USE_MSP430_USART0 */
 
 #if USE_MSP430_USART1 || defined(__DOXYGEN__)
+/**
+ * @brief   USART1 TX interrupt handler.
+ *
+ * @isr
+ */
 CH_IRQ_HANDLER(USART1TX_VECTOR) {
   msg_t b;
 
@@ -224,6 +234,11 @@ CH_IRQ_HANDLER(USART1TX_VECTOR) {
   CH_IRQ_EPILOGUE();
 }
 
+/**
+ * @brief   USART1 RX interrupt handler.
+ *
+ * @isr
+ */
 CH_IRQ_HANDLER(USART1RX_VECTOR) {
   uint8_t urctl;
 
@@ -245,6 +260,8 @@ CH_IRQ_HANDLER(USART1RX_VECTOR) {
 
 /**
  * @brief   Low level serial driver initialization.
+ *
+ * @notapi
  */
 void sd_lld_init(void) {
 
@@ -268,6 +285,8 @@ void sd_lld_init(void) {
  * @param[in] config    the architecture-dependent serial driver configuration.
  *                      If this parameter is set to @p NULL then a default
  *                      configuration is used.
+ *
+ * @notapi
  */
 void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
 
@@ -294,6 +313,8 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
  *          interrupt vector.
  *
  * @param[in] sdp       pointer to a @p SerialDriver object
+ *
+ * @notapi
  */
 void sd_lld_stop(SerialDriver *sdp) {
 
@@ -311,6 +332,6 @@ void sd_lld_stop(SerialDriver *sdp) {
 #endif
 }
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 /** @} */

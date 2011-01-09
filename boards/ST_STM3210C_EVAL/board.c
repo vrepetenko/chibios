@@ -10,53 +10,49 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ch.h"
 #include "hal.h"
 
+/**
+ * @brief   PAL setup.
+ * @details Digital I/O ports static configuration as defined in @p board.h.
+ *          This variable is used by the HAL when initializing the PAL driver.
+ */
+#if HAL_USE_PAL || defined(__DOXYGEN__)
+const PALConfig pal_default_config =
+{
+  {VAL_GPIOAODR, VAL_GPIOACRL, VAL_GPIOACRH},
+  {VAL_GPIOBODR, VAL_GPIOBCRL, VAL_GPIOBCRH},
+  {VAL_GPIOCODR, VAL_GPIOCCRL, VAL_GPIOCCRH},
+  {VAL_GPIODODR, VAL_GPIODCRL, VAL_GPIODCRH},
+  {VAL_GPIOEODR, VAL_GPIOECRL, VAL_GPIOECRH},
+};
+#endif
+
 /*
  * Early initialization code.
- * This initialization is performed just after reset before BSS and DATA
- * segments initialization.
+ * This initialization must be performed just after stack setup and before
+ * any other initialization.
  */
-void hwinit0(void) {
+void __early_init(void) {
 
   stm32_clock_init();
 }
 
 /*
- * Late initialization code.
- * This initialization is performed after BSS and DATA segments initialization
- * and before invoking the main() function.
+ * Board-specific initialization code.
  */
-void hwinit1(void) {
+void boardInit(void) {
 
   /*
-   * HAL initialization.
-   */
-  halInit();
-
-  /*
-   * Remap USART2 to the PD5/PD6 pins, done after halInit since HAL resets
-   * these.
+   * Remap USART2 to the PD5/PD6 pins.
    */
   AFIO->MAPR |= AFIO_MAPR_USART2_REMAP;
-
-  /*
-   * ChibiOS/RT initialization.
-   */
-  chSysInit();
 }

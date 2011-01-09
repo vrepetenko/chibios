@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -42,7 +35,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -126,7 +119,7 @@ static bool_t connint(SerialDriver *sdp) {
       printf("%s: Unable to setup non blocking mode on data socket\n", sdp->com_name);
       goto abort;
     }
-    sdAddFlagsI(sdp, SD_CONNECTED);
+    chIOAddFlagsI(sdp, IO_CONNECTED);
     return TRUE;
   }
   return FALSE;
@@ -152,7 +145,7 @@ static bool_t inint(SerialDriver *sdp) {
     case 0:
       close(sdp->com_data);
       sdp->com_data = INVALID_SOCKET;
-      sdAddFlagsI(sdp, SD_DISCONNECTED);
+      chIOAddFlagsI(sdp, IO_DISCONNECTED);
       return FALSE;
     case INVALID_SOCKET:
       if (errno == EWOULDBLOCK)
@@ -186,7 +179,7 @@ static bool_t outint(SerialDriver *sdp) {
     case 0:
       close(sdp->com_data);
       sdp->com_data = INVALID_SOCKET;
-      sdAddFlagsI(sdp, SD_DISCONNECTED);
+      chIOAddFlagsI(sdp, IO_DISCONNECTED);
       return FALSE;
     case INVALID_SOCKET:
       if (errno == EWOULDBLOCK)
@@ -268,6 +261,6 @@ bool_t sd_lld_interrupt_pending(void) {
          outint(&SD1)  || outint(&SD2);
 }
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 /** @} */

@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -59,7 +52,7 @@ _boot_address:
         /*
          * Early initialization.
          */
-        bl          hwinit0
+        bl          __early_init
         /*
          * BSS clearing.
          */
@@ -94,32 +87,26 @@ _boot_address:
         b           .dataloop
 .dataend:
         /*
-         * Late initialization.
+         * Main program invocation.
          */
-        bl          hwinit1
-        li          %r3, 0
-        li          %r4, 0
         bl          main
-        b           main_exit
+        b           _main_exit_handler
 
         /*
          * Default main exit code, infinite loop.
          */
-        .weak       main_exit
-        .globl      main_exit
-main_exit:
+        .weak       _main_exit_handler
+        .globl      _main_exit_handler
+_main_exit_handler:
 forever:
         b           forever
 
         /*
          * Default initialization code, none.
          */
-        .weak       hwinit0
-        .globl      hwinit0
-hwinit0:
-        .weak       hwinit1
-        .globl      hwinit1
-hwinit1:
+        .weak       __early_init
+        .globl      __early_init
+__early_init:
         blr
 
 /** @endcond */
