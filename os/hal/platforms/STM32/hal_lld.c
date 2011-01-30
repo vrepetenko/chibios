@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,7 +28,7 @@
  * @file    STM32/hal_lld.c
  * @brief   STM32 HAL subsystem low level driver source.
  *
- * @addtogroup STM32_HAL
+ * @addtogroup HAL
  * @{
  */
 
@@ -45,25 +45,6 @@
 /* Driver local variables.                                                   */
 /*===========================================================================*/
 
-/**
- * @brief PAL setup.
- * @details Digital I/O ports static configuration as defined in @p board.h.
- */
-const PALConfig pal_default_config =
-{
-  {VAL_GPIOAODR, VAL_GPIOACRL, VAL_GPIOACRH},
-  {VAL_GPIOBODR, VAL_GPIOBCRL, VAL_GPIOBCRH},
-  {VAL_GPIOCODR, VAL_GPIOCCRL, VAL_GPIOCCRH},
-  {VAL_GPIODODR, VAL_GPIODCRL, VAL_GPIODCRH},
-#if !defined(STM32F10X_LD)
-  {VAL_GPIOEODR, VAL_GPIOECRL, VAL_GPIOECRH},
-#endif
-#if defined(STM32F10X_HD)
-  {VAL_GPIOFODR, VAL_GPIOFCRL, VAL_GPIOFCRH},
-  {VAL_GPIOGODR, VAL_GPIOGCRL, VAL_GPIOGCRH},
-#endif
-};
-
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
@@ -77,7 +58,9 @@ const PALConfig pal_default_config =
 /*===========================================================================*/
 
 /**
- * @brief Low level HAL driver initialization.
+ * @brief   Low level HAL driver initialization.
+ *
+ * @notapi
  */
 void hal_lld_init(void) {
 
@@ -88,17 +71,21 @@ void hal_lld_init(void) {
                   SysTick_CTRL_ENABLE_Msk |
                   SysTick_CTRL_TICKINT_Msk;
 
-#if CH_HAL_USE_ADC || CH_HAL_USE_SPI
+#if HAL_USE_ADC || HAL_USE_SPI || HAL_USE_UART
   dmaInit();
 #endif
 }
 
 /**
- * @brief STM32 clocks and PLL initialization.
- * @note All the involved constants come from the file @p board.h.
+ * @brief   STM32 clocks and PLL initialization.
+ * @note    All the involved constants come from the file @p board.h.
+ * @note    This function must be invoked only after the system reset.
+ *
+ * @special
  */
-#if defined(STM32F10X_LD) || defined(STM32F10X_MD) ||                       \
-    defined(STM32F10X_HD) || defined(__DOXYGEN__)
+#if defined(STM32F10X_LD)    || defined(STM32F10X_MD)    ||                 \
+    defined(STM32F10X_HD)    || defined(STM32F10X_LD_VL) ||                 \
+    defined(STM32F10X_MD_VL) || defined(__DOXYGEN__)
 /*
  * Clocks initialization for the LD, MD and HD sub-families.
  */
@@ -133,8 +120,15 @@ void stm32_clock_init(void) {
 #endif
 
   /* Clock settings.*/
-  RCC->CFGR = STM32_MCO | STM32_PLLMUL | STM32_PLLXTPRE | STM32_PLLSRC |
-              STM32_ADCPRE | STM32_PPRE2 | STM32_PPRE1 | STM32_HPRE;
+#if STM32_HAS_USB
+  RCC->CFGR = STM32_MCO    | STM32_USBPRE | STM32_PLLMUL | STM32_PLLXTPRE |
+              STM32_PLLSRC | STM32_ADCPRE | STM32_PPRE2  | STM32_PPRE1    |
+              STM32_HPRE;
+#else
+  RCC->CFGR = STM32_MCO    |                STM32_PLLMUL | STM32_PLLXTPRE |
+              STM32_PLLSRC | STM32_ADCPRE | STM32_PPRE2  | STM32_PPRE1    |
+              STM32_HPRE;
+#endif
 
   /* Flash setup and final clock selection.   */
   FLASH->ACR = STM32_FLASHBITS; /* Flash wait states depending on clock.    */
@@ -146,6 +140,7 @@ void stm32_clock_init(void) {
     ;
 #endif
 }
+
 #elif defined(STM32F10X_CL)
 /*
  * Clocks initialization for the CL sub-family.
@@ -192,8 +187,13 @@ void stm32_clock_init(void) {
 #endif
 
   /* Clock settings.*/
-  RCC->CFGR = STM32_MCO | STM32_PLLMUL | STM32_PLLSRC |
-              STM32_ADCPRE | STM32_PPRE2 | STM32_PPRE1 | STM32_HPRE;
+#if STM32_HAS_OTG1
+  RCC->CFGR = STM32_MCO    | STM32_OTGFSPRE | STM32_PLLMUL | STM32_PLLSRC |
+              STM32_ADCPRE | STM32_PPRE2    | STM32_PPRE1  | STM32_HPRE;
+#else
+  RCC->CFGR = STM32_MCO    |                  STM32_PLLMUL | STM32_PLLSRC |
+              STM32_ADCPRE | STM32_PPRE2    | STM32_PPRE1  | STM32_HPRE;
+#endif
 
   /* Flash setup and final clock selection.   */
   FLASH->ACR = STM32_FLASHBITS; /* Flash wait states depending on clock.    */

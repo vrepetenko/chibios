@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    templates/can_lld.h
  * @brief   CAN Driver subsystem low level driver header template.
  *
- * @addtogroup CAN_LLD
+ * @addtogroup CAN
  * @{
  */
 
 #ifndef _CAN_LLD_H_
 #define _CAN_LLD_H_
 
-#if CH_HAL_USE_CAN || defined(__DOXYGEN__)
+#if HAL_USE_CAN || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
@@ -137,6 +137,8 @@ typedef struct {
 
 /**
  * @brief   CAN filter.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
  * @note    It could not be present on some architectures.
  */
 typedef struct {
@@ -144,6 +146,8 @@ typedef struct {
 
 /**
  * @brief   Driver configuration structure.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
  * @note    It could be empty on some architectures.
  */
 typedef struct {
@@ -151,6 +155,8 @@ typedef struct {
 
 /**
  * @brief   Structure representing an CAN driver.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
  */
 typedef struct {
   /**
@@ -230,7 +236,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_CAN */
+#endif /* HAL_USE_CAN */
 
 #endif /* _CAN_LLD_H_ */
 

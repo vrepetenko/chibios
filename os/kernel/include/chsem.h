@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
 #ifndef _CHSEM_H_
 #define _CHSEM_H_
 
-#if CH_USE_SEMAPHORES
+#if CH_USE_SEMAPHORES || defined(__DOXYGEN__)
 
 /**
  * @brief   Semaphore structure.
@@ -58,6 +58,7 @@ extern "C" {
   msg_t chSemWaitTimeoutS(Semaphore *sp, systime_t time);
   void chSemSignal(Semaphore *sp);
   void chSemSignalI(Semaphore *sp);
+  void chSemSetCounterI(Semaphore *sp, cnt_t n);
 #if CH_USE_SEMSW
   msg_t chSemSignalWait(Semaphore *sps, Semaphore *spw);
 #endif
@@ -90,17 +91,24 @@ extern "C" {
 /**
  * @brief   Decreases the semaphore counter.
  * @details This macro can be used when the counter is known to be positive.
+ *
+ * @iclass
  */
 #define chSemFastWaitI(sp)      ((sp)->s_cnt--)
 
 /**
  * @brief   Increases the semaphore counter.
- * @details This macro can be used when the counter is known to be not negative.
+ * @details This macro can be used when the counter is known to be not
+ *          negative.
+ *
+ * @iclass
  */
 #define chSemFastSignalI(sp)    ((sp)->s_cnt++)
 
 /**
  * @brief   Returns the semaphore counter current value.
+ *
+ * @iclass
  */
 #define chSemGetCounterI(sp)    ((sp)->s_cnt)
 

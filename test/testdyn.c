@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -85,11 +85,6 @@ static msg_t thread(void *p) {
 }
 
 #if CH_USE_HEAP
-static char *dyn1_gettest(void) {
-
-  return "Dynamic APIs, threads creation from heap";
-}
-
 static void dyn1_setup(void) {
 
   chHeapInit(&heap1, test.buffer, sizeof(union test_buffers));
@@ -129,8 +124,8 @@ static void dyn1_execute(void) {
   test_assert(4, n == sz, "heap size changed");
 }
 
-const struct testcase testdyn1 = {
-  dyn1_gettest,
+ROMCONST struct testcase testdyn1 = {
+  "Dynamic APIs, threads creation from heap",
   dyn1_setup,
   NULL,
   dyn1_execute
@@ -147,11 +142,6 @@ const struct testcase testdyn1 = {
  * The test expects the first four threads to successfully start and the last
  * one to fail.
  */
-
-static char *dyn2_gettest(void) {
-
-  return "Dynamic APIs, threads creation from memory pool";
-}
 
 static void dyn2_setup(void) {
 
@@ -190,8 +180,8 @@ static void dyn2_execute(void) {
   test_assert(4, chPoolAlloc(&mp1) == NULL, "pool list not empty");
 }
 
-const struct testcase testdyn2 = {
-  dyn2_gettest,
+ROMCONST struct testcase testdyn2 = {
+  "Dynamic APIs, threads creation from memory pool",
   dyn2_setup,
   NULL,
   dyn2_execute
@@ -217,11 +207,6 @@ static bool_t regfind(Thread *tp) {
     ftp = chRegNextThread(ftp);
   } while (ftp != NULL);
   return found;
-}
-
-static char *dyn3_gettest(void) {
-
-  return "Dynamic APIs, registry and references";
 }
 
 static void dyn3_setup(void) {
@@ -259,8 +244,8 @@ static void dyn3_execute(void) {
   test_assert(12, !regfind(tp), "thread still in registry");
 }
 
-const struct testcase testdyn3 = {
-  dyn3_gettest,
+ROMCONST struct testcase testdyn3 = {
+  "Dynamic APIs, registry and references",
   dyn3_setup,
   NULL,
   dyn3_execute
@@ -271,7 +256,7 @@ const struct testcase testdyn3 = {
 /**
  * @brief   Test sequence for dynamic APIs.
  */
-const struct testcase * const patterndyn[] = {
+ROMCONST struct testcase * ROMCONST patterndyn[] = {
 #if CH_USE_DYNAMIC
 #if CH_USE_HEAP
   &testdyn1,

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,16 +35,20 @@
 #ifndef _CHMSG_H_
 #define _CHMSG_H_
 
-#if CH_USE_MESSAGES
+#if CH_USE_MESSAGES || defined(__DOXYGEN__)
 
 /**
  * @brief   Evaluates to TRUE if the thread has pending messages.
+ *
+ * @iclass
  */
 #define chMsgIsPendingI(tp) \
         ((tp)->p_msgqueue.p_next != (Thread *)&(tp)->p_msgqueue)
 
 /**
  * @brief   Returns the first message in the queue.
+ *
+ * @iclass
  */
 #define chMsgGetI(tp) \
         ((tp)->p_msgqueue.p_next->p_msg)

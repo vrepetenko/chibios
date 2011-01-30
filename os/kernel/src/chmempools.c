@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -33,19 +33,19 @@
  *          <h2>Operation mode</h2>
  *          The Memory Pools APIs allow to allocate/free fixed size objects in
  *          <b>constant time</b> and reliably without memory fragmentation
- *          problems.<br>
- *          In order to use the memory pools APIs the @p CH_USE_MEMPOOLS option
+ *          problems.
+ * @pre     In order to use the memory pools APIs the @p CH_USE_MEMPOOLS option
  *          must be enabled in @p chconf.h.
  * @{
  */
 
 #include "ch.h"
 
-#if CH_USE_MEMPOOLS
+#if CH_USE_MEMPOOLS || defined(__DOXYGEN__)
 /**
  * @brief   Initializes an empty memory pool.
- * @note    The size is internally aligned to be a multiple of the @p align_t
- *          type size.
+ * @note    The size is internally aligned to be a multiple of the
+ *          @p stkalign_t type size.
  *
  * @param[out] mp       pointer to a @p MemoryPool structure
  * @param[in] size      the size of the objects contained in this memory pool,
@@ -54,6 +54,8 @@
  * @param[in] provider  memory provider function for the memory pool or
  *                      @p NULL if the pool is not allowed to grow
  *                      automatically
+ *
+ * @init
  */
 void chPoolInit(MemoryPool *mp, size_t size, memgetfunc_t provider) {
 
@@ -70,6 +72,8 @@ void chPoolInit(MemoryPool *mp, size_t size, memgetfunc_t provider) {
  * @param[in] mp        pointer to a @p MemoryPool structure
  * @return              The pointer to the allocated object.
  * @retval NULL         if pool is empty.
+ *
+ * @iclass
  */
 void *chPoolAllocI(MemoryPool *mp) {
   void *objp;
@@ -91,6 +95,8 @@ void *chPoolAllocI(MemoryPool *mp) {
  * @param[in] mp        pointer to a @p MemoryPool structure
  * @return              The pointer to the allocated object.
  * @retval NULL         if pool is empty.
+ *
+ * @api
  */
 void *chPoolAlloc(MemoryPool *mp) {
   void *objp;
@@ -103,13 +109,15 @@ void *chPoolAlloc(MemoryPool *mp) {
 
 /**
  * @brief   Releases (or adds) an object into (to) a memory pool.
- * @note    The object is assumed to be of the right size for the specified
+ * @pre     The freed object must be of the right size for the specified
  *          memory pool.
- * @note    The object is assumed to be memory aligned to the size of @p align_t
- *          type.
+ * @pre     The freed object must be memory aligned to the size of
+ *          @p stkalign_t type.
  *
  * @param[in] mp        pointer to a @p MemoryPool structure
  * @param[in] objp      the pointer to the object to be released or added
+ *
+ * @iclass
  */
 void chPoolFreeI(MemoryPool *mp, void *objp) {
   struct pool_header *php = objp;
@@ -123,11 +131,15 @@ void chPoolFreeI(MemoryPool *mp, void *objp) {
 
 /**
  * @brief   Releases (or adds) an object into (to) a memory pool.
- * @note    The object is assumed to be of the right size for the specified
+ * @pre     The freed object must be of the right size for the specified
  *          memory pool.
+ * @pre     The freed object must be memory aligned to the size of
+ *          @p stkalign_t type.
  *
  * @param[in] mp        pointer to a @p MemoryPool structure
  * @param[in] objp      the pointer to the object to be released or added
+ *
+ * @api
  */
 void chPoolFree(MemoryPool *mp, void *objp) {
 

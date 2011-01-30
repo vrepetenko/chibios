@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_PAL || defined(__DOXYGEN__)
+#if HAL_USE_PAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -100,6 +100,6 @@ void _pal_lld_setgroupmode(ioportid_t port,
   }
 }
 
-#endif /* CH_HAL_USE_PAL */
+#endif /* HAL_USE_PAL */
 
 /** @} */

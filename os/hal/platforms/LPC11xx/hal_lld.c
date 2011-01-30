@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,7 +28,7 @@
  * @file    LPC11xx/hal_lld.c
  * @brief   LPC11xx HAL subsystem low level driver source.
  *
- * @addtogroup LPC11xx_HAL
+ * @addtogroup HAL
  * @{
  */
 
@@ -48,17 +48,6 @@
 /* Driver local variables.                                                   */
 /*===========================================================================*/
 
-/**
- * @brief PAL setup.
- * @details Digital I/O ports static configuration as defined in @p board.h.
- */
-const PALConfig pal_default_config = {
- {VAL_GPIO0DATA, VAL_GPIO0DIR},
- {VAL_GPIO1DATA, VAL_GPIO1DIR},
- {VAL_GPIO2DATA, VAL_GPIO2DIR},
- {VAL_GPIO3DATA, VAL_GPIO3DIR},
-};
-
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
@@ -73,6 +62,8 @@ const PALConfig pal_default_config = {
 
 /**
  * @brief   Low level HAL driver initialization.
+ *
+ * @notapi
  */
 void hal_lld_init(void) {
 
@@ -88,6 +79,9 @@ void hal_lld_init(void) {
 /**
  * @brief   LPC11xx clocks and PLL initialization.
  * @note    All the involved constants come from the file @p board.h.
+ * @note    This function must be invoked only after the system reset.
+ *
+ * @special
  */
 void lpc111x_clock_init(void) {
   unsigned i;
@@ -128,9 +122,6 @@ void lpc111x_clock_init(void) {
      IOCON that are left enabled.*/
   LPC_SYSCON->SYSAHBCLKDIV = LPC11xx_SYSABHCLK_DIV;
   LPC_SYSCON->SYSAHBCLKCTRL = 0x0001005F;
-
-  /* Peripheral clock dividers initialization.*/
-  LPC_SYSCON->UARTCLKDIV = LPC11xx_UART_PCLK_DIV;
 
   /* Memory remapping, vectors always in ROM.*/
   LPC_SYSCON->SYSMEMREMAP = 2;

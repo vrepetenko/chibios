@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -77,12 +77,14 @@
 #define VAL_P6OUT       P6_O_LED_MASK
 #define VAL_P6DIR       ~P6_I_BUTTON_MASK
 
+#if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void hwinit(void);
+  void boardInit(void);
 #ifdef __cplusplus
 }
 #endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

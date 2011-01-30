@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -26,9 +26,9 @@
 
 /**
  * @file    RC/STM8/chcore.c
- * @brief   STM8 architecture port code.
+ * @brief   STM8 (Raisonance) architecture port code.
  *
- * @addtogroup STM8_CORE
+ * @addtogroup STM8_RAISONANCE_CORE
  * @{
  */
 #pragma SRC("tmp.asm")
@@ -69,7 +69,7 @@ void _port_thread_start(void) {
 /**
  * @brief   Halts the system.
  * @details This function is invoked by the operating system when an
- *          unrecoverable error is detected (as example because a programming
+ *          unrecoverable error is detected (for example because a programming
  *          error in the application code that triggers an assertion while in
  *          debug mode).
  */

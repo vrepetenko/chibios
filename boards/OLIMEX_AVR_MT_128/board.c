@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -39,9 +39,9 @@ CH_IRQ_HANDLER(TIMER0_COMP_vect) {
 }
 
 /*
- * Board initialization code.
+ * Board-specific initialization code.
  */
-void hwinit(void) {
+void boardInit(void) {
 
   /*
    * I/O ports setup.
@@ -83,9 +83,4 @@ void hwinit(void) {
   TCNT0  = 0;                                           /* Reset counter.   */
   TIFR   = (1 << OCF0);                                 /* Reset pending.   */
   TIMSK  = (1 << OCIE0);                                /* IRQ on compare.  */
-
-  /*
-   * HAL initialization.
-   */
-  halInit();
 }

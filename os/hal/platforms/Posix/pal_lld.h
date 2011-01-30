@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
 #ifndef _PAL_LLD_H_
 #define _PAL_LLD_H_
 
-#if CH_HAL_USE_PAL || defined(__DOXYGEN__)
+#if HAL_USE_PAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Unsupported modes and specific modes                                      */
@@ -203,7 +203,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_PAL */
+#endif /* HAL_USE_PAL */
 
 #endif /* _PAL_LLD_H_ */
 

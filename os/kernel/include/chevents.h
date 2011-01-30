@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
 #ifndef _CHEVENTS_H_
 #define _CHEVENTS_H_
 
-#if CH_USE_EVENTS
+#if CH_USE_EVENTS || defined(__DOXYGEN__)
 
 typedef struct EventListener EventListener;
 
@@ -97,26 +97,33 @@ typedef struct EventSource {
  *                      function.
  *                      The value must range between zero and the size, in bit,
  *                      of the @p eventid_t type minus one.
+ *
+ * @api
  */
-#define chEvtRegister(esp, elp, eid) chEvtRegisterMask(esp, elp, EVENT_MASK(eid))
+#define chEvtRegister(esp, elp, eid) \
+  chEvtRegisterMask(esp, elp, EVENT_MASK(eid))
 
 /**
  * @brief   Initializes an Event Source.
- * @note    Can be used with interrupts disabled or enabled.
+ * @note    This function can be invoked before the kernel is initialized
+ *          because it just prepares a @p EventSource structure.
  *
  * @param[in] esp       pointer to the @p EventSource structure
+ *
+ * @init
  */
 #define chEvtInit(esp) \
-        ((esp)->es_next = (EventListener *)(void *)(esp))
+  ((esp)->es_next = (EventListener *)(void *)(esp))
 
 /**
  * @brief   Verifies if there is at least one @p EventListener registered.
- * @note    Can be called with interrupts disabled or enabled.
  *
  * @param[in] esp       pointer to the @p EventSource structure
+ *
+ * @iclass
  */
-#define chEvtIsListening(esp) \
-                ((void *)(esp) != (void *)(esp)->es_next)
+#define chEvtIsListeningI(esp) \
+  ((void *)(esp) != (void *)(esp)->es_next)
 
 /**
  * @brief   Event Handler callback function.
@@ -130,8 +137,8 @@ extern "C" {
                          EventListener *elp,
                          eventmask_t mask);
   void chEvtUnregister(EventSource *esp, EventListener *elp);
-  eventmask_t chEvtClear(eventmask_t mask);
-  eventmask_t chEvtPend(eventmask_t mask);
+  eventmask_t chEvtClearFlags(eventmask_t mask);
+  eventmask_t chEvtAddFlags(eventmask_t mask);
   void chEvtSignal(Thread *tp, eventmask_t mask);
   void chEvtSignalI(Thread *tp, eventmask_t mask);
   void chEvtBroadcast(EventSource *esp);

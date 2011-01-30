@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -46,7 +46,7 @@
 /**
  * @brief   Kernel version string.
  */
-#define CH_KERNEL_VERSION       "2.0.10"
+#define CH_KERNEL_VERSION       "2.2.0"
 
 /**
  * @brief   Kernel version major number.
@@ -56,12 +56,12 @@
 /**
  * @brief   Kernel version minor number.
  */
-#define CH_KERNEL_MINOR         0
+#define CH_KERNEL_MINOR         2
 
 /**
  * @brief   Kernel version patch number.
  */
-#define CH_KERNEL_PATCH         10
+#define CH_KERNEL_PATCH         0
 
 /*
  * Common values.
@@ -81,6 +81,7 @@
 #include "chvt.h"
 #include "chschd.h"
 #include "chsem.h"
+#include "chbsem.h"
 #include "chmtx.h"
 #include "chcond.h"
 #include "chevents.h"
@@ -90,12 +91,26 @@
 #include "chheap.h"
 #include "chmempools.h"
 #include "chthreads.h"
+#include "chdynamic.h"
 #include "chregistry.h"
 #include "chinline.h"
 #include "chqueues.h"
 #include "chstreams.h"
 #include "chioch.h"
+#include "chfiles.h"
 #include "chdebug.h"
+
+#if !defined(__DOXYGEN__)
+extern WORKING_AREA(_idle_thread_wa, IDLE_THREAD_STACK_SIZE);
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void _idle_thread(void *p);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _CH_H_ */
 

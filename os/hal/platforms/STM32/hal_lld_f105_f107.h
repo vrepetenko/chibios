@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -23,6 +23,13 @@
     the source code for any proprietary components. See the file exception.txt
     for full details of how and when the exception can be applied.
 */
+
+/**
+ * @defgroup STM32F10X_CL_HAL STM32F105/F107 HAL Support
+ * @details HAL support for STM32 Connectivity Line sub-family.
+ *
+ * @ingroup HAL
+ */
 
 /**
  * @file    STM32/hal_lld_f105_f107.h
@@ -277,6 +284,13 @@
 #endif
 
 /**
+ * @brief   OTG prescaler initialization.
+ */
+#if !defined(STM32_OTGFSPRE) || defined(__DOXYGEN__)
+#define STM32_OTGFSPRE              STM32_OTGFSPRE_DIV3
+#endif
+
+/**
  * @brief   MCO pin setting.
  */
 #if !defined(STM32_MCO) || defined(__DOXYGEN__)
@@ -290,7 +304,7 @@
 /**
  * @brief   PREDIV1 field.
  */
-#if (STM32_PREDIV1_VALUE >= 1) && (STM32_PREDIV1_VALUE <= 16) ||             \
+#if (STM32_PREDIV1_VALUE >= 1) && (STM32_PREDIV1_VALUE <= 16) ||            \
     defined(__DOXYGEN__)
 #define STM32_PREDIV1               ((STM32_PREDIV1_VALUE - 1) << 0)
 #else
@@ -300,7 +314,7 @@
 /**
  * @brief   PREDIV2 field.
  */
-#if (STM32_PREDIV2_VALUE >= 1) && (STM32_PREDIV2_VALUE <= 16) ||             \
+#if (STM32_PREDIV2_VALUE >= 1) && (STM32_PREDIV2_VALUE <= 16) ||            \
     defined(__DOXYGEN__)
 #define STM32_PREDIV2               ((STM32_PREDIV2_VALUE - 1) << 4)
 #else
@@ -502,6 +516,17 @@
 /* ADC frequency check.*/
 #if STM32_ADCCLK > 14000000
 #error "STM32_ADCCLK exceeding maximum frequency (14MHz)"
+#endif
+
+/**
+ * @brief   OTG frequency.
+ */
+#if (STM32_OTGFSPRE == STM32_OTGFSPRE_DIV3) || defined(__DOXYGEN__)
+#define STM32_OTGFSCLK              ((STM32_PLLCLKOUT * 2) / 3)
+#elif (STM32_OTGFSPRE == STM32_OTGFSPRE_DIV2)
+#define STM32_OTGFSCLK              STM32_PLLCLKOUT
+#else
+#error "invalid STM32_OTGFSPRE value specified"
 #endif
 
 /**

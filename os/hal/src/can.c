@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_CAN || defined(__DOXYGEN__)
+#if HAL_USE_CAN || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -55,6 +55,10 @@
 
 /**
  * @brief   CAN Driver initialization.
+ * @note    This function is implicitly invoked by @p halInit(), there is
+ *          no need to explicitly initialize the driver.
+ *
+ * @init
  */
 void canInit(void) {
 
@@ -65,6 +69,8 @@ void canInit(void) {
  * @brief   Initializes the standard part of a @p CANDriver structure.
  *
  * @param[out] canp     pointer to the @p CANDriver object
+ *
+ * @init
  */
 void canObjectInit(CANDriver *canp) {
 
@@ -84,20 +90,25 @@ void canObjectInit(CANDriver *canp) {
 
 /**
  * @brief   Configures and activates the CAN peripheral.
+ * @note    Activating the CAN bus can be a slow operation this this function
+ *          is not atomic, it waits internally for the initialization to
+ *          complete.
  *
  * @param[in] canp      pointer to the @p CANDriver object
- * @param[in] config    pointer to the @p CANConfig object
+ * @param[in] config    pointer to the @p CANConfig object. Depending on
+ *                      the implementation the value can be @p NULL.
+ *
+ * @api
  */
 void canStart(CANDriver *canp, const CANConfig *config) {
 
-  chDbgCheck((canp != NULL) && (config != NULL), "canStart");
+  chDbgCheck(canp != NULL, "canStart");
 
   chSysLock();
   chDbgAssert((canp->cd_state == CAN_STOP) ||
               (canp->cd_state == CAN_STARTING) ||
               (canp->cd_state == CAN_READY),
-              "canStart(), #1",
-              "invalid state");
+              "canStart(), #1", "invalid state");
   while (canp->cd_state == CAN_STARTING)
     chThdSleepS(1);
   if (canp->cd_state == CAN_STOP) {
@@ -112,6 +123,8 @@ void canStart(CANDriver *canp, const CANConfig *config) {
  * @brief   Deactivates the CAN peripheral.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @api
  */
 void canStop(CANDriver *canp) {
 
@@ -119,8 +132,7 @@ void canStop(CANDriver *canp) {
 
   chSysLock();
   chDbgAssert((canp->cd_state == CAN_STOP) || (canp->cd_state == CAN_READY),
-              "canStop(), #1",
-              "invalid state");
+              "canStop(), #1", "invalid state");
   can_lld_stop(canp);
   chSemResetI(&canp->cd_rxsem, 0);
   chSemResetI(&canp->cd_txsem, 0);
@@ -145,8 +157,10 @@ void canStop(CANDriver *canp) {
  *                      .
  * @return              The operation result.
  * @retval RDY_OK       the frame has been queued for transmission.
- * @retval RDY_TIMEOUT  operation not finished within the specified time.
- * @retval RDY_RESET    driver stopped while waiting.
+ * @retval RDY_TIMEOUT  The operation has timed out.
+ * @retval RDY_RESET    The driver has been stopped while waiting.
+ *
+ * @api
  */
 msg_t canTransmit(CANDriver *canp, const CANTxFrame *ctfp, systime_t timeout) {
 
@@ -154,8 +168,7 @@ msg_t canTransmit(CANDriver *canp, const CANTxFrame *ctfp, systime_t timeout) {
 
   chSysLock();
   chDbgAssert((canp->cd_state == CAN_READY) || (canp->cd_state == CAN_SLEEP),
-              "canTransmit(), #1",
-              "invalid state");
+              "canTransmit(), #1", "invalid state");
   while ((canp->cd_state == CAN_SLEEP) || !can_lld_can_transmit(canp)) {
     msg_t msg = chSemWaitTimeoutS(&canp->cd_txsem, timeout);
     if (msg != RDY_OK) {
@@ -184,10 +197,10 @@ msg_t canTransmit(CANDriver *canp, const CANTxFrame *ctfp, systime_t timeout) {
  *                      .
  * @return              The operation result.
  * @retval RDY_OK       a frame has been received and placed in the buffer.
- * @retval RDY_TIMEOUT  operation not finished within the specified time or
- *                      frame not immediately available if invoked using
- *                      @p TIME_IMMEDIATE.
- * @retval RDY_RESET    driver stopped while waiting.
+ * @retval RDY_TIMEOUT  The operation has timed out.
+ * @retval RDY_RESET    The driver has been stopped while waiting.
+ *
+ * @api
  */
 msg_t canReceive(CANDriver *canp, CANRxFrame *crfp, systime_t timeout) {
 
@@ -195,8 +208,7 @@ msg_t canReceive(CANDriver *canp, CANRxFrame *crfp, systime_t timeout) {
 
   chSysLock();
   chDbgAssert((canp->cd_state == CAN_READY) || (canp->cd_state == CAN_SLEEP),
-              "canReceive(), #1",
-              "invalid state");
+              "canReceive(), #1", "invalid state");
   while ((canp->cd_state == CAN_SLEEP) || !can_lld_can_receive(canp)) {
     msg_t msg = chSemWaitTimeoutS(&canp->cd_rxsem, timeout);
     if (msg != RDY_OK) {
@@ -214,6 +226,8 @@ msg_t canReceive(CANDriver *canp, CANRxFrame *crfp, systime_t timeout) {
  *
  * @param[in] canp      pointer to the @p CANDriver object
  * @return              The status flags mask.
+ *
+ * @api
  */
 canstatus_t canGetAndClearFlags(CANDriver *canp) {
   canstatus_t status;
@@ -228,8 +242,15 @@ canstatus_t canGetAndClearFlags(CANDriver *canp) {
 #if CAN_USE_SLEEP_MODE || defined(__DOXYGEN__)
 /**
  * @brief   Enters the sleep mode.
+ * @details This function puts the CAN driver in sleep mode and broadcasts
+ *          the @p cd_sleep_event event source.
+ * @pre     In order to use this function the option @p CAN_USE_SLEEP_MODE must
+ *          be enabled and the @p CAN_SUPPORTS_SLEEP mode must be supported
+ *          by the low level driver.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @api
  */
 void canSleep(CANDriver *canp) {
 
@@ -237,8 +258,7 @@ void canSleep(CANDriver *canp) {
 
   chSysLock();
   chDbgAssert((canp->cd_state == CAN_READY) || (canp->cd_state == CAN_SLEEP),
-              "canSleep(), #1",
-              "invalid state");
+              "canSleep(), #1", "invalid state");
   if (canp->cd_state == CAN_READY) {
     can_lld_sleep(canp);
     canp->cd_state = CAN_SLEEP;
@@ -261,8 +281,7 @@ void canWakeup(CANDriver *canp) {
 
   chSysLock();
   chDbgAssert((canp->cd_state == CAN_READY) || (canp->cd_state == CAN_SLEEP),
-              "canWakeup(), #1",
-              "invalid state");
+              "canWakeup(), #1", "invalid state");
   if (canp->cd_state == CAN_SLEEP) {
     can_lld_wakeup(canp);
     canp->cd_state = CAN_READY;
@@ -273,6 +292,6 @@ void canWakeup(CANDriver *canp) {
 }
 #endif /* CAN_USE_SLEEP_MODE */
 
-#endif /* CH_HAL_USE_CAN */
+#endif /* HAL_USE_CAN */
 
 /** @} */

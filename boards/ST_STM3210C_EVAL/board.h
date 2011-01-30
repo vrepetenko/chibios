@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
  * Board identifier.
  */
 #define BOARD_ST_STM3210C_EVAL
-#define BOARD_NAME "ST STM3210C-EVAL"
+#define BOARD_NAME              "ST STM3210C-EVAL"
 
 /*
  * Board frequencies.
@@ -44,8 +44,7 @@
 #define STM32_HSECLK            25000000
 
 /*
- * MCU type, this macro is used by both the ST library and the ChibiOS/RT
- * native STM32 HAL.
+ * MCU type, supported types are defined in ./os/hal/platforms/hal_lld.h.
  */
 #define STM32F10X_CL
 
@@ -120,5 +119,15 @@
 #define VAL_GPIOECRL            0x44444444      /*  PE7...PE0 */
 #define VAL_GPIOECRH            0x44444444      /* PE15...PE8 */
 #define VAL_GPIOEODR            0xFFFFFFFF
+
+#if !defined(_FROM_ASM_)
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void boardInit(void);
+#ifdef __cplusplus
+}
+#endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    templates/can_lld.c
  * @brief   CAN Driver subsystem low level driver source template.
  *
- * @addtogroup CAN_LLD
+ * @addtogroup CAN
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_CAN || defined(__DOXYGEN__)
+#if HAL_USE_CAN || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -59,6 +59,8 @@
 
 /**
  * @brief   Low level CAN driver initialization.
+ *
+ * @notapi
  */
 void can_lld_init(void) {
 
@@ -68,6 +70,8 @@ void can_lld_init(void) {
  * @brief   Configures and activates the CAN peripheral.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_start(CANDriver *canp) {
 
@@ -77,6 +81,8 @@ void can_lld_start(CANDriver *canp) {
  * @brief   Deactivates the CAN peripheral.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_stop(CANDriver *canp) {
 
@@ -94,6 +100,8 @@ void can_lld_stop(CANDriver *canp) {
  * @return              The queue space availability.
  * @retval FALSE        no space in the transmit queue.
  * @retval TRUE         transmit slot available.
+ *
+ * @notapi
  */
 bool_t can_lld_can_transmit(CANDriver *canp) {
 
@@ -105,6 +113,8 @@ bool_t can_lld_can_transmit(CANDriver *canp) {
  *
  * @param[in] canp      pointer to the @p CANDriver object
  * @param[in] ctfp      pointer to the CAN frame to be transmitted
+ *
+ * @notapi
  */
 void can_lld_transmit(CANDriver *canp, const CANTxFrame *ctfp) {
 
@@ -117,6 +127,8 @@ void can_lld_transmit(CANDriver *canp, const CANTxFrame *ctfp) {
  * @return              The queue space availability.
  * @retval FALSE        no space in the transmit queue.
  * @retval TRUE         transmit slot available.
+ *
+ * @notapi
  */
 bool_t can_lld_can_receive(CANDriver *canp) {
 
@@ -128,6 +140,8 @@ bool_t can_lld_can_receive(CANDriver *canp) {
  *
  * @param[in] canp      pointer to the @p CANDriver object
  * @param[out] crfp     pointer to the buffer where the CAN frame is copied
+ *
+ * @notapi
  */
 void can_lld_receive(CANDriver *canp, CANRxFrame *crfp) {
 
@@ -138,6 +152,8 @@ void can_lld_receive(CANDriver *canp, CANRxFrame *crfp) {
  * @brief   Enters the sleep mode.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_sleep(CANDriver *canp) {
 
@@ -147,12 +163,14 @@ void can_lld_sleep(CANDriver *canp) {
  * @brief   Enforces leaving the sleep mode.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_wakeup(CANDriver *canp) {
 
 }
 #endif /* CAN_USE_SLEEP_MODE */
 
-#endif /* CH_HAL_USE_CAN */
+#endif /* HAL_USE_CAN */
 
 /** @} */

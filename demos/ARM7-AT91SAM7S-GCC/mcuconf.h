@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -63,3 +63,8 @@
 /*
  * SPI driver system settings.
  */
+#define USE_AT91SAM7_SPI            FALSE
+#define AT91SAM7_SPI_USE_SPI0       TRUE
+#define AT91SAM7_SPI_USE_SPI1       FALSE
+#define AT91SAM7_SPI0_PRIORITY      (AT91C_AIC_PRIOR_HIGHEST - 1)
+#define AT91SAM7_SPI1_PRIORITY      (AT91C_AIC_PRIOR_HIGHEST - 1)

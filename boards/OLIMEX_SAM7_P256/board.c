@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -27,6 +27,22 @@
 #include "ch.h"
 #include "hal.h"
 
+/**
+ * @brief   PAL setup.
+ * @details Digital I/O ports static configuration as defined in @p board.h.
+ *          This variable is used by the HAL when initializing the PAL driver.
+ */
+#if HAL_USE_PAL || defined(__DOXYGEN__)
+const PALConfig pal_default_config =
+{
+  {VAL_PIOA_ODSR, VAL_PIOA_OSR, VAL_PIOA_PUSR},
+#if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
+    (SAM7_PLATFORM == SAM7X512)
+  {VAL_PIOB_ODSR, VAL_PIOB_OSR, VAL_PIOB_PUSR}
+#endif
+};
+#endif
+
 /*
  * SYS IRQ handling here.
  */
@@ -47,10 +63,10 @@ static CH_IRQ_HANDLER(SYSIrqHandler) {
 
 /*
  * Early initialization code.
- * This initialization is performed just after reset before BSS and DATA
- * segments initialization.
+ * This initialization must be performed just after stack setup and before
+ * any other initialization.
  */
-void hwinit0(void) {
+void __early_init(void) {
   
   /* Watchdog disabled.*/
   AT91C_BASE_WDTC->WDTC_WDMR = AT91C_WDTC_WDDIS;
@@ -59,16 +75,9 @@ void hwinit0(void) {
 }
 
 /*
- * Late initialization code.
- * This initialization is performed after BSS and DATA segments initialization
- * and before invoking the main() function.
+ * Board-specific initialization code.
  */
-void hwinit1(void) {
-
-  /*
-   * HAL initialization.
-   */
-  halInit();
+void boardInit(void) {
 
   /*
    * LED pins setup.
@@ -99,9 +108,4 @@ void hwinit1(void) {
   AIC_EnableIT(AT91C_ID_SYS);
   AT91C_BASE_PITC->PITC_PIMR = (MCK / 16 / CH_FREQUENCY) - 1;
   AT91C_BASE_PITC->PITC_PIMR |= AT91C_PITC_PITEN | AT91C_PITC_PITIEN;
-
-  /*
-   * ChibiOS/RT initialization.
-   */
-  chSysInit();
 }

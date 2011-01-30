@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,9 +25,10 @@
 */
 
 /**
- * @file AT91SAM7/hal_lld.h
- * @brief AT91SAM7 HAL subsystem low level driver header.
- * @addtogroup AT91SAM7_HAL
+ * @file    AT91SAM7/hal_lld.h
+ * @brief   AT91SAM7 HAL subsystem low level driver header.
+ *
+ * @addtogroup HAL
  * @{
  */
 
@@ -51,14 +52,14 @@
 /*===========================================================================*/
 
 /**
- * @brief Default action for the spurious handler, nothing.
+ * @brief   Default action for the spurious handler, nothing.
  */
 #if !defined(AT91SAM7_SPURIOUS_HANDLER_HOOK) || defined(__DOXYGEN__)
 #define AT91SAM7_SPURIOUS_HANDLER_HOOK()
 #endif
 
 /**
- * @brief Default divider for the USB clock - half the PLL clock.
+ * @brief   Default divider for the USB clock - half the PLL clock.
  */
 #if !defined(AT91SAM7_USBDIV) || defined(__DOXYGEN__)
 #define AT91SAM7_USBDIV AT91C_CKGR_USBDIV_1

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -76,7 +76,7 @@ void port_switch(Thread *ntp, Thread *otp) {
 /**
  * @brief   Halts the system.
  * @details This function is invoked by the operating system when an
- *          unrecoverable error is detected (as example because a programming
+ *          unrecoverable error is detected (for example because a programming
  *          error in the application code that triggers an assertion while in
  *          debug mode).
  * @note    The function is declared as a weak symbol, it is possible to

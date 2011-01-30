@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -96,12 +96,14 @@
 #define PORTE_LED               (1 << 4)
 #define PORTE_BUTTON            (1 << 5)
 
+#if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void hwinit(void);
+  void boardInit(void);
 #ifdef __cplusplus
 }
 #endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

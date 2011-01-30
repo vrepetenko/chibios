@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,7 +25,7 @@
 */
 
 /**
- * @file    ARMCMx/chcore_v6m.h
+ * @file    GCC/ARMCMx/chcore_v6m.h
  * @brief   ARMv6-M architecture port macros and structures.
  *
  * @addtogroup ARMCMx_V6M_CORE
@@ -54,11 +54,6 @@ struct cmxctx {
 };
 
 #if !defined(__DOXYGEN__)
-/**
- * @brief   Interrupt saved context.
- * @details This structure represents the stack frame saved during a
- *          preemption-capable interrupt handler.
- */
 struct extctx {
   regarm_t      xpsr;
   regarm_t      r12;
@@ -69,14 +64,7 @@ struct extctx {
   regarm_t      r3;
   regarm_t      pc;
 };
-#endif
 
-#if !defined(__DOXYGEN__)
-/**
- * @brief   System saved context.
- * @details This structure represents the inner stack frame during a context
- *          switching.
- */
 struct intctx {
   regarm_t      r8;
   regarm_t      r9;
@@ -91,7 +79,7 @@ struct intctx {
 #endif
 
 /**
- * @brief   Platform dependent part of the @p chThdInit() API.
+ * @brief   Platform dependent part of the @p chThdCreateI() API.
  * @details This code usually setup the context switching frame represented
  *          by an @p intctx structure.
  */
@@ -155,7 +143,7 @@ struct intctx {
                                                                             \
     asm volatile ("mrs     %0, PSP" : "=r" (ctxp) : );                      \
     _port_saved_pc = ctxp->pc;                                              \
-    ctxp->pc = _port_switch_from_irq;                                       \
+    ctxp->pc = _port_switch_from_isr;                                       \
     return;                                                                 \
   }                                                                         \
   port_unlock_from_isr();                                                   \
@@ -256,7 +244,7 @@ extern "C" {
 #endif
   void port_halt(void);
   void port_switch(Thread *ntp, Thread *otp);
-  void _port_switch_from_irq(void);
+  void _port_switch_from_isr(void);
   void _port_thread_start(void);
 #ifdef __cplusplus
 }

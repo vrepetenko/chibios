@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -27,6 +27,8 @@
 /**
  * @file    mac.c
  * @brief   MAC Driver code.
+ * @note    This function is implicitly invoked by @p halInit(), there is
+ *          no need to explicitly initialize the driver.
  *
  * @addtogroup MAC
  * @{
@@ -35,7 +37,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_MAC || defined(__DOXYGEN__)
+#if HAL_USE_MAC || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -59,6 +61,8 @@
 
 /**
  * @brief   MAC Driver initialization.
+ *
+ * @init
  */
 void macInit(void) {
 
@@ -69,6 +73,8 @@ void macInit(void) {
  * @brief   Initialize the standard part of a @p MACDriver structure.
  *
  * @param[out] macp     pointer to the @p MACDriver object
+ *
+ * @init
  */
 void macObjectInit(MACDriver *macp) {
 
@@ -81,7 +87,7 @@ void macObjectInit(MACDriver *macp) {
 
 /**
  * @brief   MAC address setup.
- * @note    This function must be invoked only with the driver in the stopped
+ * @pre     This function must be invoked with the driver in the stopped
  *          state. If invoked on an active interface then it is ignored.
  *
  * @param[in] macp      pointer to the @p MACDriver object
@@ -89,6 +95,7 @@ void macObjectInit(MACDriver *macp) {
  *                      address. If this parameter is set to @p NULL then MAC
  *                      a system default is used.
  *
+ * @api
  */
 void macSetAddress(MACDriver *macp, const uint8_t *p) {
 
@@ -111,6 +118,8 @@ void macSetAddress(MACDriver *macp, const uint8_t *p) {
  * @return              The operation status.
  * @retval RDY_OK       the descriptor was obtained.
  * @retval RDY_TIMEOUT  the operation timed out, descriptor not initialized.
+ *
+ * @api
  */
 msg_t macWaitTransmitDescriptor(MACDriver *macp,
                                 MACTransmitDescriptor *tdp,
@@ -135,6 +144,8 @@ msg_t macWaitTransmitDescriptor(MACDriver *macp,
  *          enqueued data as a single frame.
  *
  * @param[in] tdp       the pointer to the @p MACTransmitDescriptor structure
+ *
+ * @api
  */
 void macReleaseTransmitDescriptor(MACTransmitDescriptor *tdp) {
 
@@ -157,6 +168,8 @@ void macReleaseTransmitDescriptor(MACTransmitDescriptor *tdp) {
  * @return              The operation status.
  * @retval RDY_OK       the descriptor was obtained.
  * @retval RDY_TIMEOUT  the operation timed out, descriptor not initialized.
+ *
+ * @api
  */
 msg_t macWaitReceiveDescriptor(MACDriver *macp,
                                MACReceiveDescriptor *rdp,
@@ -182,6 +195,8 @@ msg_t macWaitReceiveDescriptor(MACDriver *macp,
  *          frames.
  *
  * @param[in] rdp       the pointer to the @p MACReceiveDescriptor structure
+ *
+ * @api
  */
 void macReleaseReceiveDescriptor(MACReceiveDescriptor *rdp) {
 
@@ -195,12 +210,14 @@ void macReleaseReceiveDescriptor(MACReceiveDescriptor *rdp) {
  * @return              The link status.
  * @retval TRUE         if the link is active.
  * @retval FALSE        if the link is down.
+ *
+ * @api
  */
 bool_t macPollLinkStatus(MACDriver *macp) {
 
   return mac_lld_poll_link_status(macp);
 }
 
-#endif /* CH_HAL_USE_MAC */
+#endif /* HAL_USE_MAC */
 
 /** @} */

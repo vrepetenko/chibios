@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -24,7 +24,7 @@
     for full details of how and when the exception can be applied.
 */
 
-/**
+/* * <-disabled
  * @file    templates/chcore.h
  * @brief   Port related template macros and structures.
  * @details This file is a template of the system driver macros provided by
@@ -83,7 +83,7 @@ struct context {
 };
 
 /**
- * @brief   Platform dependent part of the @p chThdInit() API.
+ * @brief   Platform dependent part of the @p chThdCreateI() API.
  * @details This code usually setup the context switching frame represented
  *          by an @p intctx structure.
  */

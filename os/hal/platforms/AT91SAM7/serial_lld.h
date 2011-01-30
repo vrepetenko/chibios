@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    AT91SAM7/serial_lld.h
  * @brief   AT91SAM7 low level serial driver header.
  *
- * @addtogroup AT91SAM7_SERIAL
+ * @addtogroup SERIAL
  * @{
  */
 
 #ifndef _SERIAL_LLD_H_
 #define _SERIAL_LLD_H_
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
@@ -69,7 +69,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(USE_SAM7_DBGU_UART) || defined(__DOXYGEN__)
-#define USE_SAM7_DBGU_UART             TRUE
+#define USE_SAM7_DBGU_UART          TRUE
 #endif
 
 /**
@@ -102,11 +102,6 @@
 /*===========================================================================*/
 
 /**
- * @brief   Serial Driver condition flags type.
- */
-typedef uint32_t sdflags_t;
-
-/**
  * @brief   AT91SAM7 Serial Driver configuration structure.
  * @details An instance of this structure must be passed to @p sdStart()
  *          in order to configure and start a serial driver operations.
@@ -135,10 +130,6 @@ typedef struct {
   InputQueue                iqueue;                                         \
   /* Output queue.*/                                                        \
   OutputQueue               oqueue;                                         \
-  /* Status Change @p EventSource.*/                                        \
-  EventSource               sevent;                                         \
-  /* I/O driver status flags.*/                                             \
-  sdflags_t                 flags;                                          \
   /* Input circular buffer.*/                                               \
   uint8_t                   ib[SERIAL_BUFFERS_SIZE];                        \
   /* Output circular buffer.*/                                              \
@@ -178,7 +169,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 #endif /* _SERIAL_LLD_H_ */
 

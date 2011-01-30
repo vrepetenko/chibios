@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -73,11 +73,6 @@ static void *null_provider(size_t size) {
   return NULL;
 }
 
-static char *pools1_gettest(void) {
-
-  return "Memory Pools, queue/dequeue";
-}
-
 static void pools1_setup(void) {
 
   chPoolInit(&mp1, THD_WA_SIZE(THREADS_STACK_SIZE), NULL);
@@ -102,8 +97,8 @@ static void pools1_execute(void) {
   test_assert(3, chPoolAlloc(&mp1) == NULL, "provider returned memory");
 }
 
-const struct testcase testpools1 = {
-  pools1_gettest,
+ROMCONST struct testcase testpools1 = {
+  "Memory Pools, queue/dequeue",
   pools1_setup,
   NULL,
   pools1_execute
@@ -114,7 +109,7 @@ const struct testcase testpools1 = {
 /*
  * @brief   Test sequence for pools.
  */
-const struct testcase * const patternpools[] = {
+ROMCONST struct testcase * ROMCONST patternpools[] = {
 #if CH_USE_MEMPOOLS
   &testpools1,
 #endif

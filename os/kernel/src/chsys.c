@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -41,7 +41,11 @@
 
 #include "ch.h"
 
-static WORKING_AREA(idle_thread_wa, IDLE_THREAD_STACK_SIZE);
+/**
+ * @brief   Idle thread working area.
+ * @see     IDLE_THREAD_STACK_SIZE
+ */
+WORKING_AREA(_idle_thread_wa, IDLE_THREAD_STACK_SIZE);
 
 /**
  * @brief   This function implements the idle thread infinite loop.
@@ -53,7 +57,7 @@ static WORKING_AREA(idle_thread_wa, IDLE_THREAD_STACK_SIZE);
  *
  * @param[in] p the thread parameter, unused in this scenario
  */
-static void idle_thread(void *p) {
+void _idle_thread(void *p) {
 
   (void)p;
   while (TRUE) {
@@ -66,9 +70,13 @@ static void idle_thread(void *p) {
  * @brief   ChibiOS/RT initialization.
  * @details After executing this function the current instructions stream
  *          becomes the main thread.
- * @note    Interrupts should be still disabled when @p chSysInit() is invoked
+ * @pre     Interrupts must be still disabled when @p chSysInit() is invoked
  *          and are internally enabled.
- * @note    The main thread is created with priority @p NORMALPRIO.
+ * @post    The main thread is created with priority @p NORMALPRIO.
+ * @note    This function has special, architecture-dependent, requirements,
+ *          see the notes into the various port reference manuals.
+ *
+ * @special
  */
 void chSysInit(void) {
   static Thread mainthread;
@@ -87,15 +95,15 @@ void chSysInit(void) {
 #endif
 
   /* Now this instructions flow becomes the main thread.*/
-  setcurrp(init_thread(&mainthread, NORMALPRIO));
+  setcurrp(_thread_init(&mainthread, NORMALPRIO));
   currp->p_state = THD_STATE_CURRENT;
   chSysEnable();
 
   /* This thread has the lowest priority in the system, its role is just to
      serve interrupts in its context while keeping the lowest energy saving
      mode compatible with the system status.*/
-  chThdCreateStatic(idle_thread_wa, sizeof(idle_thread_wa), IDLEPRIO,
-                    (tfunc_t)idle_thread, NULL);
+  chThdCreateStatic(_idle_thread_wa, sizeof(_idle_thread_wa), IDLEPRIO,
+                    (tfunc_t)_idle_thread, NULL);
 }
 
 /**
@@ -103,10 +111,11 @@ void chSysInit(void) {
  * @details Decrements the remaining time quantum of the running thread
  *          and preempts it when the quantum is used up. Increments system
  *          time and manages the timers.
- *
  * @note    The frequency of the timer determines the system tick granularity
  *          and, together with the @p CH_TIME_QUANTUM macro, the round robin
  *          interval.
+ *
+ * @iclass
  */
 void chSysTimerHandlerI(void) {
 
@@ -120,6 +129,9 @@ void chSysTimerHandlerI(void) {
   currp->p_time++;
 #endif
   chVTDoTickI();
+#if defined(SYSTEM_TICK_EVENT_HOOK)
+  SYSTEM_TICK_EVENT_HOOK();
+#endif
 }
 
 #if CH_USE_NESTED_LOCKS && !CH_OPTIMIZE_SPEED

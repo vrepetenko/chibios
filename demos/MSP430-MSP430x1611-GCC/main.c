@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -45,17 +45,19 @@ static msg_t Thread1(void *arg) {
 }
 
 /*
- * Entry point, the interrupts are disabled on entry.
+ * Application entry point.
  */
-int main(int argc, char **argv) {
-
-  (void)argc;
-  (void)argv;
+int main(void) {
 
   /*
-   * Hardware initialization, see board.c.
+   * System initializations.
+   * - HAL initialization, this also initializes the configured device drivers
+   *   and performs the board-specific initializations.
+   * - Kernel initialization, the main() function becomes a thread and the
+   *   RTOS is active.
    */
-  hwinit();
+  halInit();
+  chSysInit();
 
   /*
    * Activates the serial driver 2 using the driver default configuration.

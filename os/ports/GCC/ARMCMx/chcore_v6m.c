@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,7 +25,7 @@
 */
 
 /**
- * @file    ARMCMx/chcore_v6m.c
+ * @file    GCC/ARMCMx/chcore_v6m.c
  * @brief   ARMv6-M architecture port code.
  *
  * @addtogroup ARMCMx_V6M_CORE
@@ -40,7 +40,7 @@
 regarm_t _port_saved_pc;
 
 /**
- * @brief	IRQ nesting counter.
+ * @brief   IRQ nesting counter.
  */
 unsigned _port_irq_nesting;
 
@@ -69,7 +69,7 @@ CH_IRQ_HANDLER(SysTickVector) {
 #if !defined(__DOXYGEN__)
 __attribute__((naked))
 #endif
-void _port_switch_from_irq(void) {
+void _port_switch_from_isr(void) {
   /* Note, saves r4 to make space for the PC.*/
   asm volatile ("push    {r0, r1, r2, r3, r4}                   \n\t"
                 "mrs     r0, APSR                               \n\t"

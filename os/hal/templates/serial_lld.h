@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    templates/serial_lld.h
  * @brief   Serial Driver subsystem low level driver header template.
  *
- * @addtogroup SERIAL_LLD
+ * @addtogroup SERIAL
  * @{
  */
 
 #ifndef _SERIAL_LLD_H_
 #define _SERIAL_LLD_H_
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
@@ -54,17 +54,11 @@
 /*===========================================================================*/
 
 /**
- * @brief   Serial Driver condition flags type.
- */
-typedef uint8_t sdflags_t;
-
-/**
  * @brief   Generic Serial Driver configuration structure.
  * @details An instance of this structure must be passed to @p sdStart()
  *          in order to configure and start a serial driver operations.
- * @note    This structure content is architecture dependent, each driver
- *          implementation defines its own version and the custom static
- *          initializers.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
  */
 typedef struct {
 
@@ -81,10 +75,6 @@ typedef struct {
   InputQueue                iqueue;                                         \
   /* Output queue.*/                                                        \
   OutputQueue               oqueue;                                         \
-  /* Status Change @p EventSource.*/                                        \
-  EventSource               sevent;                                         \
-  /* I/O driver status flags.*/                                             \
-  sdflags_t                 flags;                                          \
   /* Input circular buffer.*/                                               \
   uint8_t                   ib[SERIAL_BUFFERS_SIZE];                        \
   /* Output circular buffer.*/                                              \
@@ -109,7 +99,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 #endif /* _SERIAL_LLD_H_ */
 

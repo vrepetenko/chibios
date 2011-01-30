@@ -4,17 +4,19 @@
 
 --{root}                - ChibiOS/RT directory.
   +--readme.txt         - This file.
+  +--documentation.html - Shortcut to the web documentation page.
   +--todo.txt           - Current plan (development/unstable versions only).
   +--license.txt        - GPL license text.
   +--exception.txt      - GPL exception text (stable releases only).
   +--boards/            - Board support files.
   +--demos/             - Demo projects.
   +--docs/              - Documentation.
-  |  +--html/           - HTML documentation.
+  |  +--html/           - Local HTML documentation (after rebuild).
   |  +--reports/        - Test reports.
   |  +--src/            - Documentation source files (required for rebuild).
   |  +--rsc/            - Documentation resource files (required for rebuild).
-  |  +--index.html      - Documentation access.
+  |  +--Doxyfile        - Doxygen project file (required for rebuild).
+  |  +--index.html      - Local documentation access (after rebuild).
   +--ext/               - External libraries, not part of ChibiOS/RT.
   +--os/                - ChibiOS/RT files.
   |  +--hal/            - Hardware Abstraction Layer.
@@ -29,20 +31,26 @@
   |  |  |  +--MSP430/   - Drivers for MSP430 platform.
   |  |  |  +--SPC56x/   - Drivers for SPC56x/MPC563xx platforms.
   |  |  |  +--STM32/    - Drivers for STM32 platform.
-  |  |  |  +--STM8/     - Drivers for STM8 platform.
+  |  |  |  +--STM8L/    - Drivers for STM8L platform.
+  |  |  |  +--STM8S/    - Drivers for STM8S platform.
   |  |  |  +--Posix/    - Drivers for x86 Linux/OSX simulator platform.
   |  |  |  +--Win32/    - Drivers for x86 Win32 simulator platform.
   |  |  +--templates/   - Driver template files.
   |  |     +--meta/     - Driver meta templates.
   |  +--ports/          - Port files for the various architectures.
   |  |  +--GCC/         - Ports for the GCC compiler.
-  |  |  |  +--ARM/      - Port files for generic ARM architecture.
-  |  |  |  +--ARM7/     - Port files for ARM7 architecture.
-  |  |  |  +--ARMCM3/   - Port files for ARMCMx architectures (ARMv6/7-M).
+  |  |  |  +--ARM/      - Port files for ARM7 and ARM9 architectures.
+  |  |  |  +--ARMCMx/   - Port files for ARMCMx architectures (ARMv6/7-M).
   |  |  |  +--PPC/      - Port files for PowerPC architecture.
   |  |  |  +--AVR/      - Port files for AVR architecture.
   |  |  |  +--MSP430/   - Port files for MSP430 architecture.
   |  |  |  +--SIMIA32/  - Port files for SIMIA32 simulator architecture.
+  |  |  +--IAR/         - Ports for the IAR compiler.
+  |  |  |  +--ARMCMx/   - Port files for ARMCMx architectures (ARMv6/7-M).
+  |  |  +--RVCT/        - Ports for the Keil RVCT compiler.
+  |  |  |  +--ARMCMx/   - Port files for ARMCMx architectures (ARMv6/7-M).
+  |  |  +--cosmic/      - Ports for the Cosmic compiler.
+  |  |  |  +--STM8/     - Port files for STM8 architecture.
   |  |  +--RC/          - Ports for the Raisonance compiler.
   |  |     +--STM8/     - Port files for STM8 architecture.
   |  +--kernel/         - Kernel portable files.
@@ -53,10 +61,32 @@
   +--test/              - Kernel test suite source code.
   |  +--coverage/       - Code coverage project.
   +--testhal/           - HAL integration test demos.
+     +--STM32/          - STM32 HAL demos.
+     +--STM8S/          - STM8S HAL demos.
 
 *****************************************************************************
 *** Releases                                                              ***
 *****************************************************************************
+
+*** 2.2.0 ***
+- NEW: The Cortex-Mx port now also supports the IAR and Keil compilers.
+- NEW: Improvements to the Cortex-Mx port.
+- NEW: Improved ARM port supporting both ARM7 and ARM9.
+- NEW: Support for binary semaphores in the kernel.
+- NEW: Improved kernel hooks.
+- NEW: Extensive improvements to the STM32 platform support.
+- NEW: SPI drivers for the AT91SAM7x, LPC11xx, LPC13xx, LPC214x, STM8S,
+  platforms.
+- NEW: Unified STM8 port for both the Cosmic and the Raisonance compilers.
+- NEW: Demos for the STM8S-Discovery, STM8L-Discovery, STM32VL-Discovery
+  boards.
+- NEW: Improved almost all the existing device driver models in the HAL.
+- NEW: Added test/example applications for all the device drivers in the HAL.
+- NEW: Added support for the STM8L platform.
+- NEW: New UART unbuffered serial device driver model.
+- NEW: Greatly improved documentation.
+- NEW: Lots of other minor improvements and optimizations, see the change
+  log of the 2.1.x development branch for details.
 
 *** 2.0.10 ***
 - FIX: Fixed missing lines from the STM32 PWM driver (bug 3154403).

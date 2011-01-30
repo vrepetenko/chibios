@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    LPC11xx/pal_lld.c
  * @brief   LPC11xx GPIO low level driver code.
  *
- * @addtogroup LPC11xx_PAL
+ * @addtogroup PAL
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_PAL || defined(__DOXYGEN__)
+#if HAL_USE_PAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -57,10 +57,12 @@
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 /**
- * @brief LPC11xx I/O ports configuration.
+ * @brief   LPC11xx I/O ports configuration.
  * @details GPIO unit registers initialization.
  *
- * @param[in] config the LPC11xx ports configuration
+ * @param[in] config    the LPC11xx ports configuration
+ *
+ * @notapi
  */
 void _pal_lld_init(const PALConfig *config) {
 
@@ -75,20 +77,19 @@ void _pal_lld_init(const PALConfig *config) {
 }
 
 /**
- * @brief Pads mode setup.
+ * @brief   Pads mode setup.
  * @details This function programs a pads group belonging to the same port
  *          with the specified mode.
+ * @note    @p PAL_MODE_UNCONNECTED is implemented as push pull output with
+ *          high state.
+ * @note    This function does not alter the @p PINSELx registers. Alternate
+ *          functions setup must be handled by device-specific code.
  *
- * @param[in] port the port identifier
- * @param[in] mask the group mask
- * @param[in] mode the mode
+ * @param[in] port      the port identifier
+ * @param[in] mask      the group mask
+ * @param[in] mode      the mode
  *
- * @note This function is not meant to be invoked directly by the application
- *       code.
- * @note @p PAL_MODE_UNCONNECTED is implemented as push pull output with high
- *       state.
- * @note This function does not alter the @p PINSELx registers. Alternate
- *       functions setup must be handled by device-specific code.
+ * @notapi
  */
 void _pal_lld_setgroupmode(ioportid_t port,
                            ioportmask_t mask,
@@ -107,6 +108,6 @@ void _pal_lld_setgroupmode(ioportid_t port,
   }
 }
 
-#endif /* CH_HAL_USE_PAL */
+#endif /* HAL_USE_PAL */
 
 /** @} */

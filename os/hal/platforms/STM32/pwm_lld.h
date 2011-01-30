@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -10,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -28,7 +35,7 @@
 #ifndef _PWM_LLD_H_
 #define _PWM_LLD_H_
 
-#if CH_HAL_USE_PWM || defined(__DOXYGEN__)
+#if HAL_USE_PWM || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
@@ -48,8 +55,8 @@
  * @details If set to @p TRUE the support for PWM1 is included.
  * @note    The default is @p TRUE.
  */
-#if !defined(USE_STM32_PWM1) || defined(__DOXYGEN__)
-#define USE_STM32_PWM1                      TRUE
+#if !defined(STM32_PWM_USE_TIM1) || defined(__DOXYGEN__)
+#define STM32_PWM_USE_TIM1                  TRUE
 #endif
 
 /**
@@ -57,8 +64,8 @@
  * @details If set to @p TRUE the support for PWM2 is included.
  * @note    The default is @p TRUE.
  */
-#if !defined(USE_STM32_PWM2) || defined(__DOXYGEN__)
-#define USE_STM32_PWM2                      TRUE
+#if !defined(STM32_PWM_USE_TIM2) || defined(__DOXYGEN__)
+#define STM32_PWM_USE_TIM2                  TRUE
 #endif
 
 /**
@@ -66,8 +73,8 @@
  * @details If set to @p TRUE the support for PWM3 is included.
  * @note    The default is @p TRUE.
  */
-#if !defined(USE_STM32_PWM3) || defined(__DOXYGEN__)
-#define USE_STM32_PWM3                      TRUE
+#if !defined(STM32_PWM_USE_TIM3) || defined(__DOXYGEN__)
+#define STM32_PWM_USE_TIM3                  TRUE
 #endif
 
 /**
@@ -75,48 +82,81 @@
  * @details If set to @p TRUE the support for PWM4 is included.
  * @note    The default is @p TRUE.
  */
-#if !defined(USE_STM32_PWM4) || defined(__DOXYGEN__)
-#define USE_STM32_PWM4                      TRUE
+#if !defined(STM32_PWM_USE_TIM4) || defined(__DOXYGEN__)
+#define STM32_PWM_USE_TIM4                  TRUE
+#endif
+
+/**
+ * @brief   PWM5 driver enable switch.
+ * @details If set to @p TRUE the support for PWM5 is included.
+ * @note    The default is @p TRUE.
+ */
+#if !defined(STM32_PWM_USE_TIM5) || defined(__DOXYGEN__)
+#define STM32_PWM_USE_TIM5                  TRUE
 #endif
 
 /**
  * @brief   PWM1 interrupt priority level setting.
  */
-#if !defined(STM32_PWM1_IRQ_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_PWM1_IRQ_PRIORITY             7
+#if !defined(STM32_PWM_TIM1_IRQ_PRIORITY) || defined(__DOXYGEN__)
+#define STM32_PWM_TIM1_IRQ_PRIORITY         7
 #endif
 
 /**
  * @brief   PWM2 interrupt priority level setting.
  */
-#if !defined(STM32_PWM2_IRQ_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_PWM2_IRQ_PRIORITY             7
+#if !defined(STM32_PWM_TIM2_IRQ_PRIORITY) || defined(__DOXYGEN__)
+#define STM32_PWM_TIM2_IRQ_PRIORITY         7
 #endif
 
 /**
  * @brief   PWM3 interrupt priority level setting.
  */
-#if !defined(STM32_PWM3_IRQ_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_PWM3_IRQ_PRIORITY             7
+#if !defined(STM32_PWM_TIM3_IRQ_PRIORITY) || defined(__DOXYGEN__)
+#define STM32_PWM_TIM3_IRQ_PRIORITY         7
 #endif
 
 /**
  * @brief   PWM4 interrupt priority level setting.
  */
-#if !defined(STM32_PWM4_IRQ_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_PWM4_IRQ_PRIORITY             7
+#if !defined(STM32_PWM_TIM4_IRQ_PRIORITY) || defined(__DOXYGEN__)
+#define STM32_PWM_TIM4_IRQ_PRIORITY         7
+#endif
+
+/**
+ * @brief   PWM5 interrupt priority level setting.
+ */
+#if !defined(STM32_PWM_TIM5_IRQ_PRIORITY) || defined(__DOXYGEN__)
+#define STM32_PWM_TIM5_IRQ_PRIORITY         7
 #endif
 
 /*===========================================================================*/
 /* Configuration checks.                                                     */
 /*===========================================================================*/
 
-#if USE_STM32_PWM4 && defined(STM32F10X_LD)
-#error "TIM4 not present in low density STM32 devices"
+#if STM32_PWM_USE_TIM1 && !STM32_HAS_TIM1
+#error "TIM1 not present in the selected device"
 #endif
 
-#if !USE_STM32_PWM1 && !USE_STM32_PWM2 &&                           \
-    !USE_STM32_PWM3 && !USE_STM32_PWM4
+#if STM32_PWM_USE_TIM2 && !STM32_HAS_TIM2
+#error "TIM2 not present in the selected device"
+#endif
+
+#if STM32_PWM_USE_TIM3 && !STM32_HAS_TIM3
+#error "TIM3 not present in the selected device"
+#endif
+
+#if STM32_PWM_USE_TIM4 && !STM32_HAS_TIM4
+#error "TIM4 not present in the selected device"
+#endif
+
+#if STM32_PWM_USE_TIM5 && !STM32_HAS_TIM5
+#error "TIM5 not present in the selected device"
+#endif
+
+#if !STM32_PWM_USE_TIM1 && !STM32_PWM_USE_TIM2 &&                           \
+    !STM32_PWM_USE_TIM3 && !STM32_PWM_USE_TIM4 &&                           \
+    !STM32_PWM_USE_TIM5
 #error "PWM driver activated but no TIM peripheral assigned"
 #endif
 
@@ -268,6 +308,8 @@ struct PWMDriver {
  * @param[in] numerator numerator of the fraction
  * @param[in] denominator percentage as an integer between 0 and numerator
  * @return              The pulse width to be passed to @p pwmEnableChannel().
+ *
+ * @api
  */
 #define PWM_FRACTION_TO_WIDTH(pwmp, numerator, denominator)                 \
   ((uint16_t)((((uint32_t)(pwmp)->pd_config->pc_arr + 1UL) *                \
@@ -283,6 +325,8 @@ struct PWMDriver {
  * @param[in] pwmp      pointer to a @p PWMDriver object
  * @param[in] degrees   degrees as an integer between 0 and 36000
  * @return              The pulse width to be passed to @p pwmEnableChannel().
+ *
+ * @api
  */
 #define PWM_DEGREES_TO_WIDTH(pwmp, degrees)                                 \
   PWM_FRACTION_TO_WIDTH(pwmp, 36000, degrees)
@@ -297,6 +341,8 @@ struct PWMDriver {
  * @param[in] pwmp      pointer to a @p PWMDriver object
  * @param[in] percentage percentage as an integer between 0 and 10000
  * @return              The pulse width to be passed to @p pwmEnableChannel().
+ *
+ * @api
  */
 #define PWM_PERCENTAGE_TO_WIDTH(pwmp, percentage)                           \
   PWM_FRACTION_TO_WIDTH(pwmp, 10000, percentage)
@@ -305,20 +351,24 @@ struct PWMDriver {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if USE_STM32_PWM1 && !defined(__DOXYGEN__)
+#if STM32_PWM_USE_TIM1 && !defined(__DOXYGEN__)
 extern PWMDriver PWMD1;
 #endif
 
-#if USE_STM32_PWM2 && !defined(__DOXYGEN__)
+#if STM32_PWM_USE_TIM2 && !defined(__DOXYGEN__)
 extern PWMDriver PWMD2;
 #endif
 
-#if USE_STM32_PWM3 && !defined(__DOXYGEN__)
+#if STM32_PWM_USE_TIM3 && !defined(__DOXYGEN__)
 extern PWMDriver PWMD3;
 #endif
 
-#if USE_STM32_PWM4 && !defined(__DOXYGEN__)
+#if STM32_PWM_USE_TIM4 && !defined(__DOXYGEN__)
 extern PWMDriver PWMD4;
+#endif
+
+#if STM32_PWM_USE_TIM5 && !defined(__DOXYGEN__)
+extern PWMDriver PWMD5;
 #endif
 
 #ifdef __cplusplus
@@ -335,7 +385,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_PWM */
+#endif /* HAL_USE_PWM */
 
 #endif /* _PWM_LLD_H_ */
 

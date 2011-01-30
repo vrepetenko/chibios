@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -34,7 +34,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -119,7 +119,7 @@ static bool_t connint(SerialDriver *sdp) {
       printf("%s: Unable to setup non blocking mode on data socket\n", sdp->com_name);
       goto abort;
     }
-    sdAddFlagsI(sdp, SD_CONNECTED);
+    chIOAddFlagsI(sdp, IO_CONNECTED);
     return TRUE;
   }
   return FALSE;
@@ -146,7 +146,7 @@ static bool_t inint(SerialDriver *sdp) {
     case 0:
       closesocket(sdp->com_data);
       sdp->com_data = INVALID_SOCKET;
-      sdAddFlagsI(sdp, SD_DISCONNECTED);
+      chIOAddFlagsI(sdp, IO_DISCONNECTED);
       return FALSE;
     case SOCKET_ERROR:
       if (WSAGetLastError() == WSAEWOULDBLOCK)
@@ -180,7 +180,7 @@ static bool_t outint(SerialDriver *sdp) {
     case 0:
       closesocket(sdp->com_data);
       sdp->com_data = INVALID_SOCKET;
-      sdAddFlagsI(sdp, SD_DISCONNECTED);
+      chIOAddFlagsI(sdp, IO_DISCONNECTED);
       return FALSE;
     case SOCKET_ERROR:
       if (WSAGetLastError() == WSAEWOULDBLOCK)
@@ -265,6 +265,6 @@ bool_t sd_lld_interrupt_pending(void) {
          outint(&SD1)  || outint(&SD2);
 }
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 /** @} */

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -78,11 +78,6 @@ static MAILBOX_DECL(mb1, test.wa.T0, MB_SIZE);
  * The test expects to find a consistent mailbox status after each operation.
  */
 
-static char *mbox1_gettest(void) {
-
-  return "Mailboxes, queuing and timeouts";
-}
-
 static void mbox1_setup(void) {
 
   chMBInit(&mb1, (msg_t *)test.wa.T0, MB_SIZE);
@@ -95,7 +90,7 @@ static void mbox1_execute(void) {
   /*
    * Testing initial space.
    */
-  test_assert(1, chMBGetEmpty(&mb1) == MB_SIZE, "wrong size");
+  test_assert(1, chMBGetFreeCountI(&mb1) == MB_SIZE, "wrong size");
 
   /*
    * Testing enqueuing and backward circularity.
@@ -116,8 +111,8 @@ static void mbox1_execute(void) {
   /*
    * Testing final conditions.
    */
-  test_assert(5, chMBGetEmpty(&mb1) == 0, "still empty");
-  test_assert(6, chMBGetFull(&mb1) == MB_SIZE, "not full");
+  test_assert(5, chMBGetFreeCountI(&mb1) == 0, "still empty");
+  test_assert(6, chMBGetUsedCountI(&mb1) == MB_SIZE, "not full");
   test_assert(7, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
 
   /*
@@ -149,8 +144,8 @@ static void mbox1_execute(void) {
   /*
    * Testing final conditions.
    */
-  test_assert(15, chMBGetEmpty(&mb1) == MB_SIZE, "not empty");
-  test_assert(16, chMBGetFull(&mb1) == 0, "still full");
+  test_assert(15, chMBGetFreeCountI(&mb1) == MB_SIZE, "not empty");
+  test_assert(16, chMBGetUsedCountI(&mb1) == 0, "still full");
   test_assert(17, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
 
   /*
@@ -161,14 +156,14 @@ static void mbox1_execute(void) {
   /*
    * Re-testing final conditions.
    */
-  test_assert(18, chMBGetEmpty(&mb1) == MB_SIZE, "not empty");
-  test_assert(19, chMBGetFull(&mb1) == 0, "still full");
+  test_assert(18, chMBGetFreeCountI(&mb1) == MB_SIZE, "not empty");
+  test_assert(19, chMBGetUsedCountI(&mb1) == 0, "still full");
   test_assert(20, mb1.mb_buffer == mb1.mb_wrptr, "write pointer not aligned to base");
   test_assert(21, mb1.mb_buffer == mb1.mb_rdptr, "read pointer not aligned to base");
 }
 
-const struct testcase testmbox1 = {
-  mbox1_gettest,
+ROMCONST struct testcase testmbox1 = {
+  "Mailboxes, queuing and timeouts",
   mbox1_setup,
   NULL,
   mbox1_execute
@@ -179,7 +174,7 @@ const struct testcase testmbox1 = {
 /**
  * @brief   Test sequence for mailboxes.
  */
-const struct testcase * const patternmbox[] = {
+ROMCONST struct testcase * ROMCONST patternmbox[] = {
 #if CH_USE_MAILBOXES
   &testmbox1,
 #endif

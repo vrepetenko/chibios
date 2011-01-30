@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,10 +25,10 @@
 */
 
 /**
- * @file    STM8/chtypes.h
- * @brief   STM8 port system types.
+ * @file    RC/STM8/chtypes.h
+ * @brief   STM8 (Raisonance) port system types.
  *
- * @addtogroup STM8_CORE
+ * @addtogroup STM8_RAISONANCE_CORE
  * @{
  */
 
@@ -101,7 +101,7 @@ typedef uint16_t        systime_t;
 /**
  * @brief   Counter, recommended fastest signed.
  */
-typedef int16_t         cnt_t;
+typedef int8_t          cnt_t;
 
 /**
  * @brief   Inline function modifier.
@@ -110,7 +110,7 @@ typedef int16_t         cnt_t;
 
 /**
  * @brief   ROM constant modifier.
- * @note    Uses the custom "code" keyword in this port.
+ * @note    Uses the "const" keyword in this port.
  */
 #define ROMCONST code
 

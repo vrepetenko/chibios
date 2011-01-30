@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,8 +25,9 @@
 */
 
 /**
- * @file AT91SAM7/at91sam7_mii.c
- * @brief AT91SAM7 low level MII driver code.
+ * @file    AT91SAM7/at91sam7_mii.c
+ * @brief   AT91SAM7 low level MII driver code.
+ *
  * @addtogroup AT91SAM7_MII
  * @{
  */
@@ -35,7 +36,7 @@
 #include "hal.h"
 #include "at91sam7_mii.h"
 
-#if CH_HAL_USE_MAC || defined(__DOXYGEN__)
+#if HAL_USE_MAC || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -58,16 +59,20 @@
 /*===========================================================================*/
 
 /**
- * @brief Low level MII driver initialization.
+ * @brief   Low level MII driver initialization.
+ *
+ * @notapi
  */
 void miiInit(void) {
 
 }
 
 /**
- * @brief Resets a PHY device.
+ * @brief   Resets a PHY device.
  *
- * @param[in] macp pointer to the @p MACDriver object
+ * @param[in] macp      pointer to the @p MACDriver object
+ *
+ * @notapi
  */
 void miiReset(MACDriver *macp) {
 
@@ -101,11 +106,13 @@ void miiReset(MACDriver *macp) {
 }
 
 /**
- * @brief Reads a PHY register through the MII interface.
+ * @brief   Reads a PHY register through the MII interface.
  *
- * @param[in] macp pointer to the @p MACDriver object
- * @param addr the register address
- * @return The register value.
+ * @param[in] macp      pointer to the @p MACDriver object
+ * @param[in] addr      the register address
+ * @return              The register value.
+ *
+ * @notapi
  */
 phyreg_t miiGet(MACDriver *macp, phyaddr_t addr) {
 
@@ -121,11 +128,13 @@ phyreg_t miiGet(MACDriver *macp, phyaddr_t addr) {
 }
 
 /**
- * @brief Writes a PHY register through the MII interface.
+ * @brief   Writes a PHY register through the MII interface.
  *
- * @param[in] macp pointer to the @p MACDriver object
- * @param addr the register address
- * @param value the new register value
+ * @param[in] macp      pointer to the @p MACDriver object
+ * @param[in] addr      the register address
+ * @param[in] value     the new register value
+ *
+ * @notapi
  */
 void miiPut(MACDriver *macp, phyaddr_t addr, phyreg_t value) {
 
@@ -140,6 +149,6 @@ void miiPut(MACDriver *macp, phyaddr_t addr, phyreg_t value) {
     ;
 }
 
-#endif /* CH_HAL_USE_MAC */
+#endif /* HAL_USE_MAC */
 
 /** @} */

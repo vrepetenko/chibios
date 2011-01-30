@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,7 +28,7 @@
  * @file    SPC56x/hal_lld.c
  * @brief   SPC563 HAL subsystem low level driver source.
  *
- * @addtogroup SPC563_HAL
+ * @addtogroup HAL
  * @{
  */
 
@@ -57,6 +57,8 @@
 
 /**
  * @brief   Low level HAL driver initialization.
+ *
+ * @notapi
  */
 void hal_lld_init(void) {
   extern void _vectors(void);
@@ -114,6 +116,9 @@ void hal_lld_init(void) {
  * @brief   SPC563 clocks and PLL initialization.
  * @note    All the involved constants come from the file @p board.h and
  *          @p hal_lld.h
+ * @note    This function must be invoked only after the system reset.
+ *
+ * @special
  */
 void spc563_clock_init(void) {
 

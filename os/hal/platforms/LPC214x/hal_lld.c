@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,9 +25,10 @@
 */
 
 /**
- * @file LPC214x/hal_lld.c
- * @brief LPC214x HAL subsystem low level driver source.
- * @addtogroup LPC214x_HAL
+ * @file    LPC214x/hal_lld.c
+ * @brief   LPC214x HAL subsystem low level driver source.
+ *
+ * @addtogroup HAL
  * @{
  */
 
@@ -41,19 +42,6 @@
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
-
-/**
- * @brief PAL setup.
- * @details Digital I/O ports static configuration as defined in @p board.h.
- */
-const PALConfig pal_default_config =
-{
-  VAL_PINSEL0,
-  VAL_PINSEL1,
-  VAL_PINSEL2,
-  {VAL_FIO0PIN, VAL_FIO0DIR},
-  {VAL_FIO1PIN, VAL_FIO1DIR}
-};
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -82,7 +70,9 @@ static CH_IRQ_HANDLER(irq_handler) {
 /*===========================================================================*/
 
 /**
- * @brief Low level HAL driver initialization.
+ * @brief   Low level HAL driver initialization.
+ *
+ * @notapi
  */
 void hal_lld_init(void) {
 
@@ -92,8 +82,11 @@ void hal_lld_init(void) {
 }
 
 /**
- * @brief LPC214x clocks and PLL initialization.
- * @note All the involved constants come from the file @p board.h.
+ * @brief   LPC214x clocks and PLL initialization.
+ * @note    All the involved constants come from the file @p board.h.
+ * @note    This function must be invoked only after the system reset.
+ *
+ * @special
  */
 void lpc214x_clock_init(void) {
 

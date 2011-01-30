@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,7 +25,7 @@
 */
 
 /**
- * @file    ARMCMx/chcore_v7m.h
+ * @file    GCC/ARMCMx/chcore_v7m.h
  * @brief   ARMv7-M architecture port macros and structures.
  *
  * @addtogroup ARMCMx_V7M_CORE
@@ -40,12 +40,6 @@
 /*===========================================================================*/
 
 #if !defined(__DOXYGEN__)
-/**
- * @brief   Interrupt saved context.
- * @details This structure represents the stack frame saved during a
- *          preemption-capable interrupt handler.
- * @note    It is implemented to match the Cortex-Mx exception context.
- */
 struct extctx {
   regarm_t      r0;
   regarm_t      r1;
@@ -56,14 +50,7 @@ struct extctx {
   regarm_t      pc;
   regarm_t      xpsr;
 };
-#endif
 
-#if !defined(__DOXYGEN__)
-/**
- * @brief   System saved context.
- * @details This structure represents the inner stack frame during a context
- *          switching.
- */
 struct intctx {
   regarm_t      r4;
   regarm_t      r5;
@@ -80,7 +67,7 @@ struct intctx {
 #endif
 
 /**
- * @brief   Platform dependent part of the @p chThdInit() API.
+ * @brief   Platform dependent part of the @p chThdCreateI() API.
  * @details This code usually setup the context switching frame represented
  *          by an @p intctx structure.
  */

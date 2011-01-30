@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,7 +28,7 @@
  * @file    LPC13xx/hal_lld.h
  * @brief   HAL subsystem low level driver header template.
  *
- * @addtogroup LPC13xx_HAL
+ * @addtogroup HAL
  * @{
  */
 
@@ -68,7 +68,7 @@
  * @brief   System PLL clock source.
  */
 #if !defined(LPC13xx_PLLCLK_SOURCE) || defined(__DOXYGEN__)
-#define LPC13xx_PLLCLK_SOURCE   SYSPLLCLKSEL_SYSOSC
+#define LPC13xx_PLLCLK_SOURCE               SYSPLLCLKSEL_SYSOSC
 #endif
 
 /**
@@ -77,7 +77,7 @@
  *          must not exceed the CCO ratings.
  */
 #if !defined(LPC13xx_SYSPLL_MUL) || defined(__DOXYGEN__)
-#define LPC13xx_SYSPLL_MUL      6
+#define LPC13xx_SYSPLL_MUL                  6
 #endif
 
 /**
@@ -85,14 +85,14 @@
  * @note    The value must be chosen between (2, 4, 8, 16).
  */
 #if !defined(LPC13xx_SYSPLL_DIV) || defined(__DOXYGEN__)
-#define LPC13xx_SYSPLL_DIV      4
+#define LPC13xx_SYSPLL_DIV                  4
 #endif
 
 /**
  * @brief   System main clock source.
  */
 #if !defined(LPC13xx_MAINCLK_SOURCE) || defined(__DOXYGEN__)
-#define LPC13xx_MAINCLK_SOURCE  SYSMAINCLKSEL_PLLOUT
+#define LPC13xx_MAINCLK_SOURCE              SYSMAINCLKSEL_PLLOUT
 #endif
 
 /**
@@ -100,15 +100,7 @@
  * @note    The value must be chosen between (1...255).
  */
 #if !defined(LPC13xx_SYSCLK_DIV) || defined(__DOXYGEN__)
-#define LPC13xx_SYSABHCLK_DIV   1
-#endif
-
-/**
- * @brief   UART clock divider.
- * @note    The value must be chosen between (1...255).
- */
-#if !defined(LPC13xx_UART_PCLK_DIV) || defined(__DOXYGEN__)
-#define LPC13xx_UART_PCLK_DIV   1
+#define LPC13xx_SYSABHCLK_DIV               1
 #endif
 
 /*===========================================================================*/
@@ -205,11 +197,6 @@
 #else
 #define LPC13xx_FLASHCFG_FLASHTIM   2
 #endif
-
-/**
- * @brief   UART clock.
- */
-#define  LPC13xx_UART_PCLK  (LPC13xx_MAINCLK / LPC13xx_UART_PCLK_DIV)
 
 /*===========================================================================*/
 /* Driver data structures and types.                                         */

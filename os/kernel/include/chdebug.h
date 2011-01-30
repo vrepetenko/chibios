@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -89,7 +89,7 @@ typedef struct {
 
 #define __QUOTE_THIS(p) #p
 
-#if CH_DBG_ENABLE_CHECKS
+#if CH_DBG_ENABLE_CHECKS || defined(__DOXYGEN__)
 /**
  * @brief   Function parameter check.
  * @details If the condition check fails then the kernel panics and halts.
@@ -98,6 +98,8 @@ typedef struct {
  *
  * @param[in] c         the condition to be verified to be true
  * @param[in] func      the undecorated function name
+ *
+ * @api
  */
 #define chDbgCheck(c, func) {                                           \
   if (!(c))                                                             \
@@ -109,7 +111,7 @@ typedef struct {
 }
 #endif /* !CH_DBG_ENABLE_CHECKS */
 
-#if CH_DBG_ENABLE_ASSERTS
+#if CH_DBG_ENABLE_ASSERTS || defined(__DOXYGEN__)
 /**
  * @brief   Condition assertion.
  * @details If the condition check fails then the kernel panics with the
@@ -124,6 +126,8 @@ typedef struct {
  * @param[in] c         the condition to be verified to be true
  * @param[in] m         the text message
  * @param[in] r         a remark string
+ *
+ * @api
  */
 #define chDbgAssert(c, m, r) {                                          \
   if (!(c))                                                             \
@@ -151,7 +155,7 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-#if CH_DBG_ENABLE_TRACE
+#if CH_DBG_ENABLE_TRACE || defined(__DOXYGEN__)
   extern TraceBuffer trace_buffer;
   void trace_init(void);
   void chDbgTrace(Thread *otp);

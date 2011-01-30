@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    templates/mac_lld.h
  * @brief   MAC Driver subsystem low level driver header template.
  *
- * @addtogroup MAC_LLD
+ * @addtogroup MAC
  * @{
  */
 
 #ifndef _MAC_LLD_H_
 #define _MAC_LLD_H_
 
-#if CH_HAL_USE_MAC || defined(__DOXYGEN__)
+#if HAL_USE_MAC || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
@@ -76,6 +76,8 @@
 
 /**
  * @brief   Structure representing a MAC driver.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
  */
 typedef struct {
   Semaphore             md_tdsem;       /**< Transmit semaphore.        */
@@ -88,6 +90,8 @@ typedef struct {
 
 /**
  * @brief   Structure representing a transmit descriptor.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
  */
 typedef struct {
   size_t                td_offset;      /**< Current write offset.      */
@@ -97,6 +101,8 @@ typedef struct {
 
 /**
  * @brief   Structure representing a receive descriptor.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
  */
 typedef struct {
   size_t                rd_offset;      /**< Current read offset.       */
@@ -134,7 +140,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_MAC */
+#endif /* HAL_USE_MAC */
 
 #endif /* _MAC_LLD_H_ */
 

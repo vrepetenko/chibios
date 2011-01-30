@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_XXX || defined(__DOXYGEN__)
+#if HAL_USE_XXX || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -55,6 +55,10 @@
 
 /**
  * @brief   XXX Driver initialization.
+ * @note    This function is implicitly invoked by @p halInit(), there is
+ *          no need to explicitly initialize the driver.
+ *
+ * @init
  */
 void xxxInit(void) {
 
@@ -64,7 +68,9 @@ void xxxInit(void) {
 /**
  * @brief   Initializes the standard part of a @p XXXDriver structure.
  *
- * @param[in] xxxp      pointer to the @p XXXDriver object
+ * @param[out] xxxp     pointer to the @p XXXDriver object
+ *
+ * @init
  */
 void xxxObjectInit(XXXDriver *xxxp) {
 
@@ -75,8 +81,10 @@ void xxxObjectInit(XXXDriver *xxxp) {
 /**
  * @brief   Configures and activates the XXX peripheral.
  *
- * @param[out] xxxp     pointer to the @p XXXDriver object
+ * @param[in] xxxp      pointer to the @p XXXDriver object
  * @param[in] config    pointer to the @p XXXConfig object
+ *
+ * @api
  */
 void xxxStart(XXXDriver *xxxp, const XXXConfig *config) {
 
@@ -96,6 +104,8 @@ void xxxStart(XXXDriver *xxxp, const XXXConfig *config) {
  * @brief   Deactivates the XXX peripheral.
  *
  * @param[in] xxxp      pointer to the @p XXXDriver object
+ *
+ * @api
  */
 void xxxStop(XXXDriver *xxxp) {
 
@@ -110,6 +120,6 @@ void xxxStop(XXXDriver *xxxp) {
   chSysUnlock();
 }
 
-#endif /* CH_HAL_USE_XXX */
+#endif /* HAL_USE_XXX */
 
 /** @} */

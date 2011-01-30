@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,8 +25,9 @@
 */
 
 /**
- * @file stm32_dma.c
- * @brief STM32 DMA helper driver code.
+ * @file    stm32_dma.c
+ * @brief   STM32 DMA helper driver code.
+ *
  * @addtogroup STM32_DMA
  * @{
  */
@@ -43,7 +44,7 @@
 /*===========================================================================*/
 
 static cnt_t dmacnt1;
-#if defined(STM32F10X_HD) || defined (STM32F10X_CL)
+#if STM32_HAS_DMA2
 static cnt_t dmacnt2;
 #endif
 
@@ -60,20 +61,31 @@ static cnt_t dmacnt2;
 /*===========================================================================*/
 
 /**
- * @brief STM32 DMA helper initialization.
+ * @brief   STM32 DMA helper initialization.
+ *
+ * @init
  */
 void dmaInit(void) {
+  int i;
 
   dmacnt1 = 0;
-#if defined(STM32F10X_HD) || defined (STM32F10X_CL)
+  for (i = STM32_DMA_CHANNEL_7; i >= STM32_DMA_CHANNEL_1; i--)
+    dmaDisableChannel(STM32_DMA1, i);
+  STM32_DMA1->IFCR = 0xFFFFFFFF;
+#if STM32_HAS_DMA2
   dmacnt2 = 0;
+  for (i = STM32_DMA_CHANNEL_5; i >= STM32_DMA_CHANNEL_1; i--)
+    dmaDisableChannel(STM32_DMA2, i);
+  STM32_DMA1->IFCR = 0xFFFFFFFF;
 #endif
 }
 
 /**
- * @brief Enables the specified DMA controller clock.
+ * @brief   Enables the specified DMA controller clock.
  *
- * @param[in] dma the DMA controller id
+ * @param[in] dma       the DMA controller id
+ *
+ * @api
  */
 void dmaEnable(uint32_t dma) {
 
@@ -84,7 +96,7 @@ void dmaEnable(uint32_t dma) {
       DMA1->IFCR = 0x0FFFFFFF;
     }
     break;
-#if defined(STM32F10X_HD) || defined (STM32F10X_CL)
+#if STM32_HAS_DMA2
   case DMA2_ID:
     if (dmacnt2++ == 0) {
       RCC->AHBENR |= RCC_AHBENR_DMA2EN;
@@ -98,7 +110,9 @@ void dmaEnable(uint32_t dma) {
 /**
  * @brief Disables the specified DMA controller clock.
  *
- * @param[in] dma the DMA controller id
+ * @param[in] dma       the DMA controller id
+ *
+ * @api
  */
 void dmaDisable(uint32_t dma) {
 
@@ -107,7 +121,7 @@ void dmaDisable(uint32_t dma) {
     if (--dmacnt1 == 0)
       RCC->AHBENR &= ~RCC_AHBENR_DMA1EN;
     break;
-#if defined(STM32F10X_HD) || defined (STM32F10X_CL)
+#if STM32_HAS_DMA2
   case DMA2_ID:
     if (--dmacnt2 == 0)
       RCC->AHBENR &= ~RCC_AHBENR_DMA2EN;

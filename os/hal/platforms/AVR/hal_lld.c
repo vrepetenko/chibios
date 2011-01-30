@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,9 +25,10 @@
 */
 
 /**
- * @file AVR/hal_lld.c
- * @brief AVR HAL subsystem low level driver code.
- * @addtogroup AVR_HAL
+ * @file    AVR/hal_lld.c
+ * @brief   AVR HAL subsystem low level driver code.
+ *
+ * @addtogroup HAL
  * @{
  */
 
@@ -55,7 +56,9 @@
 /*===========================================================================*/
 
 /**
- * @brief Low level HAL driver initialization.
+ * @brief   Low level HAL driver initialization.
+ *
+ * @notapi
  */
 void hal_lld_init(void) {
 

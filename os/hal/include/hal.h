@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -47,6 +47,7 @@
 #include "pwm.h"
 #include "serial.h"
 #include "spi.h"
+#include "uart.h"
 #include "mmc_spi.h"
 
 /*===========================================================================*/

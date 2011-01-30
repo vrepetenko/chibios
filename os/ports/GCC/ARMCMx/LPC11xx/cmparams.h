@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,11 +25,11 @@
 */
 
 /**
- * @file    ARMCMx/LPC11xx/cmparams.h
- * @brief   ARM Cortex-M0 LPC11xx Specific Parameters.
+ * @file    GCC/ARMCMx/LPC11xx/cmparams.h
+ * @brief   ARM Cortex-M0 parameters for the LPC11xx.
  *
  * @defgroup ARMCMx_LPC11xx LPC11xx Specific Parameters
- * @ingroup ARMCMx
+ * @ingroup ARMCMx_SPECIFIC
  * @details This file contains the Cortex-M0 specific parameters for the
  *          LPC11xx platform.
  * @{

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -51,7 +51,7 @@
 /*
  * Array of all the test patterns.
  */
-static const struct testcase **patterns[] = {
+static ROMCONST struct testcase * ROMCONST *patterns[] = {
   patternthd,
   patternsem,
   patternmtx,
@@ -85,8 +85,8 @@ Thread *threads[MAX_THREADS];
 /*
  * Pointers to the working areas.
  */
-void * const wa[5] = {test.wa.T0, test.wa.T1, test.wa.T2,
-                      test.wa.T3, test.wa.T4};
+void * ROMCONST wa[5] = {test.wa.T0, test.wa.T1, test.wa.T2,
+                         test.wa.T3, test.wa.T4};
 
 /*
  * Console output.
@@ -117,7 +117,7 @@ void test_printn(uint32_t n) {
  *
  * @param[in] msgp      the message
  */
-void test_print(char *msgp) {
+void test_print(const char *msgp) {
 
   while (*msgp)
     chIOPut(chp, *msgp++);
@@ -128,7 +128,7 @@ void test_print(char *msgp) {
  *
  * @param[in] msgp      the message
  */
-void test_println(char *msgp) {
+void test_println(const char *msgp) {
 
   test_print(msgp);
   chIOPut(chp, '\r');
@@ -202,7 +202,7 @@ bool_t _test_assert_time_window(unsigned point, systime_t start, systime_t end) 
  */
 
 /**
- * @brief   Pends a termination request in all the test-spawned threads.
+ * @brief   Sets a termination request in all the test-spawned threads.
  */
 void test_terminate_threads(void) {
   int i;
@@ -249,7 +249,7 @@ void test_cpu_pulse(unsigned duration) {
 #endif
 
 /**
- * @brief Delays execution until next system time tick.
+ * @brief   Delays execution until next system time tick.
  *
  * @return              The system time.
  */
@@ -263,7 +263,9 @@ systime_t test_wait_tick(void) {
  * Timer utils.
  */
 
-/** @brief Set to @p TRUE when the test timer reaches its deadline.*/
+/**
+ * @brief   Set to @p TRUE when the test timer reaches its deadline.
+ */
 bool_t test_timer_done;
 
 static VirtualTimer vt;
@@ -363,7 +365,7 @@ msg_t TestThread(void *p) {
       test_print(".");
       test_printn(j + 1);
       test_print(" (");
-      test_print(patterns[i][j]->gettest());
+      test_print(patterns[i][j]->name);
       test_println(")");
 #if DELAY_BETWEEN_TESTS > 0
       chThdSleepMilliseconds(DELAY_BETWEEN_TESTS);

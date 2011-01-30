@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,39 +28,38 @@
  * @file    STM32/pal_lld.c
  * @brief   STM32 GPIO low level driver code.
  *
- * @addtogroup STM32_PAL
+ * @addtogroup PAL
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_PAL || defined(__DOXYGEN__)
+#if HAL_USE_PAL || defined(__DOXYGEN__)
 
-#if defined(STM32F10X_LD)
-#define APB2_RST_MASK (RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_IOPBRST |    \
-                       RCC_APB2RSTR_IOPCRST | RCC_APB2RSTR_IOPDRST |    \
-                       RCC_APB2RSTR_AFIORST)
-#define APB2_EN_MASK  (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |        \
-                       RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |        \
-                       RCC_APB2ENR_AFIOEN)
-#elif defined(STM32F10X_HD)
-#define APB2_RST_MASK (RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_IOPBRST |    \
-                       RCC_APB2RSTR_IOPCRST | RCC_APB2RSTR_IOPDRST |    \
-                       RCC_APB2RSTR_IOPERST | RCC_APB2RSTR_IOPFRST |    \
+#if STM32_HAS_GPIOG
+#define APB2_RST_MASK (RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_IOPBRST |        \
+                       RCC_APB2RSTR_IOPCRST | RCC_APB2RSTR_IOPDRST |        \
+                       RCC_APB2RSTR_IOPERST | RCC_APB2RSTR_IOPFRST |        \
                        RCC_APB2RSTR_IOPGRST | RCC_APB2RSTR_AFIORST);
-#define APB2_EN_MASK  (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |        \
-                       RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |        \
-                       RCC_APB2ENR_IOPEEN | RCC_APB2ENR_IOPFEN |        \
+#define APB2_EN_MASK  (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |            \
+                       RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |            \
+                       RCC_APB2ENR_IOPEEN | RCC_APB2ENR_IOPFEN |            \
                        RCC_APB2ENR_IOPGEN | RCC_APB2ENR_AFIOEN)
-#else
-  /* Defaults on Medium Density and Connection Line devices.*/
-#define APB2_RST_MASK (RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_IOPBRST |    \
-                       RCC_APB2RSTR_IOPCRST | RCC_APB2RSTR_IOPDRST |    \
+#elif STM32_HAS_GPIOE
+#define APB2_RST_MASK (RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_IOPBRST |        \
+                       RCC_APB2RSTR_IOPCRST | RCC_APB2RSTR_IOPDRST |        \
                        RCC_APB2RSTR_IOPERST | RCC_APB2RSTR_AFIORST);
-#define APB2_EN_MASK  (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |        \
-                       RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |        \
+#define APB2_EN_MASK  (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |            \
+                       RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |            \
                        RCC_APB2ENR_IOPEEN | RCC_APB2ENR_AFIOEN)
+#else
+#define APB2_RST_MASK (RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_IOPBRST |        \
+                       RCC_APB2RSTR_IOPCRST | RCC_APB2RSTR_IOPDRST |        \
+                       RCC_APB2RSTR_AFIORST)
+#define APB2_EN_MASK  (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |            \
+                       RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |            \
+                       RCC_APB2ENR_AFIOEN)
 #endif
 
 /*===========================================================================*/
@@ -88,6 +87,8 @@
  * @details Ports A-D(E, F, G) clocks enabled, AFIO clock enabled.
  *
  * @param[in] config    the STM32 ports configuration
+ *
+ * @notapi
  */
 void _pal_lld_init(const PALConfig *config) {
 
@@ -102,30 +103,32 @@ void _pal_lld_init(const PALConfig *config) {
   RCC->APB2RSTR = APB2_RST_MASK;
   RCC->APB2RSTR = 0;
 
-  IOPORT1->ODR = config->PAData.odr;
-  IOPORT1->CRH = config->PAData.crh;
-  IOPORT1->CRL = config->PAData.crl;
-  IOPORT2->ODR = config->PBData.odr;
-  IOPORT2->CRH = config->PBData.crh;
-  IOPORT2->CRL = config->PBData.crl;
-  IOPORT3->ODR = config->PCData.odr;
-  IOPORT3->CRH = config->PCData.crh;
-  IOPORT3->CRL = config->PCData.crl;
-  IOPORT4->ODR = config->PDData.odr;
-  IOPORT4->CRH = config->PDData.crh;
-  IOPORT4->CRL = config->PDData.crl;
-#if !defined(STM32F10X_LD) || defined(__DOXYGEN__)
-  IOPORT5->ODR = config->PEData.odr;
-  IOPORT5->CRH = config->PEData.crh;
-  IOPORT5->CRL = config->PEData.crl;
+  GPIOA->ODR = config->PAData.odr;
+  GPIOA->CRH = config->PAData.crh;
+  GPIOA->CRL = config->PAData.crl;
+  GPIOB->ODR = config->PBData.odr;
+  GPIOB->CRH = config->PBData.crh;
+  GPIOB->CRL = config->PBData.crl;
+  GPIOC->ODR = config->PCData.odr;
+  GPIOC->CRH = config->PCData.crh;
+  GPIOC->CRL = config->PCData.crl;
+  GPIOD->ODR = config->PDData.odr;
+  GPIOD->CRH = config->PDData.crh;
+  GPIOD->CRL = config->PDData.crl;
+#if STM32_HAS_GPIOE || defined(__DOXYGEN__)
+  GPIOE->ODR = config->PEData.odr;
+  GPIOE->CRH = config->PEData.crh;
+  GPIOE->CRL = config->PEData.crl;
+#if STM32_HAS_GPIOF || defined(__DOXYGEN__)
+  GPIOF->ODR = config->PFData.odr;
+  GPIOF->CRH = config->PFData.crh;
+  GPIOF->CRL = config->PFData.crl;
+#if STM32_HAS_GPIOG || defined(__DOXYGEN__)
+  GPIOG->ODR = config->PGData.odr;
+  GPIOG->CRH = config->PGData.crh;
+  GPIOG->CRL = config->PGData.crl;
 #endif
-#if defined(STM32F10X_HD) || defined(__DOXYGEN__)
-  IOPORT6->ODR = config->PFData.odr;
-  IOPORT6->CRH = config->PFData.crh;
-  IOPORT6->CRL = config->PFData.crl;
-  IOPORT7->ODR = config->PGData.odr;
-  IOPORT7->CRH = config->PGData.crh;
-  IOPORT7->CRL = config->PGData.crl;
+#endif
 #endif
 }
 
@@ -143,6 +146,8 @@ void _pal_lld_init(const PALConfig *config) {
  * @param[in] port      the port identifier
  * @param[in] mask      the group mask
  * @param[in] mode      the mode
+ *
+ * @notapi
  */
 void _pal_lld_setgroupmode(ioportid_t port,
                            ioportmask_t mask,
@@ -195,6 +200,6 @@ void _pal_lld_setgroupmode(ioportid_t port,
   port->CRL = (port->CRL & ml) | crl;
 }
 
-#endif /* CH_HAL_USE_PAL */
+#endif /* HAL_USE_PAL */
 
 /** @} */

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -159,7 +159,7 @@ msg_t WebThread(void *p) {
    * Event sources setup.
    */
   chEvtRegister(macGetReceiveEventSource(&ETH1), &el0, FRAME_RECEIVED_ID);
-  chEvtPend(EVENT_MASK(FRAME_RECEIVED_ID)); /* In case some frames are already buffered */
+  chEvtAddFlags(EVENT_MASK(FRAME_RECEIVED_ID)); /* In case some frames are already buffered */
 
   evtInit(&evt1, MS2ST(500));
   evtStart(&evt1);

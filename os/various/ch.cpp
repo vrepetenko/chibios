@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -24,8 +24,9 @@
     for full details of how and when the exception can be applied.
 */
 /**
- * @file ch.cpp
- * @brief C++ wrapper code.
+ * @file    ch.cpp
+ * @brief   C++ wrapper code.
+ *
  * @addtogroup cpp_library
  * @{
  */
@@ -290,14 +291,14 @@ namespace chibios_rt {
     chEvtBroadcast(&event);
   }
 
-  eventmask_t Event::Clear(eventmask_t mask) {
+  eventmask_t Event::ClearFlags(eventmask_t mask) {
 
-    return chEvtClear(mask);
+    return chEvtClearFlags(mask);
   }
 
-  eventmask_t Event::Pend(eventmask_t mask) {
+  eventmask_t Event::AddFlags(eventmask_t mask) {
 
-    return chEvtPend(mask);
+    return chEvtAddFlags(mask);
   }
 
   void Event::Dispatch(const evhandler_t handlers[], eventmask_t mask) {

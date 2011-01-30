@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
 #ifndef _PWM_H_
 #define _PWM_H_
 
-#if CH_HAL_USE_PWM || defined(__DOXYGEN__)
+#if HAL_USE_PWM || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
@@ -85,6 +85,8 @@ typedef enum {
  * @param[in] pwmp      pointer to a @p PWMDriver object
  * @param[in] channel   PWM channel identifier
  * @param[in] width     PWM pulse width as clock pulses number
+ *
+ * @iclass
  */
 #define pwmEnableChannelI(pwmp, channel, width)                             \
   pwm_lld_enable_channel(pwmp, channel, width)
@@ -97,6 +99,8 @@ typedef enum {
  *
  * @param[in] pwmp      pointer to a @p PWMDriver object
  * @param[in] channel   PWM channel identifier
+ *
+ * @iclass
  */
 #define pwmDisableChannelI(pwmp, channel)                                   \
   pwm_lld_disable_channel(pwmp, channel)
@@ -120,7 +124,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_PWM */
+#endif /* HAL_USE_PWM */
 
 #endif /* _PWM_H_ */
 

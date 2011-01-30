@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    templates/serial_lld.c
  * @brief   Serial Driver subsystem low level driver source template.
  *
- * @addtogroup SERIAL_LLD
+ * @addtogroup SERIAL
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -65,6 +65,8 @@ static const SerialConfig default_config = {
 
 /**
  * @brief   Low level serial driver initialization.
+ *
+ * @notapi
  */
 void sd_lld_init(void) {
 
@@ -77,6 +79,8 @@ void sd_lld_init(void) {
  * @param[in] config    the architecture-dependent serial driver configuration.
  *                      If this parameter is set to @p NULL then a default
  *                      configuration is used.
+ *
+ * @notapi
  */
 void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
 
@@ -91,11 +95,13 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
  *          interrupt vector.
  *
  * @param[in] sdp       pointer to a @p SerialDriver object
+ *
+ * @notapi
  */
 void sd_lld_stop(SerialDriver *sdp) {
 
 }
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 /** @} */

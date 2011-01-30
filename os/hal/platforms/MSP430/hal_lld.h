@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,9 +25,10 @@
 */
 
 /**
- * @file MSP430/hal_lld.h
- * @brief MSP430 HAL subsystem low level driver header.
- * @addtogroup MSP430_HAL
+ * @file    MSP430/hal_lld.h
+ * @brief   MSP430 HAL subsystem low level driver header.
+ *
+ * @addtogroup HAL
  * @{
  */
 
@@ -45,19 +46,19 @@
  */
 #define PLATFORM_NAME   "MSP430x16x"
 
-#define MSP430_CLOCK_SOURCE_XT2CLK  0   /** @brief XT2CLK clock selector.   */
-#define MSP430_CLOCK_SOURCE_DCOCLK  1   /** @brief DCOCLK clock selector.   */
+#define MSP430_CLOCK_SOURCE_XT2CLK  0   /**< @brief XT2CLK clock selector.  */
+#define MSP430_CLOCK_SOURCE_DCOCLK  1   /**< @brief DCOCLK clock selector.  */
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
 
 /**
- * @brief Clock source.
+ * @brief   Clock source.
  * @details The clock source can be selected from:
- * - @p MSP430_CLOCK_SOURCE_XT2CLK.
- * - @p MSP430_CLOCK_SOURCE_DCOCLK.
- * .
+ *          - @p MSP430_CLOCK_SOURCE_XT2CLK.
+ *          - @p MSP430_CLOCK_SOURCE_DCOCLK.
+ *          .
  */
 #if !defined(MSP430_USE_CLOCK) || defined(__DOXYGEN__)
 #define MSP430_USE_CLOCK            MSP430_CLOCK_SOURCE_XT2CLK

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -29,6 +29,22 @@
 
 #define VAL_TC0_PRESCALER 0
 
+/**
+ * @brief   PAL setup.
+ * @details Digital I/O ports static configuration as defined in @p board.h.
+ *          This variable is used by the HAL when initializing the PAL driver.
+ */
+#if HAL_USE_PAL || defined(__DOXYGEN__)
+const PALConfig pal_default_config =
+{
+  VAL_PINSEL0,
+  VAL_PINSEL1,
+  VAL_PINSEL2,
+  {VAL_FIO0PIN, VAL_FIO0DIR},
+  {VAL_FIO1PIN, VAL_FIO1DIR}
+};
+#endif
+
 /*
  * Timer 0 IRQ handling here.
  */
@@ -47,25 +63,18 @@ static CH_IRQ_HANDLER(T0IrqHandler) {
 
 /*
  * Early initialization code.
- * This initialization is performed just after reset before BSS and DATA
- * segments initialization.
+ * This initialization must be performed just after stack setup and before
+ * any other initialization.
  */
-void hwinit0(void) {
+void __early_init(void) {
 
   lpc214x_clock_init();
 }
 
 /*
- * Late initialization code.
- * This initialization is performed after BSS and DATA segments initialization
- * and before invoking the main() function.
+ * Board-specific initialization code.
  */
-void hwinit1(void) {
-
-  /*
-   * HAL initialization.
-   */
-  halInit();
+void boardInit(void) {
 
   /*
    * System Timer initialization, 1ms intervals.
@@ -78,9 +87,4 @@ void hwinit1(void) {
   timer->TC_MCR = 3;    /* Interrupt and clear TC on match MR0. */
   timer->TC_TCR = 2;    /* Reset counter and prescaler. */
   timer->TC_TCR = 1;    /* Timer enabled. */
-
-  /*
-   * ChibiOS/RT initialization.
-   */
-  chSysInit();
 }

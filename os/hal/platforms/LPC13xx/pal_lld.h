@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    LPC13xx/pal_lld.h
  * @brief   LPC13xx GPIO low level driver header.
  *
- * @addtogroup LPC13xx_PAL
+ * @addtogroup PAL
  * @{
  */
 
 #ifndef _PAL_LLD_H_
 #define _PAL_LLD_H_
 
-#if CH_HAL_USE_PAL || defined(__DOXYGEN__)
+#if HAL_USE_PAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Unsupported modes and specific modes                                      */
@@ -51,14 +51,14 @@
 /*===========================================================================*/
 
 /**
- * @brief GPIO port setup info.
+ * @brief   GPIO port setup info.
  */
 typedef struct {
   /** Initial value for FIO_PIN register.*/
   uint32_t      data;
   /** Initial value for FIO_DIR register.*/
   uint32_t      dir;
-} LPC13xx_gpio_setup_t;
+} lpc13xx_gpio_setup_t;
 
 /**
  * @brief   GPIO static initializer.
@@ -74,13 +74,13 @@ typedef struct {
  */
 typedef struct {
   /** @brief GPIO 0 setup data.*/
-  LPC13xx_gpio_setup_t   P0;
+  lpc13xx_gpio_setup_t   P0;
   /** @brief GPIO 1 setup data.*/
-  LPC13xx_gpio_setup_t   P1;
+  lpc13xx_gpio_setup_t   P1;
   /** @brief GPIO 2 setup data.*/
-  LPC13xx_gpio_setup_t   P2;
+  lpc13xx_gpio_setup_t   P2;
   /** @brief GPIO 3 setup data.*/
-  LPC13xx_gpio_setup_t   P3;
+  lpc13xx_gpio_setup_t   P3;
 } PALConfig;
 
 /**
@@ -141,6 +141,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  * @brief   Low level PAL subsystem initialization.
  *
  * @param[in] config    architecture-dependent ports configuration
+ *
+ * @notapi
  */
 #define pal_lld_init(config) _pal_lld_init(config)
 
@@ -151,6 +153,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @return              The port bits.
+ *
+ * @notapi
  */
 #define pal_lld_readport(port) ((port)->DATA)
 
@@ -163,6 +167,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @return              The latched logical states.
+ *
+ * @notapi
  */
 #define pal_lld_readlatch(port) ((port)->DATA)
 
@@ -173,6 +179,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @param[in] bits      bits to be written on the specified port
+ *
+ * @notapi
  */
 #define pal_lld_writeport(port, bits) ((port)->DATA = (bits))
 
@@ -186,6 +194,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @param[in] bits      bits to be ORed on the specified port
+ *
+ * @notapi
  */
 #define pal_lld_setport(port, bits) ((port)->MASKED_ACCESS[bits] = 0xFFFFFFFF)
 
@@ -199,6 +209,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @param[in] bits      bits to be cleared on the specified port
+ *
+ * @notapi
  */
 #define pal_lld_clearport(port, bits) ((port)->MASKED_ACCESS[bits] = 0)
 
@@ -214,6 +226,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  * @param[in] mask      group mask
  * @param[in] offset    group bit offset within the port
  * @return              The group logical states.
+ *
+ * @notapi
  */
 #define pal_lld_readgroup(port, mask, offset)                               \
   ((port)->MASKED_ACCESS[(mask) << (offset)])
@@ -231,6 +245,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  * @param[in] offset    group bit offset within the port
  * @param[in] bits      bits to be written. Values exceeding the group width
  *                      are masked.
+ *
+ * @notapi
  */
 #define pal_lld_writegroup(port, mask, offset, bits)                        \
   ((port)->MASKED_ACCESS[(mask) << (offset)] = (bits))
@@ -246,6 +262,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  * @param[in] port      port identifier
  * @param[in] mask      group mask
  * @param[in] mode      group mode
+ *
+ * @notapi
  */
 #define pal_lld_setgroupmode(port, mask, mode)                              \
   _pal_lld_setgroupmode(port, mask, mode)
@@ -260,8 +278,10 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @param[in] pad       pad number within the port
- * @param[out] bit      logical value, the value must be @p PAL_LOW or
+ * @param[in] bit       logical value, the value must be @p PAL_LOW or
  *                      @p PAL_HIGH
+ *
+ * @notapi
  */
 #define pal_lld_writepad(port, pad, bit)                                    \
   ((port)->MASKED_ACCESS[(mask) << (pad)] = (bit) << (pad))
@@ -276,6 +296,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @param[in] pad       pad number within the port
+ *
+ * @notapi
  */
 #define pal_lld_setpad(port, pad)                                           \
   ((port)->MASKED_ACCESS[1 << (pad)] = 1 << (pad))
@@ -290,6 +312,8 @@ typedef LPC_GPIO_TypeDef *ioportid_t;
  *
  * @param[in] port      port identifier
  * @param[in] pad       pad number within the port
+ *
+ * @notapi
  */
 #define pal_lld_clearpad(port, pad)                                         \
   ((port)->MASKED_ACCESS[1 << (pad)] = 0)
@@ -309,7 +333,7 @@ extern "C" {
 }
 #endif
 
-#endif /* CH_HAL_USE_PAL */
+#endif /* HAL_USE_PAL */
 
 #endif /* _PAL_LLD_H_ */
 

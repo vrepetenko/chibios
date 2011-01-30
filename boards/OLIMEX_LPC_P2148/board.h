@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -88,5 +88,15 @@
 
 #define PB_WP1          24
 #define PB_CP1          25
+
+#if !defined(_FROM_ASM_)
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void boardInit(void);
+#ifdef __cplusplus
+}
+#endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

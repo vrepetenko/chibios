@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -42,16 +42,16 @@
  *            are implemented by pairing an input queue and an output queue
  *            together.
  *          .
- *          In order to use the I/O queues the @p CH_USE_QUEUES option must
- *          be enabled in @p chconf.h.<br>
  *          I/O queues are usually used as an implementation layer for the I/O
  *          channels interface, also see @ref io_channels.
+ * @pre     In order to use the I/O queues the @p CH_USE_QUEUES option must
+ *          be enabled in @p chconf.h.
  * @{
  */
 
 #include "ch.h"
 
-#if CH_USE_QUEUES
+#if CH_USE_QUEUES || defined(__DOXYGEN__)
 
 /**
  * @brief   Initializes an input queue.
@@ -65,6 +65,8 @@
  * @param[in] size      size of the queue buffer
  * @param[in] infy      pointer to a callback function that is invoked when
  *                      data is read from the queue. The value can be @p NULL.
+ *
+ * @init
  */
 void chIQInit(InputQueue *iqp, uint8_t *bp, size_t size, qnotify_t infy) {
 
@@ -75,6 +77,24 @@ void chIQInit(InputQueue *iqp, uint8_t *bp, size_t size, qnotify_t infy) {
 }
 
 /**
+ * @brief   Returns the filled space into an input queue.
+ *
+ * @param[in] iqp       pointer to an @p InputQueue structure
+ * @return              The number of bytes in the queue.
+ * @retval 0            if the queue is empty.
+ *
+ * @iclass
+ */
+size_t chIQGetFullI(InputQueue *iqp) {
+  cnt_t cnt;
+
+  cnt = chQSpaceI(iqp);
+  if (cnt < 0)
+    return 0;
+  return (size_t)cnt;
+}
+
+/**
  * @brief   Resets an input queue.
  * @details All the data in the input queue is erased and lost, any waiting
  *          thread is resumed with status @p Q_RESET.
@@ -82,6 +102,8 @@ void chIQInit(InputQueue *iqp, uint8_t *bp, size_t size, qnotify_t infy) {
  *          obtain immediate attention from the high level layers.
  *
  * @param[in] iqp       pointer to an @p InputQueue structure
+ *
+ * @iclass
  */
 void chIQResetI(InputQueue *iqp) {
 
@@ -95,14 +117,16 @@ void chIQResetI(InputQueue *iqp) {
  *
  * @param[in] iqp       pointer to an @p InputQueue structure
  * @param[in] b         the byte value to be written in the queue
- * @return              The operation status, it can be one of:
+ * @return              The operation status.
  * @retval Q_OK         if the operation has been completed with success.
  * @retval Q_FULL       if the queue is full and the operation cannot be
  *                      completed.
+ *
+ * @iclass
  */
 msg_t chIQPutI(InputQueue *iqp, uint8_t b) {
 
-  if (chIQIsFull(iqp))
+  if (chIQIsFullI(iqp))
     return Q_FULL;
 
   *iqp->q_wrptr++ = b;
@@ -124,18 +148,20 @@ msg_t chIQPutI(InputQueue *iqp, uint8_t b) {
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
  *                      .
- * @return              A byte value from the queue or:
+ * @return              A byte value from the queue.
  * @retval Q_TIMEOUT    if the specified time expired.
  * @retval Q_RESET      if the queue was reset.
+ *
+ * @api
  */
 msg_t chIQGetTimeout(InputQueue *iqp, systime_t time) {
   uint8_t b;
   msg_t msg;
 
   chSysLock();
-  
+
   if (iqp->q_notify)
-    iqp->q_notify();
+    iqp->q_notify(iqp);
 
   if ((msg = chSemWaitTimeoutS(&iqp->q_sem, time)) < RDY_OK) {
     chSysUnlock();
@@ -170,6 +196,8 @@ msg_t chIQGetTimeout(InputQueue *iqp, systime_t time) {
  *                      - @a TIME_INFINITE no timeout.
  *                      .
  * @return              The number of bytes effectively transferred.
+ *
+ * @api
  */
 size_t chIQReadTimeout(InputQueue *iqp, uint8_t *bp,
                        size_t n, systime_t time) {
@@ -180,9 +208,9 @@ size_t chIQReadTimeout(InputQueue *iqp, uint8_t *bp,
 
   chSysLock();
   while (TRUE) {
-    if (chIQIsEmpty(iqp)) {
+    if (chIQIsEmptyI(iqp)) {
       if (nfy)
-        nfy();
+        nfy(iqp);
       if ((chSemWaitTimeoutS(&iqp->q_sem, time) != RDY_OK)) {
         chSysUnlock();
         return r;
@@ -198,7 +226,7 @@ size_t chIQReadTimeout(InputQueue *iqp, uint8_t *bp,
     if (--n == 0) {
       chSysLock();
       if (nfy)
-        nfy();
+        nfy(iqp);
       chSysUnlock();
       return r;
     }
@@ -218,6 +246,8 @@ size_t chIQReadTimeout(InputQueue *iqp, uint8_t *bp,
  * @param[in] size      size of the queue buffer
  * @param[in] onfy      pointer to a callback function that is invoked when
  *                      data is written to the queue. The value can be @p NULL.
+ *
+ * @init
  */
 void chOQInit(OutputQueue *oqp, uint8_t *bp, size_t size, qnotify_t onfy) {
 
@@ -228,6 +258,24 @@ void chOQInit(OutputQueue *oqp, uint8_t *bp, size_t size, qnotify_t onfy) {
 }
 
 /**
+ * @brief   Returns the filled space into an output queue.
+ *
+ * @param[in] oqp       pointer to an @p OutputQueue structure
+ * @return              The number of bytes in the queue.
+ * @retval 0            if the queue is empty.
+ *
+ * @iclass
+ */
+size_t chOQGetFullI(OutputQueue *oqp) {
+  cnt_t cnt;
+
+  cnt = chQSpaceI(oqp);
+  if (cnt < 0)
+    return chQSizeI(oqp);
+  return chQSizeI(oqp) - (size_t)cnt;
+}
+
+/**
  * @brief   Resets an output queue.
  * @details All the data in the output queue is erased and lost, any waiting
  *          thread is resumed with status @p Q_RESET.
@@ -235,6 +283,8 @@ void chOQInit(OutputQueue *oqp, uint8_t *bp, size_t size, qnotify_t onfy) {
  *          obtain immediate attention from the high level layers.
  *
  * @param[in] oqp       pointer to an @p OutputQueue structure
+ *
+ * @iclass
  */
 void chOQResetI(OutputQueue *oqp) {
 
@@ -255,10 +305,12 @@ void chOQResetI(OutputQueue *oqp) {
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
  *                      .
- * @return              The operation status:
+ * @return              The operation status.
  * @retval Q_OK         if the operation succeeded.
  * @retval Q_TIMEOUT    if the specified time expired.
  * @retval Q_RESET      if the queue was reset.
+ *
+ * @api
  */
 msg_t chOQPutTimeout(OutputQueue *oqp, uint8_t b, systime_t time) {
   msg_t msg;
@@ -273,7 +325,7 @@ msg_t chOQPutTimeout(OutputQueue *oqp, uint8_t b, systime_t time) {
     oqp->q_wrptr = oqp->q_buffer;
 
   if (oqp->q_notify)
-    oqp->q_notify();
+    oqp->q_notify(oqp);
 
   chSysUnlock();
   return Q_OK;
@@ -284,13 +336,15 @@ msg_t chOQPutTimeout(OutputQueue *oqp, uint8_t b, systime_t time) {
  * @details A byte value is read from the low end of an output queue.
  *
  * @param[in] oqp       pointer to an @p OutputQueue structure
- * @return              The byte value from the queue or:
+ * @return              The byte value from the queue.
  * @retval Q_EMPTY      if the queue is empty.
+ *
+ * @iclass
  */
 msg_t chOQGetI(OutputQueue *oqp) {
   uint8_t b;
 
-  if (chOQIsEmpty(oqp))
+  if (chOQIsEmptyI(oqp))
     return Q_EMPTY;
 
   b = *oqp->q_rdptr++;
@@ -321,6 +375,8 @@ msg_t chOQGetI(OutputQueue *oqp) {
  *                      - @a TIME_INFINITE no timeout.
  *                      .
  * @return              The number of bytes effectively transferred.
+ *
+ * @api
  */
 size_t chOQWriteTimeout(OutputQueue *oqp, const uint8_t *bp,
                         size_t n, systime_t time) {
@@ -331,9 +387,9 @@ size_t chOQWriteTimeout(OutputQueue *oqp, const uint8_t *bp,
 
   chSysLock();
   while (TRUE) {
-    if (chOQIsFull(oqp)) {
+    if (chOQIsFullI(oqp)) {
       if (nfy)
-        nfy();
+        nfy(oqp);
       if ((chSemWaitTimeoutS(&oqp->q_sem, time) != RDY_OK)) {
         chSysUnlock();
         return w;
@@ -349,7 +405,7 @@ size_t chOQWriteTimeout(OutputQueue *oqp, const uint8_t *bp,
     if (--n == 0) {
       chSysLock();
       if (nfy)
-        nfy();
+        nfy(oqp);
       chSysUnlock();
       return w;
     }

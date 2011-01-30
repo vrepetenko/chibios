@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -39,7 +39,7 @@
 #ifndef _CHCOND_H_
 #define _CHCOND_H_
 
-#if CH_USE_CONDVARS
+#if CH_USE_CONDVARS || defined(__DOXYGEN__)
 
 /*
  * Module dependencies check.

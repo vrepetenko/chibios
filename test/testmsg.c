@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -66,11 +66,6 @@
  * not find a fifth message waiting.
  */
 
-static char *msg1_gettest(void) {
-
-  return "Messages, loop";
-}
-
 static msg_t thread(void *p) {
 
   chMsgSend(p, 'A');
@@ -113,8 +108,8 @@ static void msg1_execute(void) {
   test_assert(3, msg == 0, "unknown message");
 }
 
-const struct testcase testmsg1 = {
-  msg1_gettest,
+ROMCONST struct testcase testmsg1 = {
+  "Messages, loop",
   NULL,
   NULL,
   msg1_execute
@@ -125,7 +120,7 @@ const struct testcase testmsg1 = {
 /**
  * @brief   Test sequence for messages.
  */
-const struct testcase * const patternmsg[] = {
+ROMCONST struct testcase * ROMCONST patternmsg[] = {
 #if CH_USE_MESSAGES
   &testmsg1,
 #endif

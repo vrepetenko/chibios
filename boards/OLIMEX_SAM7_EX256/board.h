@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -79,6 +79,7 @@
 #define PIOA_USB_PUP_MASK       (1 << PIOA_USB_PUP)
 #define PIOA_USB_PR             26
 #define PIOA_USB_PR_MASK        (1 << PIOA_USB_PR)
+#define PIOA_CS_MMC             13
 
 #define PIOB_PHY_PD             18
 #define PIOB_PHY_PD_MASK        (1 << PIOB_PHY_PD)
@@ -96,5 +97,15 @@
 #define PIOB_SW2_MASK           (1 << PIOB_SW2)
 #define PIOB_PHY_IRQ            26
 #define PIOB_PHY_IRQ_MASK       (1 << PIOB_PHY_IRQ)
+
+#if !defined(_FROM_ASM_)
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void boardInit(void);
+#ifdef __cplusplus
+}
+#endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

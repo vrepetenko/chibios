@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -42,22 +42,23 @@
  *          By having a centralized memory provider the various allocators can
  *          coexist and share the main memory.<br>
  *          This allocator, alone, is also useful for very simple applications
- *          that just require a simple way to get memory blocks.<br>
- *          In order to use the core memory manager APIs the @p CH_USE_MEMCORE
+ *          that just require a simple way to get memory blocks.
+ * @pre     In order to use the core memory manager APIs the @p CH_USE_MEMCORE
  *          option must be enabled in @p chconf.h.
  * @{
  */
 
 #include "ch.h"
 
-#if CH_USE_MEMCORE
+#if CH_USE_MEMCORE || defined(__DOXYGEN__)
 
 static uint8_t *nextmem;
 static uint8_t *endmem;
 
 /**
  * @brief   Low level memory manager initialization.
- * @note    Internal use only.
+ *
+ * @notapi
  */
 void core_init(void) {
 #if CH_MEMCORE_SIZE == 0
@@ -80,10 +81,11 @@ void core_init(void) {
  *          type @p stkalign_t so it is not possible to allocate less
  *          than <code>sizeof(stkalign_t)</code>.
  *
- *
  * @param[in] size      the size of the block to be allocated
  * @return              A pointer to the allocated memory block.
  * @retval NULL         allocation failed, core memory exhausted.
+ *
+ * @api
  */
 void *chCoreAlloc(size_t size) {
   void *p;
@@ -103,6 +105,8 @@ void *chCoreAlloc(size_t size) {
  * @param[in] size      the size of the block to be allocated.
  * @return              A pointer to the allocated memory block.
  * @retval NULL         allocation failed, core memory exhausted.
+ *
+ * @iclass
  */
 void *chCoreAllocI(size_t size) {
   void *p;
@@ -119,6 +123,8 @@ void *chCoreAllocI(size_t size) {
  * @brief   Core memory status.
  *
  * @return              The size, in bytes, of the free core memory.
+ *
+ * @api
  */
 size_t chCoreStatus(void) {
 

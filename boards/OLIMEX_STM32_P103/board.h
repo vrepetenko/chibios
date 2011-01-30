@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,7 +35,7 @@
  * Board identifier.
  */
 #define BOARD_OLIMEX_STM32_P103
-#define BOARD_NAME "Olimex STM32-P103"
+#define BOARD_NAME              "Olimex STM32-P103"
 
 /*
  * Board frequencies.
@@ -44,8 +44,7 @@
 #define STM32_HSECLK            8000000
 
 /*
- * MCU type, this macro is used by both the ST library and the ChibiOS/RT
- * native STM32 HAL.
+ * MCU type, supported types are defined in ./os/hal/platforms/hal_lld.h.
  */
 #define STM32F10X_MD
 
@@ -57,10 +56,11 @@
 
 #define GPIOB_SPI2NSS           12
 
+#define GPIOC_USB_P             4
 #define GPIOC_MMCWP             6
 #define GPIOC_MMCCP             7
-#define GPIOC_CANCNTL           10
-#define GPIOC_DISC              11
+#define GPIOC_CAN_CNTL          10
+#define GPIOC_USB_DISC          11
 #define GPIOC_LED               12
 
 /*
@@ -112,13 +112,15 @@
 /*
  * Port C setup.
  * Everything input with pull-up except:
+ * PC4  - Normal input because there is an external resistor.
  * PC6  - Normal input because there is an external resistor.
  * PC7  - Normal input because there is an external resistor.
- * PC11 - Push Pull output (CAN CNTRL).
+ * PC10 - Push Pull output (CAN CNTRL).
+ * PC11 - Push Pull output (USB DISC).
  * PC12 - Push Pull output (LED).
  */
-#define VAL_GPIOCCRL            0x44888888      /*  PC7...PC0 */
-#define VAL_GPIOCCRH            0x88833888      /* PC15...PC8 */
+#define VAL_GPIOCCRL            0x44848888      /*  PC7...PC0 */
+#define VAL_GPIOCCRH            0x88833388      /* PC15...PC8 */
 #define VAL_GPIOCODR            0xFFFFFFFF
 
 /*
@@ -138,5 +140,15 @@
 #define VAL_GPIOECRL            0x88888888      /*  PE7...PE0 */
 #define VAL_GPIOECRH            0x88888888      /* PE15...PE8 */
 #define VAL_GPIOEODR            0xFFFFFFFF
+
+#if !defined(_FROM_ASM_)
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void boardInit(void);
+#ifdef __cplusplus
+}
+#endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

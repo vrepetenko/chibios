@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -109,11 +109,6 @@ static unsigned int msg_loop_test(Thread *tp) {
  * printed in the output log.
  */
 
-static char *bmk1_gettest(void) {
-
-  return "Benchmark, messages #1";
-}
-
 static void bmk1_execute(void) {
   uint32_t n;
 
@@ -127,8 +122,8 @@ static void bmk1_execute(void) {
   test_println(" ctxswc/S");
 }
 
-const struct testcase testbmk1 = {
-  bmk1_gettest,
+ROMCONST struct testcase testbmk1 = {
+  "Benchmark, messages #1",
   NULL,
   NULL,
   bmk1_execute
@@ -143,11 +138,6 @@ const struct testcase testbmk1 = {
  * printed in the output log.
  */
 
-static char *bmk2_gettest(void) {
-
-  return "Benchmark, messages #2";
-}
-
 static void bmk2_execute(void) {
   uint32_t n;
 
@@ -161,8 +151,8 @@ static void bmk2_execute(void) {
   test_println(" ctxswc/S");
 }
 
-const struct testcase testbmk2 = {
-  bmk2_gettest,
+ROMCONST struct testcase testbmk2 = {
+  "Benchmark, messages #2",
   NULL,
   NULL,
   bmk2_execute
@@ -183,11 +173,6 @@ static msg_t thread2(void *p) {
  * printed in the output log.
  */
 
-static char *bmk3_gettest(void) {
-
-  return "Benchmark, messages #3";
-}
-
 static void bmk3_execute(void) {
   uint32_t n;
 
@@ -205,8 +190,8 @@ static void bmk3_execute(void) {
   test_println(" ctxswc/S");
 }
 
-const struct testcase testbmk3 = {
-  bmk3_gettest,
+ROMCONST struct testcase testbmk3 = {
+  "Benchmark, messages #3",
   NULL,
   NULL,
   bmk3_execute
@@ -221,11 +206,6 @@ const struct testcase testbmk3 = {
  * The Context Switch performance is calculated by measuring the number of
  * iterations after a second of continuous operations.
  */
-
-static char *bmk4_gettest(void) {
-
-  return "Benchmark, context switch";
-}
 
 msg_t thread4(void *p) {
   msg_t msg;
@@ -271,8 +251,8 @@ static void bmk4_execute(void) {
   test_println(" ctxswc/S");
 }
 
-const struct testcase testbmk4 = {
-  bmk4_gettest,
+ROMCONST struct testcase testbmk4 = {
+  "Benchmark, context switch",
   NULL,
   NULL,
   bmk4_execute
@@ -288,11 +268,6 @@ const struct testcase testbmk4 = {
  * The performance is calculated by measuring the number of iterations after
  * a second of continuous operations.
  */
-
-static char *bmk5_gettest(void) {
-
-  return "Benchmark, threads, full cycle";
-}
 
 static void bmk5_execute(void) {
 
@@ -313,8 +288,8 @@ static void bmk5_execute(void) {
   test_println(" threads/S");
 }
 
-const struct testcase testbmk5 = {
-  bmk5_gettest,
+ROMCONST struct testcase testbmk5 = {
+  "Benchmark, threads, full cycle",
   NULL,
   NULL,
   bmk5_execute
@@ -332,11 +307,6 @@ const struct testcase testbmk5 = {
  * The performance is calculated by measuring the number of iterations after
  * a second of continuous operations.
  */
-
-static char *bmk6_gettest(void) {
-
-  return "Benchmark, threads, create only";
-}
 
 static void bmk6_execute(void) {
 
@@ -357,8 +327,8 @@ static void bmk6_execute(void) {
   test_println(" threads/S");
 }
 
-const struct testcase testbmk6 = {
-  bmk6_gettest,
+ROMCONST struct testcase testbmk6 = {
+  "Benchmark, threads, create only",
   NULL,
   NULL,
   bmk6_execute
@@ -381,11 +351,6 @@ static msg_t thread3(void *p) {
   while (!chThdShouldTerminate())
     chSemWait(&sem1);
   return 0;
-}
-
-static char *bmk7_gettest(void) {
-
-  return "Benchmark, mass reschedule, 5 threads";
 }
 
 static void bmk7_setup(void) {
@@ -423,8 +388,8 @@ static void bmk7_execute(void) {
   test_println(" ctxswc/S");
 }
 
-const struct testcase testbmk7 = {
-  bmk7_gettest,
+ROMCONST struct testcase testbmk7 = {
+  "Benchmark, mass reschedule, 5 threads",
   bmk7_setup,
   NULL,
   bmk7_execute
@@ -455,11 +420,6 @@ static msg_t thread8(void *p) {
   return 0;
 }
 
-static char *bmk8_gettest(void) {
-
-  return "Benchmark, round robin context switching";
-}
-
 static void bmk8_execute(void) {
   uint32_t n;
 
@@ -481,8 +441,8 @@ static void bmk8_execute(void) {
   test_println(" ctxswc/S");
 }
 
-const struct testcase testbmk8 = {
-  bmk8_gettest,
+ROMCONST struct testcase testbmk8 = {
+  "Benchmark, round robin context switching",
   NULL,
   NULL,
   bmk8_execute
@@ -497,11 +457,6 @@ const struct testcase testbmk8 = {
  * The performance is calculated by measuring the number of iterations after
  * a second of continuous operations.
  */
-
-static char *bmk9_gettest(void) {
-
-  return "Benchmark, I/O Queues throughput";
-}
 
 static void bmk9_execute(void) {
   uint32_t n;
@@ -531,8 +486,8 @@ static void bmk9_execute(void) {
   test_println(" bytes/S");
 }
 
-const struct testcase testbmk9 = {
-  bmk9_gettest,
+ROMCONST struct testcase testbmk9 = {
+  "Benchmark, I/O Queues throughput",
   NULL,
   NULL,
   bmk9_execute
@@ -546,11 +501,6 @@ const struct testcase testbmk9 = {
  * The performance is calculated by measuring the number of iterations after
  * a second of continuous operations.
  */
-
-static char *bmk10_gettest(void) {
-
-  return "Benchmark, virtual timers set/reset";
-}
 
 static void tmo(void *param) {(void)param;}
 
@@ -577,8 +527,8 @@ static void bmk10_execute(void) {
   test_println(" timers/S");
 }
 
-const struct testcase testbmk10 = {
-  bmk10_gettest,
+ROMCONST struct testcase testbmk10 = {
+  "Benchmark, virtual timers set/reset",
   NULL,
   NULL,
   bmk10_execute
@@ -593,11 +543,6 @@ const struct testcase testbmk10 = {
  * The performance is calculated by measuring the number of iterations after
  * a second of continuous operations.
  */
-
-static char *bmk11_gettest(void) {
-
-  return "Benchmark, semaphores wait/signal";
-}
 
 static void bmk11_setup(void) {
 
@@ -628,8 +573,8 @@ static void bmk11_execute(void) {
   test_println(" wait+signal/S");
 }
 
-const struct testcase testbmk11 = {
-  bmk11_gettest,
+ROMCONST struct testcase testbmk11 = {
+  "Benchmark, semaphores wait/signal",
   bmk11_setup,
   NULL,
   bmk11_execute
@@ -645,11 +590,6 @@ const struct testcase testbmk11 = {
  * The performance is calculated by measuring the number of iterations after
  * a second of continuous operations.
  */
-
-static char *bmk12_gettest(void) {
-
-  return "Benchmark, mutexes lock/unlock";
-}
 
 static void bmk12_setup(void) {
 
@@ -680,8 +620,8 @@ static void bmk12_execute(void) {
   test_println(" lock+unlock/S");
 }
 
-const struct testcase testbmk12 = {
-  bmk12_gettest,
+ROMCONST struct testcase testbmk12 = {
+  "Benchmark, mutexes lock/unlock",
   bmk12_setup,
   NULL,
   bmk12_execute
@@ -694,11 +634,6 @@ const struct testcase testbmk12 = {
  * <h2>Description</h2>
  * The memory size of the various kernel objects is printed.
  */
-
-static char *bmk13_gettest(void) {
-
-  return "Benchmark, RAM footprint";
-}
 
 static void bmk13_execute(void) {
 
@@ -746,8 +681,8 @@ static void bmk13_execute(void) {
 #endif
 }
 
-const struct testcase testbmk13 = {
-  bmk13_gettest,
+ROMCONST struct testcase testbmk13 = {
+  "Benchmark, RAM footprint",
   NULL,
   NULL,
   bmk13_execute
@@ -756,7 +691,7 @@ const struct testcase testbmk13 = {
 /**
  * @brief   Test sequence for benchmarks.
  */
-const struct testcase * const patternbmk[] = {
+ROMCONST struct testcase * ROMCONST patternbmk[] = {
 #if !TEST_NO_BENCHMARKS
   &testbmk1,
   &testbmk2,

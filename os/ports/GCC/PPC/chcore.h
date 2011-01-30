@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -100,7 +100,6 @@ struct eabi_frame {
   regppc_t      shole;          /**< Stack hole for LR storage.             */
 };
 
-#if !defined(__DOXYGEN__)
 /**
  * @brief   Interrupt saved context.
  * @details This structure represents the stack frame saved during a
@@ -132,10 +131,8 @@ struct extctx {
   regppc_t      r12;
   regppc_t      padding;
  };
-#endif
 
-#if !defined(__DOXYGEN__)
-/**
+ /**
  * @brief   System saved context.
  * @details This structure represents the inner stack frame during a context
  *          switching.
@@ -166,9 +163,7 @@ struct intctx {
   regppc_t      r31;
   regppc_t      padding;
 };
-#endif
 
-#if !defined(__DOXYGEN__)
 /**
  * @brief   Platform dependent part of the @p Thread structure.
  * @details This structure usually contains just the saved stack pointer
@@ -177,10 +172,9 @@ struct intctx {
 struct context {
   struct intctx *sp;
 };
-#endif
 
 /**
- * @brief   Platform dependent part of the @p chThdInit() API.
+ * @brief   Platform dependent part of the @p chThdCreateI() API.
  * @details This code usually setup the context switching frame represented
  *          by an @p intctx structure.
  */
@@ -233,7 +227,7 @@ struct context {
  * @details This macro is used to allocate a static thread working area
  *          aligned as both position and size.
  */
-#define WORKING_AREA(s, n) stkalign_t s[THD_WA_SIZE(n) / sizeof(stkalign_t)];
+#define WORKING_AREA(s, n) stkalign_t s[THD_WA_SIZE(n) / sizeof(stkalign_t)]
 
 /**
  * @brief   IRQ prologue code.

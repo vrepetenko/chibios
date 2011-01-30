@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    templates/pwm_lld.c
  * @brief   PWM Driver subsystem low level driver source template.
  *
- * @addtogroup PWM_LLD
+ * @addtogroup PWM
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_PWM || defined(__DOXYGEN__)
+#if HAL_USE_PWM || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -59,6 +59,8 @@
 
 /**
  * @brief   Low level PWM driver initialization.
+ *
+ * @notapi
  */
 void pwm_lld_init(void) {
 
@@ -68,6 +70,8 @@ void pwm_lld_init(void) {
  * @brief   Configures and activates the PWM peripheral.
  *
  * @param[in] pwmp      pointer to the @p PWMDriver object
+ *
+ * @notapi
  */
 void pwm_lld_start(PWMDriver *pwmp) {
 
@@ -81,6 +85,8 @@ void pwm_lld_start(PWMDriver *pwmp) {
  * @brief   Deactivates the PWM peripheral.
  *
  * @param[in] pwmp      pointer to the @p PWMDriver object
+ *
+ * @notapi
  */
 void pwm_lld_stop(PWMDriver *pwmp) {
 
@@ -94,6 +100,8 @@ void pwm_lld_stop(PWMDriver *pwmp) {
  * @return              The PWM channel status.
  * @retval FALSE        the channel is not enabled.
  * @retval TRUE         the channel is enabled.
+ *
+ * @notapi
  */
 bool_t pwm_lld_is_enabled(PWMDriver *pwmp, pwmchannel_t channel) {
 
@@ -106,6 +114,8 @@ bool_t pwm_lld_is_enabled(PWMDriver *pwmp, pwmchannel_t channel) {
  * @param[in] pwmp      pointer to a @p PWMDriver object
  * @param[in] channel   PWM channel identifier (0...PWM_CHANNELS-1)
  * @param[in] width     PWM pulse width as clock pulses number
+ *
+ * @notapi
  */
 void pwm_lld_enable_channel(PWMDriver *pwmp,
                             pwmchannel_t channel,
@@ -125,6 +135,6 @@ void pwm_lld_disable_channel(PWMDriver *pwmp, pwmchannel_t channel) {
 
 }
 
-#endif /* CH_HAL_USE_PWM */
+#endif /* HAL_USE_PWM */
 
 /** @} */

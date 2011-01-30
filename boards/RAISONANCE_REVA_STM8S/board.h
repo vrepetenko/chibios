@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -35,18 +35,17 @@
  * Board identifiers.
  */
 #define BOARD_REVA_V3_STM8S208RB
-#define BOARD_NAME "Raisonance REva V3 + STM8S208RB"
+#define BOARD_NAME      "Raisonance REva V3 + STM8S208RB"
 
 /*
  * Board frequencies.
  */
-#define HSECLK          24000000
+#define HSECLK          0
 
 /*
  * MCU model used on the board.
- * The available models are listed in the file ./os/hal/platforms/stm8/stm8.h
  */
-#define STM8_PLATFORM   PLATFORM_STM8S208RB
+#define STM8S208
 
 /*
  * Pin definitions.
@@ -182,12 +181,14 @@
 #define VAL_GPIOICR1    0xFF            /* All pull-up.                     */
 #define VAL_GPIOICR2    0
 
+#if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void hwinit(void);
+  void boardInit(void);
 #ifdef __cplusplus
 }
 #endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

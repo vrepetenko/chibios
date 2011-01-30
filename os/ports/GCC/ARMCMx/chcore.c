@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,7 +25,7 @@
 */
 
 /**
- * @file    ARMCMx/chcore.c
+ * @file    GCC/ARMCMx/chcore.c
  * @brief   ARM Cortex-Mx port code.
  *
  * @addtogroup ARMCMx_CORE

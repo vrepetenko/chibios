@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,11 +25,11 @@
 */
 
 /**
- * @file    ARMCMx/LPC13xx/cmparams.h
+ * @file    GCC/ARMCMx/LPC13xx/cmparams.h
  * @brief   ARM Cortex-M3 LPC13xx Specific Parameters.
  *
  * @defgroup ARMCMx_LPC13xx LPC13xx Specific Parameters
- * @ingroup ARMCMx
+ * @ingroup ARMCMx_SPECIFIC
  * @details This file contains the Cortex-M3 specific parameters for the
  *          LPC13xx platform.
  * @{

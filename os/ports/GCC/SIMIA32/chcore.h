@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -91,7 +91,7 @@ struct context {
 #define APUSH(p, a) (p) -= sizeof(void *), *(void **)(p) = (void*)(a)
 
 /**
- * Platform dependent part of the @p chThdInit() API.
+ * Platform dependent part of the @p chThdCreateI() API.
  * This code usually setup the context switching frame represented by a
  * @p intctx structure.
  */
@@ -146,7 +146,7 @@ struct context {
  * Macro used to allocate a thread working area aligned as both position and
  * size.
  */
-#define WORKING_AREA(s, n) stkalign_t s[THD_WA_SIZE(n) / sizeof(stkalign_t)];
+#define WORKING_AREA(s, n) stkalign_t s[THD_WA_SIZE(n) / sizeof(stkalign_t)]
 
 /**
  * IRQ prologue code, inserted at the start of all IRQ handlers enabled to

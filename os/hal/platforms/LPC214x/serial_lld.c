@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -28,14 +28,14 @@
  * @file    LPC214x/serial_lld.c
  * @brief   LPC214x low level serial driver code.
  *
- * @addtogroup LPC214x_SERIAL
+ * @addtogroup SERIAL
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_SERIAL || defined(__DOXYGEN__)
+#if HAL_USE_SERIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -112,7 +112,7 @@ static void uart_deinit(UART *u) {
  * @param[in] err       UART LSR register value
  */
 static void set_error(SerialDriver *sdp, IOREG32 err) {
-  sdflags_t sts = 0;
+  ioflags_t sts = 0;
 
   if (err & LSR_OVERRUN)
     sts |= SD_OVERRUN_ERROR;
@@ -123,7 +123,7 @@ static void set_error(SerialDriver *sdp, IOREG32 err) {
   if (err & LSR_BREAK)
     sts |= SD_BREAK_DETECTED;
   chSysLockFromIsr();
-  sdAddFlagsI(sdp, sts);
+  chIOAddFlagsI(sdp, sts);
   chSysUnlockFromIsr();
 }
 
@@ -150,13 +150,13 @@ static void serve_interrupt(SerialDriver *sdp) {
     case IIR_SRC_TIMEOUT:
     case IIR_SRC_RX:
       chSysLockFromIsr();
-      if (chIQIsEmpty(&sdp->iqueue))
-        chEvtBroadcastI(&sdp->ievent);
+      if (chIQIsEmptyI(&sdp->iqueue))
+        chIOAddFlagsI(sdp, IO_INPUT_AVAILABLE);
       chSysUnlockFromIsr();
       while (u->UART_LSR & LSR_RBR_FULL) {
         chSysLockFromIsr();
         if (chIQPutI(&sdp->iqueue, u->UART_RBR) < Q_OK)
-           sdAddFlagsI(sdp, SD_OVERRUN_ERROR);
+          chIOAddFlagsI(sdp, SD_OVERRUN_ERROR);
         chSysUnlockFromIsr();
       }
       break;
@@ -172,7 +172,7 @@ static void serve_interrupt(SerialDriver *sdp) {
           if (b < Q_OK) {
             u->UART_IER &= ~IER_THRE;
             chSysLockFromIsr();
-            chEvtBroadcastI(&sdp->oevent);
+            chIOAddFlagsI(sdp, IO_OUTPUT_EMPTY);
             chSysUnlockFromIsr();
             break;
           }
@@ -198,7 +198,7 @@ static void preload(SerialDriver *sdp) {
     do {
       msg_t b = chOQGetI(&sdp->oqueue);
       if (b < Q_OK) {
-        chEvtBroadcastI(&sdp->oevent);
+        chIOAddFlagsI(sdp, IO_OUTPUT_EMPTY);
         return;
       }
       u->UART_THR = b;
@@ -211,8 +211,9 @@ static void preload(SerialDriver *sdp) {
  * @brief   Driver SD1 output notification.
  */
 #if USE_LPC214x_UART0 || defined(__DOXYGEN__)
-static void notify1(void) {
+static void notify1(GenericQueue *qp) {
 
+  (void)qp;
   preload(&SD1);
 }
 #endif
@@ -221,8 +222,9 @@ static void notify1(void) {
  * @brief   Driver SD2 output notification.
  */
 #if USE_LPC214x_UART1 || defined(__DOXYGEN__)
-static void notify2(void) {
+static void notify2(GenericQueue *qp) {
 
+  (void)qp;
   preload(&SD2);
 }
 #endif
@@ -233,6 +235,8 @@ static void notify2(void) {
 
 /**
  * @brief   UART0 IRQ handler.
+ *
+ * @isr
  */
 #if USE_LPC214x_UART0 || defined(__DOXYGEN__)
 CH_IRQ_HANDLER(UART0IrqHandler) {
@@ -248,6 +252,8 @@ CH_IRQ_HANDLER(UART0IrqHandler) {
 
 /**
  * @brief   UART1 IRQ handler.
+ *
+ * @isr
  */
 #if USE_LPC214x_UART1 || defined(__DOXYGEN__)
 CH_IRQ_HANDLER(UART1IrqHandler) {
@@ -267,6 +273,8 @@ CH_IRQ_HANDLER(UART1IrqHandler) {
 
 /**
  * @brief   Low level serial driver initialization.
+ *
+ * @notapi
  */
 void sd_lld_init(void) {
 
@@ -289,6 +297,8 @@ void sd_lld_init(void) {
  * @param[in] config    the architecture-dependent serial driver configuration.
  *                      If this parameter is set to @p NULL then a default
  *                      configuration is used.
+ *
+ * @notapi
  */
 void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
 
@@ -318,6 +328,8 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
  *          interrupt vector.
  *
  * @param[in] sdp       pointer to a @p SerialDriver object
+ *
+ * @notapi
  */
 void sd_lld_stop(SerialDriver *sdp) {
 
@@ -340,6 +352,6 @@ void sd_lld_stop(SerialDriver *sdp) {
   }
 }
 
-#endif /* CH_HAL_USE_SERIAL */
+#endif /* HAL_USE_SERIAL */
 
 /** @} */

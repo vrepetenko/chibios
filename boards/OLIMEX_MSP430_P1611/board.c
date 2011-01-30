@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -29,6 +29,35 @@
 #include "ch.h"
 #include "hal.h"
 
+/**
+ * @brief   PAL setup.
+ * @details Digital I/O ports static configuration as defined in @p board.h.
+ *          This variable is used by the HAL when initializing the PAL driver.
+ */
+#if HAL_USE_PAL || defined(__DOXYGEN__)
+const PALConfig pal_default_config =
+{
+#if defined(__MSP430_HAS_PORT1__) || defined(__MSP430_HAS_PORT1_R__)
+  {VAL_P1OUT, VAL_P1DIR},
+#endif
+#if defined(__MSP430_HAS_PORT2__) || defined(__MSP430_HAS_PORT2_R__)
+  {VAL_P2OUT, VAL_P2DIR},
+#endif
+#if defined(__MSP430_HAS_PORT3__) || defined(__MSP430_HAS_PORT3_R__)
+  {VAL_P3OUT, VAL_P3DIR},
+#endif
+#if defined(__MSP430_HAS_PORT4__) || defined(__MSP430_HAS_PORT4_R__)
+  {VAL_P4OUT, VAL_P4DIR},
+#endif
+#if defined(__MSP430_HAS_PORT5__) || defined(__MSP430_HAS_PORT5_R__)
+  {VAL_P5OUT, VAL_P5DIR},
+#endif
+#if defined(__MSP430_HAS_PORT6__) || defined(__MSP430_HAS_PORT6_R__)
+  {VAL_P6OUT, VAL_P6DIR},
+#endif
+};
+#endif
+
 CH_IRQ_HANDLER(TIMERA0_VECTOR) {
 
   CH_IRQ_PROLOGUE();
@@ -41,15 +70,9 @@ CH_IRQ_HANDLER(TIMERA0_VECTOR) {
 }
 
 /*
- * Hardware initialization goes here.
- * NOTE: Interrupts are still disabled.
+ * Board-specific initialization code.
  */
-void hwinit(void) {
-
-  /*
-   * HAL initialization.
-   */
-  halInit();
+void boardInit(void) {
 
   /*
    * Timer 0 setup, uses SMCLK as source.

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,23 +25,24 @@
 */
 
 /**
- * @file STM32/can_lld.c
- * @brief STM32 CAN subsystem low level driver source.
- * @addtogroup STM32_CAN
+ * @file    STM32/can_lld.c
+ * @brief   STM32 CAN subsystem low level driver source.
+ *
+ * @addtogroup CAN
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if CH_HAL_USE_CAN || defined(__DOXYGEN__)
+#if HAL_USE_CAN || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
 /** @brief ADC1 driver identifier.*/
-#if USE_STM32_CAN1 || defined(__DOXYGEN__)
+#if STM32_CAN_USE_CAN1 || defined(__DOXYGEN__)
 CANDriver CAND1;
 #endif
 
@@ -57,10 +58,12 @@ CANDriver CAND1;
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
-/*
- * CAN1 TX interrupt handler.
+/**
+ * @brief   CAN1 TX interrupt handler.
+ *
+ * @isr
  */
-CH_IRQ_HANDLER(Vector8C) {
+CH_IRQ_HANDLER(CAN1_TX_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -76,9 +79,11 @@ CH_IRQ_HANDLER(Vector8C) {
 }
 
 /*
- * CAN1 RX0 interrupt handler.
+ * @brief   CAN1 RX0 interrupt handler.
+ *
+ * @isr
  */
-CH_IRQ_HANDLER(Vector90) {
+CH_IRQ_HANDLER(CAN1_RX0_IRQHandler) {
   uint32_t rf0r;
 
   CH_IRQ_PROLOGUE();
@@ -105,10 +110,12 @@ CH_IRQ_HANDLER(Vector90) {
   CH_IRQ_EPILOGUE();
 }
 
-/*
- * CAN1 RX1 interrupt handler.
+/**
+ * @brief   CAN1 RX1 interrupt handler.
+ *
+ * @isr
  */
-CH_IRQ_HANDLER(Vector94) {
+CH_IRQ_HANDLER(CAN1_RX1_IRQHandler) {
 
   CH_IRQ_PROLOGUE();
 
@@ -117,10 +124,12 @@ CH_IRQ_HANDLER(Vector94) {
   CH_IRQ_EPILOGUE();
 }
 
-/*
- * CAN1 SCE interrupt handler.
+/**
+ * @brief   CAN1 SCE interrupt handler.
+ *
+ * @isr
  */
-CH_IRQ_HANDLER(Vector98) {
+CH_IRQ_HANDLER(CAN1_SCE_IRQHandler) {
   uint32_t msr;
 
   CH_IRQ_PROLOGUE();
@@ -143,7 +152,7 @@ CH_IRQ_HANDLER(Vector98) {
     if ((esr & CAN_ESR_LEC) > 0)
       flags |= CAN_FRAMING_ERROR;
     chSysLockFromIsr();
-    canAddFlagsI(&CAND1, flags);
+    canAddFlagsI(&CAND1, flags | (canstatus_t)(flags < 16));
     chEvtBroadcastI(&CAND1.cd_error_event);
     chSysUnlockFromIsr();
   }
@@ -156,11 +165,13 @@ CH_IRQ_HANDLER(Vector98) {
 /*===========================================================================*/
 
 /**
- * @brief Low level CAN driver initialization.
+ * @brief   Low level CAN driver initialization.
+ *
+ * @notapi
  */
 void can_lld_init(void) {
 
-#if USE_STM32_CAN1
+#if STM32_CAN_USE_CAN1
   /* CAN reset, ensures reset state in order to avoid trouble with JTAGs.*/
   RCC->APB1RSTR = RCC_APB1RSTR_CAN1RST;
   RCC->APB1RSTR = 0;
@@ -172,23 +183,25 @@ void can_lld_init(void) {
 }
 
 /**
- * @brief Configures and activates the CAN peripheral.
+ * @brief   Configures and activates the CAN peripheral.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_start(CANDriver *canp) {
 
   /* Clock activation.*/
-#if USE_STM32_CAN1
+#if STM32_CAN_USE_CAN1
   if (&CAND1 == canp) {
     NVICEnableVector(USB_HP_CAN1_TX_IRQn,
-                     CORTEX_PRIORITY_MASK(STM32_CAN1_IRQ_PRIORITY));
+                     CORTEX_PRIORITY_MASK(STM32_CAN_CAN1_IRQ_PRIORITY));
     NVICEnableVector(USB_LP_CAN1_RX0_IRQn,
-                     CORTEX_PRIORITY_MASK(STM32_CAN1_IRQ_PRIORITY));
+                     CORTEX_PRIORITY_MASK(STM32_CAN_CAN1_IRQ_PRIORITY));
     NVICEnableVector(CAN1_RX1_IRQn,
-                     CORTEX_PRIORITY_MASK(STM32_CAN1_IRQ_PRIORITY));
+                     CORTEX_PRIORITY_MASK(STM32_CAN_CAN1_IRQ_PRIORITY));
     NVICEnableVector(CAN1_SCE_IRQn,
-                     CORTEX_PRIORITY_MASK(STM32_CAN1_IRQ_PRIORITY));
+                     CORTEX_PRIORITY_MASK(STM32_CAN_CAN1_IRQ_PRIORITY));
     RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;
   }
 #endif
@@ -230,11 +243,10 @@ void can_lld_start(CANDriver *canp) {
         cfp->FR1 = 0;
         cfp->FR2 = 0;
       }
-      cfp++;
-      fmask <<= 1;
       /* Gives a chance for preemption since this is a rather long loop.*/
       chSysUnlock();
-      chThdYield();
+      cfp++;
+      fmask <<= 1;
       chSysLock();
     }
   }
@@ -256,15 +268,17 @@ void can_lld_start(CANDriver *canp) {
 }
 
 /**
- * @brief Deactivates the CAN peripheral.
+ * @brief   Deactivates the CAN peripheral.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_stop(CANDriver *canp) {
 
   /* If in ready state then disables the CAN peripheral.*/
   if (canp->cd_state == CAN_READY) {
-#if USE_STM32_CAN1
+#if STM32_CAN_USE_CAN1
     if (&CAND1 == canp) {
       CAN1->MCR = 0x00010002;                   /* Register reset value.    */
       CAN1->IER = 0x00000000;                   /* All sources disabled.    */
@@ -279,13 +293,15 @@ void can_lld_stop(CANDriver *canp) {
 }
 
 /**
- * @brief Determines whether a frame can be transmitted.
+ * @brief   Determines whether a frame can be transmitted.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
  *
  * @return The queue space availability.
- * @retval FALSE no space in the transmit queue.
- * @retval TRUE transmit slot available.
+ * @retval FALSE        no space in the transmit queue.
+ * @retval TRUE         transmit slot available.
+ *
+ * @notapi
  */
 bool_t can_lld_can_transmit(CANDriver *canp) {
 
@@ -293,10 +309,12 @@ bool_t can_lld_can_transmit(CANDriver *canp) {
 }
 
 /**
- * @brief Inserts a frame into the transmit queue.
+ * @brief   Inserts a frame into the transmit queue.
  *
  * @param[in] canp      pointer to the @p CANDriver object
  * @param[in] ctfp      pointer to the CAN frame to be transmitted
+ *
+ * @notapi
  */
 void can_lld_transmit(CANDriver *canp, const CANTxFrame *ctfp) {
   uint32_t tir;
@@ -318,13 +336,15 @@ void can_lld_transmit(CANDriver *canp, const CANTxFrame *ctfp) {
 }
 
 /**
- * @brief Determines whether a frame has been received.
+ * @brief   Determines whether a frame has been received.
  *
- * @param[in] canp pointer to the @p CANDriver object
+ * @param[in] canp      pointer to the @p CANDriver object
  *
  * @return The queue space availability.
- * @retval FALSE no space in the transmit queue.
- * @retval TRUE transmit slot available.
+ * @retval FALSE        no space in the transmit queue.
+ * @retval TRUE         transmit slot available.
+ *
+ * @notapi
  */
 bool_t can_lld_can_receive(CANDriver *canp) {
 
@@ -332,10 +352,12 @@ bool_t can_lld_can_receive(CANDriver *canp) {
 }
 
 /**
- * @brief Receives a frame from the input queue.
+ * @brief   Receives a frame from the input queue.
  *
  * @param[in] canp      pointer to the @p CANDriver object
  * @param[out] crfp     pointer to the buffer where the CAN frame is copied
+ *
+ * @notapi
  */
 void can_lld_receive(CANDriver *canp, CANRxFrame *crfp) {
   uint32_t r;
@@ -366,9 +388,11 @@ void can_lld_receive(CANDriver *canp, CANRxFrame *crfp) {
 
 #if CAN_USE_SLEEP_MODE || defined(__DOXYGEN__)
 /**
- * @brief Enters the sleep mode.
+ * @brief   Enters the sleep mode.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_sleep(CANDriver *canp) {
 
@@ -376,9 +400,11 @@ void can_lld_sleep(CANDriver *canp) {
 }
 
 /**
- * @brief Enforces leaving the sleep mode.
+ * @brief   Enforces leaving the sleep mode.
  *
  * @param[in] canp      pointer to the @p CANDriver object
+ *
+ * @notapi
  */
 void can_lld_wakeup(CANDriver *canp) {
 
@@ -386,6 +412,6 @@ void can_lld_wakeup(CANDriver *canp) {
 }
 #endif /* CAN_USE_SLEEP_MODE */
 
-#endif /* CH_HAL_USE_CAN */
+#endif /* HAL_USE_CAN */
 
 /** @} */

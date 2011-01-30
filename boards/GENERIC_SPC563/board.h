@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -60,13 +60,14 @@
 #define GPIO_LED3       190
 #define GPIO_LED4       191
 
+#if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void hwinit0(void);
-  void hwinit1(void);
+  void boardInit(void);
 #ifdef __cplusplus
 }
 #endif
+#endif /* _FROM_ASM_ */
 
 #endif /* _BOARD_H_ */

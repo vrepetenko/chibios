@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -25,9 +25,10 @@
 */
 
 /**
- * @file LPC214x/hal_lld.h
- * @brief LPC214x HAL subsystem low level driver header.
- * @addtogroup LPC214x_HAL
+ * @file    LPC214x/hal_lld.h
+ * @brief   LPC214x HAL subsystem low level driver header.
+ *
+ * @addtogroup HAL
  * @{
  */
 
@@ -51,7 +52,7 @@
 /*===========================================================================*/
 
 /**
- * @brief Default action for the non vectored IRQ handler, nothing.
+ * @brief   Default action for the non vectored IRQ handler, nothing.
  */
 #if !defined(LPC214x_NON_VECTORED_IRQ_HOOK) || defined(__DOXYGEN__)
 #define LPC214x_NON_VECTORED_IRQ_HOOK()

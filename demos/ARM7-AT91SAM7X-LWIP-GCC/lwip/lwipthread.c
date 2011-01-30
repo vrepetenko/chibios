@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -271,7 +271,7 @@ msg_t lwip_thread(void *p) {
   evtStart(&evt);
   chEvtRegisterMask(&evt.et_es, &el0, PERIODIC_TIMER_ID);
   chEvtRegisterMask(macGetReceiveEventSource(&ETH1), &el1, FRAME_RECEIVED_ID);
-  chEvtPend(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID);
+  chEvtAddFlags(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID);
 
   /* Goes to the final priority after initialization.*/
   chThdSetPriority(LWIP_THREAD_PRIORITY);
