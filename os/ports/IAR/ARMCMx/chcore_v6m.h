@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -10,18 +10,11 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -39,10 +32,8 @@
 /* Port implementation part.                                                 */
 /*===========================================================================*/
 
-/**
- * @brief   Cortex-Mx exception context.
- */
-struct cmxctx {
+#if !defined(__DOXYGEN__)
+struct extctx {
   regarm_t      r0;
   regarm_t      r1;
   regarm_t      r2;
@@ -51,18 +42,6 @@ struct cmxctx {
   regarm_t      lr_thd;
   regarm_t      pc;
   regarm_t      xpsr;
-};
-
-#if !defined(__DOXYGEN__)
-struct extctx {
-  regarm_t      xpsr;
-  regarm_t      r12;
-  regarm_t      lr;
-  regarm_t      r0;
-  regarm_t      r1;
-  regarm_t      r2;
-  regarm_t      r3;
-  regarm_t      pc;
 };
 
 struct intctx {
@@ -236,10 +215,6 @@ struct intctx {
     chDbgPanic("stack overflow");                                           \
   _port_switch(ntp, otp);                                                   \
 }
-#endif
-
-#if !defined(__DOXYGEN__)
-extern regarm_t _port_saved_pc;
 #endif
 
 #ifdef __cplusplus
