@@ -53,20 +53,21 @@ static void adcerrorcallback(ADCDriver *adcp, adcerror_t err) {
 
 /*
  * ADC conversion group.
- * Mode:        Linear buffer, 16 samples of 8 channels, SW triggered.
- * Channels:    IN10, IN11, IN10, IN11, IN10, IN11, Sensor, VRef.
+ * Mode:        Linear buffer, 8 samples of 1 channel, SW triggered.
+ * Channels:    IN10.
  */
 static const ADCConversionGroup adcgrpcfg1 = {
   FALSE,
   ADC_GRP1_NUM_CHANNELS,
   NULL,
   adcerrorcallback,
-  0, 0,         /* CR1, CR2 */
-  0,            /* SMPR1 */
+  0,                        /* CR1 */
+  ADC_CR2_SWSTART,          /* CR2 */
+  0,                        /* SMPR1 */
   ADC_SMPR2_SMP_AN10(ADC_SAMPLE_4),
-  0,            /* SMPR3 */
+  0,                        /* SMPR3 */
   ADC_SQR1_NUM_CH(ADC_GRP1_NUM_CHANNELS),
-  0, 0, 0,      /* SQR2, SQR3, SQR4 */
+  0, 0, 0,                  /* SQR2, SQR3, SQR4 */
   ADC_SQR5_SQ1_N(ADC_CHANNEL_IN10)
 };
 
@@ -80,13 +81,14 @@ static const ADCConversionGroup adcgrpcfg2 = {
   ADC_GRP2_NUM_CHANNELS,
   adccallback,
   adcerrorcallback,
-  0, 0,         /* CR1, CR2 */
-  0,            /* SMPR1 */
-  ADC_SMPR2_SMP_AN10(ADC_SAMPLE_48) | ADC_SMPR2_SMP_SENSOR(ADC_SAMPLE_192) |
-  ADC_SMPR2_SMP_VREF(ADC_SAMPLE_192),
-  0,            /* SMPR3 */
+  0,                        /* CR1 */
+  ADC_CR2_SWSTART,          /* CR2 */
+  0,                        /* SMPR1 */
+  ADC_SMPR2_SMP_AN11(ADC_SAMPLE_48) | ADC_SMPR2_SMP_AN10(ADC_SAMPLE_48) |
+  ADC_SMPR2_SMP_SENSOR(ADC_SAMPLE_192) | ADC_SMPR2_SMP_VREF(ADC_SAMPLE_192),
+  0,                        /* SMPR3 */
   ADC_SQR1_NUM_CH(ADC_GRP2_NUM_CHANNELS),
-  0, 0,         /* SQR2, SQR3 */
+  0, 0,                     /* SQR2, SQR3 */
   ADC_SQR4_SQ8_N(ADC_CHANNEL_SENSOR) | ADC_SQR4_SQ7_N(ADC_CHANNEL_VREFINT),
   ADC_SQR5_SQ6_N(ADC_CHANNEL_IN11)   | ADC_SQR5_SQ5_N(ADC_CHANNEL_IN10) |
   ADC_SQR5_SQ4_N(ADC_CHANNEL_IN11)   | ADC_SQR5_SQ3_N(ADC_CHANNEL_IN10) |

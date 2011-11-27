@@ -8,12 +8,12 @@ The demo will on an STMicroelectronics STM32L-Discovery board.
 
 ** The Demo **
 
-The application demonstrates the use of the STM32L1xx PWM-ICU drivers.
+The application demonstrates the use of the STM32L1xx GPT, PAL and Serial
+drivers in order to implement a system stress demo.
 
 ** Board Setup **
 
-- Remove the LCD module.
-- Connect PA15 and PC6 together.
+None.
 
 ** Build Procedure **
 

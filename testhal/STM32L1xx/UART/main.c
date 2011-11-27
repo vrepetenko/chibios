@@ -125,8 +125,7 @@ int main(void) {
   chSysInit();
 
   /*
-   * Activates the serial driver 2 using the driver default configuration.
-   * PA9 and PA10 are routed to USART1.
+   * Activates the serial driver 1, PA9 and PA10 are routed to USART1.
    */
   uartStart(&UARTD1, &uart_cfg_1);
   palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7));

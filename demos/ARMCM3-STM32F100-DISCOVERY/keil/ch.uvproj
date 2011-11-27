@@ -827,11 +827,6 @@
               <FilePath>..\..\..\os\hal\platforms\STM32\spi_lld.c</FilePath>
             </File>
             <File>
-              <FileName>stm32_dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>D:\Progetti\ChibiOS-RT\os\hal\platforms\STM32\DMAv1\stm32_dma.c</FilePath>
-            </File>
-            <File>
               <FileName>uart_lld.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\os\hal\platforms\STM32\uart_lld.c</FilePath>
@@ -877,11 +872,6 @@
               <FilePath>..\..\..\os\hal\platforms\STM32\spi_lld.h</FilePath>
             </File>
             <File>
-              <FileName>stm32_dma.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>D:\Progetti\ChibiOS-RT\os\hal\platforms\STM32\DMAv1\stm32_dma.h</FilePath>
-            </File>
-            <File>
               <FileName>stm32f10x.h</FileName>
               <FileType>5</FileType>
               <FilePath>D:\Progetti\ChibiOS-RT\os\hal\platforms\STM32F1xx\stm32f10x.h</FilePath>
@@ -890,6 +880,16 @@
               <FileName>uart_lld.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\os\hal\platforms\STM32\uart_lld.h</FilePath>
+            </File>
+            <File>
+              <FileName>stm32_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\os\hal\platforms\STM32F1xx\stm32_dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32_dma.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\os\hal\platforms\STM32F1xx\stm32_dma.h</FilePath>
             </File>
           </Files>
         </Group>

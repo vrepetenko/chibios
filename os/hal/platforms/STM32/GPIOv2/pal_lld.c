@@ -20,7 +20,7 @@
 
 /**
  * @file    STM32/GPIOv2/pal_lld.c
- * @brief   STM32L1xx/STM32F2xx GPIO low level driver code.
+ * @brief   STM32L1xx/STM32F2xx/STM32F4xx GPIO low level driver code.
  *
  * @addtogroup PAL
  * @{
@@ -40,7 +40,14 @@
                          RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN |        \
                          RCC_AHB1ENR_GPIOEEN | RCC_AHB1ENR_GPIOFEN |        \
                          RCC_AHB1ENR_GPIOGEN | RCC_AHB1ENR_GPIOHEN |        \
-					     RCC_AHB1ENR_GPIOIEN)
+                         RCC_AHB1ENR_GPIOIEN)
+#define AHB1_LPEN_MASK  AHB1_EN_MASK
+#elif defined(STM32F4XX)
+#define AHB1_EN_MASK    (RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN |        \
+                         RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN |        \
+                         RCC_AHB1ENR_GPIOEEN | RCC_AHB1ENR_GPIOFEN |        \
+                         RCC_AHB1ENR_GPIOGEN | RCC_AHB1ENR_GPIOHEN |        \
+                         RCC_AHB1ENR_GPIOIEN)
 #define AHB1_LPEN_MASK  AHB1_EN_MASK
 #else
 #error "missing or usupported platform for GPIOv2 PAL driver"
@@ -92,7 +99,7 @@ void _pal_lld_init(const PALConfig *config) {
    */
 #if defined(STM32L1XX_MD)
   rccEnableAHB(AHB_EN_MASK, TRUE);
-#elif defined(STM32F2XX)
+#elif defined(STM32F2XX) || defined(STM32F4XX)
   RCC->AHB1ENR   |= AHB1_EN_MASK;
   RCC->AHB1LPENR |= AHB1_LPEN_MASK;
 #endif

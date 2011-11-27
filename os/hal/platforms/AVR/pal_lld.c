@@ -85,6 +85,16 @@ void _pal_lld_init(const PALConfig *config) {
   PORTE = config->porte.out;
   DDRE = config->porte.dir;
 #endif
+
+#if defined(PORTF) || defined(__DOXYGEN__)
+  PORTF = config->portf.out;
+  DDRF = config->portf.dir;
+#endif
+
+#if defined(PORTG) || defined(__DOXYGEN__)
+  PORTG = config->portg.out;
+  DDRG = config->portg.dir;
+#endif
 }
 
 /**
@@ -103,8 +113,6 @@ void _pal_lld_init(const PALConfig *config) {
  *       with pull-up by default.
  *
  * @notapi
- *
- * TODO: check PAL_MODE_UNCONNECTED mode recommended for AVR
  */
 void _pal_lld_setgroupmode(ioportid_t port,
                            ioportmask_t mask,
@@ -113,8 +121,6 @@ void _pal_lld_setgroupmode(ioportid_t port,
   switch (mode) {
   case PAL_MODE_RESET:
   case PAL_MODE_INPUT:
-    port->dir &= ~mask;
-    break;
   case PAL_MODE_INPUT_ANALOG:
     port->dir &= ~mask;
     port->out &= ~mask;

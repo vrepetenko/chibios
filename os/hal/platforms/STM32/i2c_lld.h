@@ -37,6 +37,11 @@
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
+
+/**
+ * @name    Configuration options
+ * @{
+ */
 /**
  * @brief Switch between callback based and synchronouse driver.
  * @note  The default is synchronouse.
@@ -98,6 +103,7 @@
 #if !defined(STM32_I2C_I2C2_IRQ_PRIORITY) || defined(__DOXYGEN__)
 #define STM32_I2C_I2C2_IRQ_PRIORITY     0xA0
 #endif
+/** @} */
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
@@ -164,7 +170,6 @@ typedef struct {
   i2cdutycycle_t  duty_cycle;    /**< @brief Specifies the I2C fast mode duty cycle */
   uint8_t         own_addr_7;    /**< @brief Specifies the first device 7-bit own address. */
   uint16_t        own_addr_10;   /**< @brief Specifies the second part of device own address in 10-bit mode. Set to NULL if not used. */
-  uint16_t        ack;           /**< @brief Enables or disables the acknowledgment. */
   uint8_t         nbit_own_addr; /**< @brief Specifies if 7-bit or 10-bit address is acknowledged */
 } I2CConfig;
 

@@ -297,37 +297,37 @@ void pwm_lld_init(void) {
 #if STM32_PWM_USE_TIM1
   /* Driver initialization.*/
   pwmObjectInit(&PWMD1);
-  PWMD1.tim = TIM1;
+  PWMD1.tim = STM32_TIM1;
 #endif
 
 #if STM32_PWM_USE_TIM2
   /* Driver initialization.*/
   pwmObjectInit(&PWMD2);
-  PWMD2.tim = TIM2;
+  PWMD2.tim = STM32_TIM2;
 #endif
 
 #if STM32_PWM_USE_TIM3
   /* Driver initialization.*/
   pwmObjectInit(&PWMD3);
-  PWMD3.tim = TIM3;
+  PWMD3.tim = STM32_TIM3;
 #endif
 
 #if STM32_PWM_USE_TIM4
   /* Driver initialization.*/
   pwmObjectInit(&PWMD4);
-  PWMD4.tim = TIM4;
+  PWMD4.tim = STM32_TIM4;
 #endif
 
 #if STM32_PWM_USE_TIM5
   /* Driver initialization.*/
   pwmObjectInit(&PWMD5);
-  PWMD5.tim = TIM5;
+  PWMD5.tim = STM32_TIM5;
 #endif
 
 #if STM32_PWM_USE_TIM8
   /* Driver initialization.*/
   pwmObjectInit(&PWMD8);
-  PWMD5.tim = TIM8;
+  PWMD8.tim = STM32_TIM8;
 #endif
 }
 
@@ -419,13 +419,13 @@ void pwm_lld_start(PWMDriver *pwmp) {
   }
   else {
     /* Driver re-configuration scenario, it must be stopped first.*/
-    pwmp->tim->CR1  = 0;                    /* Timer disabled.              */
-    pwmp->tim->DIER = 0;                    /* All IRQs disabled.           */
-    pwmp->tim->SR   = 0;                    /* Clear eventual pending IRQs. */
-    pwmp->tim->CCR1 = 0;                    /* Comparator 1 disabled.       */
-    pwmp->tim->CCR2 = 0;                    /* Comparator 2 disabled.       */
-    pwmp->tim->CCR3 = 0;                    /* Comparator 3 disabled.       */
-    pwmp->tim->CCR4 = 0;                    /* Comparator 4 disabled.       */
+    pwmp->tim->CR1    = 0;                  /* Timer disabled.              */
+    pwmp->tim->DIER   = 0;                  /* All IRQs disabled.           */
+    pwmp->tim->SR     = 0;                  /* Clear eventual pending IRQs. */
+    pwmp->tim->CCR[0] = 0;                  /* Comparator 1 disabled.       */
+    pwmp->tim->CCR[1] = 0;                  /* Comparator 2 disabled.       */
+    pwmp->tim->CCR[2] = 0;                  /* Comparator 3 disabled.       */
+    pwmp->tim->CCR[3] = 0;                  /* Comparator 4 disabled.       */
     pwmp->tim->CNT  = 0;                    /* Counter reset to zero.       */
   }
 
@@ -599,7 +599,7 @@ void pwm_lld_enable_channel(PWMDriver *pwmp,
                             pwmchannel_t channel,
                             pwmcnt_t width) {
 
-  *(&pwmp->tim->CCR1 + (channel * 2)) = width;      /* New duty cycle.      */
+  pwmp->tim->CCR[channel] = width;                  /* New duty cycle.      */
   /* If there is a callback defined for the channel then the associated
      interrupt must be enabled.*/
   if (pwmp->config->channels[channel].callback != NULL) {
@@ -627,7 +627,7 @@ void pwm_lld_enable_channel(PWMDriver *pwmp,
  */
 void pwm_lld_disable_channel(PWMDriver *pwmp, pwmchannel_t channel) {
 
-  *(&pwmp->tim->CCR1 + (channel * 2)) = 0;
+  pwmp->tim->CCR[channel] = 0;
   pwmp->tim->DIER &= ~(2 << channel);
 }
 

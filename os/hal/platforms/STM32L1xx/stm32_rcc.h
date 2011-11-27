@@ -237,7 +237,7 @@
 /** @} */
 
 /**
- * @brief   I2c peripherals specific RCC operations
+ * @brief   I2C peripherals specific RCC operations
  * @{
  */
 /**

@@ -19,10 +19,10 @@
 */
 
 /**
- * @file    DMAv1/stm32_dma.c
+ * @file    STM32F1xx/stm32_dma.c
  * @brief   DMA helper driver code.
  *
- * @addtogroup STM32_DMA
+ * @addtogroup STM32F1xx_DMA
  * @details DMA sharing helper driver. In the STM32 the DMA streams are a
  *          shared resource, this driver allows to allocate and free DMA
  *          streams at runtime in order to allow all the other device
@@ -100,8 +100,8 @@ const stm32_dma_stream_t _stm32_dma_streams[STM32_DMA_STREAMS] = {
  * @brief   DMA ISR redirector type.
  */
 typedef struct {
-  stm32_dmaisr_t        dma_func;
-  void                  *dma_param;
+  stm32_dmaisr_t        dma_func;       /**< @brief DMA callback function.  */
+  void                  *dma_param;     /**< @brief DMA callback parameter. */
 } dma_isr_redir_t;
 
 /**

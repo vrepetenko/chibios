@@ -239,37 +239,37 @@ void icu_lld_init(void) {
 #if STM32_ICU_USE_TIM1
   /* Driver initialization.*/
   icuObjectInit(&ICUD1);
-  ICUD1.tim = TIM1;
+  ICUD1.tim = STM32_TIM1;
 #endif
 
 #if STM32_ICU_USE_TIM2
   /* Driver initialization.*/
   icuObjectInit(&ICUD2);
-  ICUD2.tim = TIM2;
+  ICUD2.tim = STM32_TIM2;
 #endif
 
 #if STM32_ICU_USE_TIM3
   /* Driver initialization.*/
   icuObjectInit(&ICUD3);
-  ICUD3.tim = TIM3;
+  ICUD3.tim = STM32_TIM3;
 #endif
 
 #if STM32_ICU_USE_TIM4
   /* Driver initialization.*/
   icuObjectInit(&ICUD4);
-  ICUD4.tim = TIM4;
+  ICUD4.tim = STM32_TIM4;
 #endif
 
 #if STM32_ICU_USE_TIM5
   /* Driver initialization.*/
   icuObjectInit(&ICUD5);
-  ICUD5.tim = TIM5;
+  ICUD5.tim = STM32_TIM5;
 #endif
 
 #if STM32_ICU_USE_TIM8
   /* Driver initialization.*/
   icuObjectInit(&ICUD8);
-  ICUD5.tim = TIM8;
+  ICUD5.tim = STM32_TIM8;
 #endif
 }
 
@@ -343,12 +343,12 @@ void icu_lld_start(ICUDriver *icup) {
   }
   else {
     /* Driver re-configuration scenario, it must be stopped first.*/
-    icup->tim->CR1  = 0;                    /* Timer disabled.              */
-    icup->tim->DIER = 0;                    /* All IRQs disabled.           */
-    icup->tim->SR   = 0;                    /* Clear eventual pending IRQs. */
-    icup->tim->CCR1 = 0;                    /* Comparator 1 disabled.       */
-    icup->tim->CCR2 = 0;                    /* Comparator 2 disabled.       */
-    icup->tim->CNT  = 0;                    /* Counter reset to zero.       */
+    icup->tim->CR1    = 0;                  /* Timer disabled.              */
+    icup->tim->DIER   = 0;                  /* All IRQs disabled.           */
+    icup->tim->SR     = 0;                  /* Clear eventual pending IRQs. */
+    icup->tim->CCR[0] = 0;                  /* Comparator 1 disabled.       */
+    icup->tim->CCR[1] = 0;                  /* Comparator 2 disabled.       */
+    icup->tim->CNT    = 0;                  /* Counter reset to zero.       */
   }
 
   /* Timer configuration.*/

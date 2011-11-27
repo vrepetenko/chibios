@@ -61,7 +61,8 @@
  */
 #define STM32_ADC_USE_ADC1                  TRUE
 #define STM32_ADC_ADC1_DMA_PRIORITY         2
-#define STM32_ADC_ADC1_IRQ_PRIORITY         5
+#define STM32_ADC_IRQ_PRIORITY              5
+#define STM32_ADC_ADC1_DMA_IRQ_PRIORITY     5
 
 /*
  * CAN driver system settings.
@@ -90,7 +91,7 @@
 #define STM32_GPT_USE_TIM1                  FALSE
 #define STM32_GPT_USE_TIM2                  TRUE
 #define STM32_GPT_USE_TIM3                  TRUE
-#define STM32_GPT_USE_TIM4                  TRUE
+#define STM32_GPT_USE_TIM4                  FALSE
 #define STM32_GPT_USE_TIM5                  FALSE
 #define STM32_GPT_USE_TIM8                  FALSE
 #define STM32_GPT_TIM1_IRQ_PRIORITY         7
@@ -141,11 +142,13 @@
 #define STM32_SERIAL_USE_USART3             FALSE
 #define STM32_SERIAL_USE_UART4              FALSE
 #define STM32_SERIAL_USE_UART5              FALSE
+#define STM32_SERIAL_USE_USART6             FALSE
 #define STM32_SERIAL_USART1_PRIORITY        12
 #define STM32_SERIAL_USART2_PRIORITY        12
 #define STM32_SERIAL_USART3_PRIORITY        12
 #define STM32_SERIAL_UART4_PRIORITY         12
 #define STM32_SERIAL_UART5_PRIORITY         12
+#define STM32_SERIAL_USART6_PRIORITY        12
 
 /*
  * SPI driver system settings.

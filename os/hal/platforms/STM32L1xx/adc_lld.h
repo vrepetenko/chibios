@@ -102,6 +102,10 @@
 /*===========================================================================*/
 
 /**
+ * @name    Configuration options
+ * @{
+ */
+/**
  * @brief   ADC1 driver enable switch.
  * @details If set to @p TRUE the support for ADC1 is included.
  * @note    The default is @p TRUE.
@@ -129,11 +133,20 @@
 #endif
 
 /**
- * @brief   ADC1 interrupt priority level setting.
+ * @brief   ADC interrupt priority level setting.
  */
-#if !defined(STM32_ADC_ADC1_IRQ_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC1_IRQ_PRIORITY         5
+#if !defined(STM32_ADC_IRQ_PRIORITY) || defined(__DOXYGEN__)
+#define STM32_ADC_IRQ_PRIORITY              5
 #endif
+
+/**
+ * @brief   ADC1 DMA interrupt priority level setting.
+ */
+#if !defined(STM32_ADC_ADC1_DMA_IRQ_PRIORITY) || defined(__DOXYGEN__)
+#define STM32_ADC_ADC1_DMA_IRQ_PRIORITY     5
+#endif
+
+/** @} */
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */

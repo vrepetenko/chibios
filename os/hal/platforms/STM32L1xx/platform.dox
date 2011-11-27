@@ -168,7 +168,6 @@
  * - TIM2.
  * - TIM3.
  * - TIM4.
- * - TIM5.
  * .
  * @section stm32l1xx_pwm_2 STM32L1xx PWM driver implementation features
  * - Each timer can be independently enabled and programmed. Unused
@@ -237,9 +236,7 @@
  * - USART1.
  * - USART2.
  * - USART3 (where present).
- * - UART4 (where present).
  * - DMA1.
- * - DMA2 (where present).
  * .
  * @section stm32l1xx_uart_2 STM32L1xx UART driver implementation features
  * - Clock stop for reduced power usage when the driver is in stop state.
