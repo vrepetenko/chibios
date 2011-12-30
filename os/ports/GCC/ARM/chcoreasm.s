@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -27,9 +33,6 @@
  */
 
 #include "chconf.h"
-
-#define FALSE 0
-#define TRUE 1
 
 #if !defined(__DOXYGEN__)
 
@@ -146,12 +149,12 @@ _port_switch_arm:
  *      |     R0     |  |
  *      |     PC     |  |   (user code return address)
  *      |   PSR_USR  | -+   (user code status)
- *      |    ....    | <- chSchDoReschedule() stack frame, optimize it for space
+ *      |    ....    | <- mk_DoRescheduleI() stack frame, optimize it for space
  *      |     LR     | -+   (system code return address)
  *      |     R11    |  |
  *      |     R10    |  |
  *      |     R9     |  |
- *      |     R8     |  | Internal context: chSysSwitch() frame
+ *      |     R8     |  | Internal context: mk_SwitchI() frame
  *      |    (R7)    |  |   (optional, see CH_CURRP_REGISTER_CACHE)
  *      |     R6     |  |
  *      |     R5     |  |
@@ -164,7 +167,7 @@ _port_switch_arm:
 .thumb_func
 .globl _port_irq_common
 _port_irq_common:
-        bl      chSchIsPreemptionRequired
+        bl      chSchIsRescRequiredExI
         mov     lr, pc
         bx      lr
 .code 32
@@ -172,7 +175,7 @@ _port_irq_common:
 .code 32
 .globl _port_irq_common
 _port_irq_common:
-        bl      chSchIsPreemptionRequired
+        bl      chSchIsRescRequiredExI
 #endif /* !THUMB_NO_INTERWORKING */
         cmp     r0, #0                          // Simply returns if a
         ldmeqfd sp!, {r0-r3, r12, lr}           // reschedule is not
@@ -193,24 +196,12 @@ _port_irq_common:
         add     r0, pc, #1
         bx      r0
 .code 16
-#if CH_DBG_SYSTEM_STATE_CHECK
-        bl      dbg_check_lock
-#endif
-        bl      chSchDoReschedule
-#if CH_DBG_SYSTEM_STATE_CHECK
-        bl      dbg_check_unlock
-#endif
+        bl      chSchDoRescheduleI
         mov     lr, pc
         bx      lr
 .code 32
 #else /* !THUMB_NO_INTERWORKING */
-#if CH_DBG_SYSTEM_STATE_CHECK
-        bl      dbg_check_lock
-#endif
-        bl      chSchDoReschedule
-#if CH_DBG_SYSTEM_STATE_CHECK
-        bl      dbg_check_unlock
-#endif
+        bl      chSchDoRescheduleI
 #endif /* !THUMB_NO_INTERWORKING */
 
         // Re-establish the IRQ conditions again.
@@ -225,18 +216,12 @@ _port_irq_common:
 
 /*
  * Threads trampoline code.
- * NOTE: The threads always start in ARM mode and then switches to the
- * thread-function mode.
+ * NOTE: The threads always start in ARM mode then switch to the thread-function mode.
  */
 .balign 16
 .code 32
 .globl _port_thread_start
 _port_thread_start:
-#if CH_DBG_SYSTEM_STATE_CHECK
-        mov     r0, #0
-        ldr     r1, =dbg_lock_cnt
-        str     r0, [r1]
-#endif
         msr     CPSR_c, #MODE_SYS
 #ifndef THUMB_NO_INTERWORKING
         mov     r0, r5

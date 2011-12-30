@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,16 +10,25 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
  * @file    mac.c
  * @brief   MAC Driver code.
+ * @note    This function is implicitly invoked by @p halInit(), there is
+ *          no need to explicitly initialize the driver.
  *
  * @addtogroup MAC
  * @{
@@ -30,10 +38,6 @@
 #include "hal.h"
 
 #if HAL_USE_MAC || defined(__DOXYGEN__)
-
-/*===========================================================================*/
-/* Driver local definitions.                                                 */
-/*===========================================================================*/
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -57,8 +61,6 @@
 
 /**
  * @brief   MAC Driver initialization.
- * @note    This function is implicitly invoked by @p halInit(), there is
- *          no need to explicitly initialize the driver.
  *
  * @init
  */
@@ -76,53 +78,28 @@ void macInit(void) {
  */
 void macObjectInit(MACDriver *macp) {
 
-  macp->state  = MAC_STOP;
-  macp->config = NULL;
-  chSemInit(&macp->tdsem, 0);
-  chSemInit(&macp->rdsem, 0);
-#if MAC_USE_EVENTS
-  chEvtInit(&macp->rdevent);
+  chSemInit(&macp->md_tdsem, 0);
+  chSemInit(&macp->md_rdsem, 0);
+#if CH_USE_EVENTS
+  chEvtInit(&macp->md_rdevent);
 #endif
 }
 
 /**
- * @brief   Configures and activates the MAC peripheral.
+ * @brief   MAC address setup.
+ * @pre     This function must be invoked with the driver in the stopped
+ *          state. If invoked on an active interface then it is ignored.
  *
  * @param[in] macp      pointer to the @p MACDriver object
- * @param[in] config    pointer to the @p MACConfig object
+ * @param[in] p         pointer to a six bytes buffer containing the MAC
+ *                      address. If this parameter is set to @p NULL then MAC
+ *                      a system default is used.
  *
  * @api
  */
-void macStart(MACDriver *macp, const MACConfig *config) {
+void macSetAddress(MACDriver *macp, const uint8_t *p) {
 
-  chDbgCheck((macp != NULL) && (config != NULL), "macStart");
-
-  chSysLock();
-  chDbgAssert(macp->state == MAC_STOP,
-              "macStart(), #1", "invalid state");
-  macp->config = config;
-  mac_lld_start(macp);
-  macp->state = MAC_ACTIVE;
-  chSysUnlock();
-}
-
-/**
- * @brief   Deactivates the MAC peripheral.
- *
- * @param[in] macp      pointer to the @p MACDriver object
- *
- * @api
- */
-void macStop(MACDriver *macp) {
-
-  chDbgCheck(macp != NULL, "macStop");
-
-  chSysLock();
-  chDbgAssert((macp->state == MAC_STOP) || (macp->state == MAC_ACTIVE),
-              "macStop(), #1", "invalid state");
-  mac_lld_stop(macp);
-  macp->state = MAC_STOP;
-  chSysUnlock();
+  mac_lld_set_address(macp, p);
 }
 
 /**
@@ -149,15 +126,11 @@ msg_t macWaitTransmitDescriptor(MACDriver *macp,
                                 systime_t time) {
   msg_t msg;
 
-  chDbgCheck((macp != NULL) && (tdp != NULL), "macWaitTransmitDescriptor");
-  chDbgAssert(macp->state == MAC_ACTIVE, "macWaitTransmitDescriptor(), #1",
-              "not active");
-
   while (((msg = max_lld_get_transmit_descriptor(macp, tdp)) != RDY_OK) &&
          (time > 0)) {
     chSysLock();
     systime_t now = chTimeNow();
-    if ((msg = chSemWaitTimeoutS(&macp->tdsem, time)) == RDY_TIMEOUT) {
+    if ((msg = chSemWaitTimeoutS(&macp->md_tdsem, time)) == RDY_TIMEOUT) {
       chSysUnlock();
       break;
     }
@@ -177,8 +150,6 @@ msg_t macWaitTransmitDescriptor(MACDriver *macp,
  * @api
  */
 void macReleaseTransmitDescriptor(MACTransmitDescriptor *tdp) {
-
-  chDbgCheck((tdp != NULL), "macReleaseTransmitDescriptor");
 
   mac_lld_release_transmit_descriptor(tdp);
 }
@@ -207,15 +178,11 @@ msg_t macWaitReceiveDescriptor(MACDriver *macp,
                                systime_t time) {
   msg_t msg;
 
-  chDbgCheck((macp != NULL) && (rdp != NULL), "macWaitReceiveDescriptor");
-  chDbgAssert(macp->state == MAC_ACTIVE, "macWaitReceiveDescriptor(), #1",
-              "not active");
-
   while (((msg = max_lld_get_receive_descriptor(macp, rdp)) != RDY_OK) &&
          (time > 0)) {
     chSysLock();
     systime_t now = chTimeNow();
-    if ((msg = chSemWaitTimeoutS(&macp->rdsem, time)) == RDY_TIMEOUT) {
+    if ((msg = chSemWaitTimeoutS(&macp->md_rdsem, time)) == RDY_TIMEOUT) {
       chSysUnlock();
       break;
     }
@@ -237,8 +204,6 @@ msg_t macWaitReceiveDescriptor(MACDriver *macp,
  */
 void macReleaseReceiveDescriptor(MACReceiveDescriptor *rdp) {
 
-  chDbgCheck((rdp != NULL), "macReleaseReceiveDescriptor");
-
   mac_lld_release_receive_descriptor(rdp);
 }
 
@@ -253,10 +218,6 @@ void macReleaseReceiveDescriptor(MACReceiveDescriptor *rdp) {
  * @api
  */
 bool_t macPollLinkStatus(MACDriver *macp) {
-
-  chDbgCheck((macp != NULL), "macPollLinkStatus");
-  chDbgAssert(macp->state == MAC_ACTIVE, "macPollLinkStatus(), #1",
-              "not active");
 
   return mac_lld_poll_link_status(macp);
 }

@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -67,7 +73,7 @@
 #define W1_T_ADDRESS_MASK       0xFFFFFFFF
 
 #define W2_T_LENGTH_MASK        0x000007FF
-#define W2_T_LOCKED             0x00000800 /* Not an EMAC flag.             */
+#define W2_T_LOCKED             0x00000800 /* Not an EMAC flag, used by the driver */
 #define W2_T_RFU1               0x00003000
 #define W2_T_LAST_BUFFER        0x00008000
 #define W2_T_NO_CRC             0x00010000
@@ -128,85 +134,37 @@ typedef struct {
 } EMACDescriptor;
 
 /**
- * @brief   Driver configuration structure.
- */
-typedef struct {
-  /**
-   * @brief MAC address.
-   */
-  uint8_t               *mac_address;
-  /* End of the mandatory fields.*/
-} MACConfig;
-
-/**
  * @brief   Structure representing a MAC driver.
  */
-struct MACDriver {
-  /**
-   * @brief Driver state.
-   */
-  macstate_t            state;
-  /**
-   * @brief Current configuration data.
-   */
-  const MACConfig       *config;
-  /**
-   * @brief Transmit semaphore.
-   */
-  Semaphore             tdsem;
-  /**
-   * @brief Receive semaphore.
-   */
-  Semaphore             rdsem;
-#if MAC_USE_EVENTS || defined(__DOXYGEN__)
-  /**
-   * @brief Receive event.
-   */
-  EventSource           rdevent;
+typedef struct {
+  Semaphore             md_tdsem;       /**< Transmit semaphore.        */
+  Semaphore             md_rdsem;       /**< Receive semaphore.         */
+#if CH_USE_EVENTS
+  EventSource           md_rdevent;     /**< Receive event source.      */
 #endif
   /* End of the mandatory fields.*/
-  /**
-   * @brief Link status flag.
-   */
-  bool_t                link_up;
-};
+} MACDriver;
 
 /**
  * @brief   Structure representing a transmit descriptor.
  */
 typedef struct {
-  /**
-   * @brief Current write offset.
-   */
-  size_t                offset;
-  /**
-   * @brief Available space size.
-   */
-  size_t                size;
+  size_t                td_offset;      /**< Current write offset.      */
+  size_t                td_size;        /**< Available space size.      */
   /* End of the mandatory fields.*/
-  /**
-   * @brief Pointer to the physical descriptor.
-   */
-  EMACDescriptor        *physdesc;
+  EMACDescriptor        *td_physdesc;   /**< Pointer to the physical
+                                             descriptor.                */
 } MACTransmitDescriptor;
 
 /**
  * @brief   Structure representing a receive descriptor.
  */
 typedef struct {
-  /**
-   * @brief Current read offset.
-   */
-  size_t                offset;
-  /**
-   * @brief Available data size.
-   */
-  size_t                size;
+  size_t                rd_offset;      /**< Current read offset.       */
+  size_t                rd_size;        /**< Available data size.       */
   /* End of the mandatory fields.*/
-  /**
-   * @brief Pointer to the first descriptor of the buffers chain.
-   */
-  EMACDescriptor        *physdesc;
+  EMACDescriptor        *rd_physdesc;   /**< Pointer to the first descriptor
+                                             of the buffers chain.      */
 } MACReceiveDescriptor;
 
 /*===========================================================================*/
@@ -225,8 +183,7 @@ extern MACDriver ETH1;
 extern "C" {
 #endif
   void mac_lld_init(void);
-  void mac_lld_start(MACDriver *macp);
-  void mac_lld_stop(MACDriver *macp);
+  void mac_lld_set_address(MACDriver *macp, const uint8_t *p);
   msg_t max_lld_get_transmit_descriptor(MACDriver *macp,
                                         MACTransmitDescriptor *tdp);
   size_t mac_lld_write_transmit_descriptor(MACTransmitDescriptor *tdp,

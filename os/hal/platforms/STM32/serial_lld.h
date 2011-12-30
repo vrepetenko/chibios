@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -40,13 +46,9 @@
 /*===========================================================================*/
 
 /**
- * @name    Configuration options
- * @{
- */
-/**
  * @brief   USART1 driver enable switch.
  * @details If set to @p TRUE the support for USART1 is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_SERIAL_USE_USART1) || defined(__DOXYGEN__)
 #define STM32_SERIAL_USE_USART1             TRUE
@@ -64,7 +66,7 @@
 /**
  * @brief   USART3 driver enable switch.
  * @details If set to @p TRUE the support for USART3 is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_SERIAL_USE_USART3) || defined(__DOXYGEN__)
 #define STM32_SERIAL_USE_USART3             TRUE
@@ -73,7 +75,7 @@
 /**
  * @brief   UART4 driver enable switch.
  * @details If set to @p TRUE the support for UART4 is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_SERIAL_USE_UART4) || defined(__DOXYGEN__)
 #define STM32_SERIAL_USE_UART4              TRUE
@@ -82,19 +84,10 @@
 /**
  * @brief   UART5 driver enable switch.
  * @details If set to @p TRUE the support for UART5 is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_SERIAL_USE_UART5) || defined(__DOXYGEN__)
 #define STM32_SERIAL_USE_UART5              TRUE
-#endif
-
-/**
- * @brief   USART6 driver enable switch.
- * @details If set to @p TRUE the support for USART6 is included.
- * @note    The default is @p TRUE.
- */
-#if !defined(STM32_SERIAL_USE_USART6) || defined(__DOXYGEN__)
-#define STM32_SERIAL_USE_USART6             TRUE
 #endif
 
 /**
@@ -132,14 +125,6 @@
 #define STM32_SERIAL_UART5_PRIORITY         12
 #endif
 
-/**
- * @brief   USART6 interrupt priority level setting.
- */
-#if !defined(STM32_SERIAL_USART6_PRIORITY) || defined(__DOXYGEN__)
-#define STM32_SERIAL_USART6_PRIORITY        12
-#endif
-/** @} */
-
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
@@ -164,13 +149,9 @@
 #error "UART5 not present in the selected device"
 #endif
 
-#if STM32_SERIAL_USE_USART6 && !STM32_HAS_USART6
-#error "USART6 not present in the selected device"
-#endif
-
 #if !STM32_SERIAL_USE_USART1 && !STM32_SERIAL_USE_USART2 &&                 \
     !STM32_SERIAL_USE_USART3 && !STM32_SERIAL_USE_UART4  &&                 \
-    !STM32_SERIAL_USE_UART5  && !STM32_SERIAL_USE_USART6
+    !STM32_SERIAL_USE_UART5
 #error "SERIAL driver activated but no USART/UART peripheral assigned"
 #endif
 
@@ -254,9 +235,6 @@ extern SerialDriver SD4;
 #endif
 #if STM32_SERIAL_USE_UART5 && !defined(__DOXYGEN__)
 extern SerialDriver SD5;
-#endif
-#if STM32_SERIAL_USE_USART6 && !defined(__DOXYGEN__)
-extern SerialDriver SD6;
 #endif
 
 #ifdef __cplusplus

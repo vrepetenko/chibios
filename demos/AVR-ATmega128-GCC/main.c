@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,16 +10,23 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include "ch.h"
 #include "hal.h"
-#include "test.h"
+#include "evtimer.h"
 
 #include "lcd.h"
 
@@ -28,17 +34,29 @@ static WORKING_AREA(waThread1, 32);
 static msg_t Thread1(void *arg) {
 
   while (TRUE) {
-    if (!palReadPad(IOPORT1, PORTA_BUTTON2))
-      palTogglePad(IOPORT1, PORTA_RELAY);
+    if (!(PINA & PORTA_BUTTON2))
+      PORTA ^= PORTA_RELAY;
     chThdSleepMilliseconds(1000);
   }
   return 0;
+}
+
+static void TimerHandler(eventid_t id) {
+  msg_t TestThread(void *p);
+
+  if (!(PINA & PORTA_BUTTON1))
+    TestThread(&SD2);
 }
 
 /*
  * Application entry point.
  */
 int main(void) {
+  static EvTimer evt;
+  static evhandler_t handlers[1] = {
+    TimerHandler
+  };
+  static EventListener el0;
 
   /*
    * System initializations.
@@ -65,13 +83,19 @@ int main(void) {
   lcdPuts(LCD_LINE2, "  Hello World!  ");
 
   /*
+   * Event Timer initialization.
+   */
+  evtInit(&evt, MS2ST(500));            /* Initializes an event timer object.   */
+  evtStart(&evt);                       /* Starts the event timer.              */
+  chEvtRegister(&evt.et_es, &el0, 0);   /* Registers on the timer event source. */
+
+  /*
    * Starts the LED blinker thread.
    */
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
-  while(TRUE) {
-    if (!palReadPad(IOPORT1, PORTA_BUTTON1))
-      TestThread(&SD2);
-    chThdSleepMilliseconds(500);
-  }
+  while(TRUE)
+    chEvtDispatch(handlers, chEvtWaitOne(ALL_EVENTS));
+
+  return 0;
 }

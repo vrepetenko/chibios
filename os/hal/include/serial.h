@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -35,25 +41,21 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @name    Serial status flags
- * @{
- */
-#define SD_PARITY_ERROR         32  /**< @brief Parity error happened.      */
-#define SD_FRAMING_ERROR        64  /**< @brief Framing error happened.     */
-#define SD_OVERRUN_ERROR        128 /**< @brief Overflow happened.          */
-#define SD_NOISE_ERROR          256 /**< @brief Noise on the line.          */
-#define SD_BREAK_DETECTED       512 /**< @brief Break detected.             */
-/** @} */
+/** @brief Parity error happened.*/
+#define SD_PARITY_ERROR         16
+/** @brief Framing error happened.*/
+#define SD_FRAMING_ERROR        32
+/** @brief Overflow happened.*/
+#define SD_OVERRUN_ERROR        64
+/** @brief Noise on the line.*/
+#define SD_NOISE_ERROR          128
+/** @brief Break detected.*/
+#define SD_BREAK_DETECTED       256
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
 
-/**
- * @name    Serial configuration options
- * @{
- */
 /**
  * @brief   Default bit rate.
  * @details Configuration parameter, this is the baud rate selected for the
@@ -73,7 +75,6 @@
 #if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
 #define SERIAL_BUFFERS_SIZE         16
 #endif
-/** @} */
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
@@ -110,8 +111,6 @@ typedef struct SerialDriver SerialDriver;
   _base_asynchronous_channel_methods
 
 /**
- * @extends BaseAsynchronousChannelVMT
- *
  * @brief   @p SerialDriver virtual methods table.
  */
 struct SerialDriverVMT {
@@ -135,10 +134,6 @@ struct SerialDriver {
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
-/**
- * @name    Macro Functions
- * @{
- */
 /**
  * @brief   Direct output check on a @p SerialDriver.
  * @note    This function bypasses the indirect access to the channel and
@@ -292,7 +287,6 @@ struct SerialDriver {
  */
 #define sdAsynchronousRead(sdp, b, n)                                       \
   chIQReadTimeout(&(sdp)->iqueue, b, n, TIME_IMMEDIATE)
-/** @} */
 
 /*===========================================================================*/
 /* External declarations.                                                    */

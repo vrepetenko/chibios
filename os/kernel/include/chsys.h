@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -29,10 +35,6 @@
 #ifndef _CHSYS_H_
 #define _CHSYS_H_
 
-/**
- * @name    Macro Functions
- * @{
- */
 #if !CH_NO_IDLE_THREAD || defined(__DOXYGEN__)
 /**
  * @brief   Returns a pointer to the idle thread.
@@ -70,19 +72,14 @@
 
 /**
  * @brief   Performs a context switch.
- * @note    Not a user function, it is meant to be invoked by the scheduler
- *          itself or from within the port layer.
+ * @note    This function should nevel be used from user code directly.
  *
  * @param[in] ntp       the thread to be switched in
  * @param[in] otp       the thread to be switched out
  *
  * @special
  */
-#define chSysSwitch(ntp, otp) {                                             \
-  dbg_trace(otp);                                                           \
-  THREAD_CONTEXT_SWITCH_HOOK(ntp, otp);                                     \
-  port_switch(ntp, otp);                                                    \
-}
+#define chSysSwitchI(ntp, otp) port_switch(ntp, otp)
 
 /**
  * @brief   Raises the system interrupt priority mask to the maximum level.
@@ -92,10 +89,7 @@
  *
  * @special
  */
-#define chSysDisable() {                                                    \
-  port_disable();                                                           \
-  dbg_check_disable();                                                      \
-}
+#define chSysDisable() port_disable()
 
 /**
  * @brief   Raises the system interrupt priority mask to system level.
@@ -108,10 +102,7 @@
  *
  * @special
  */
-#define chSysSuspend() {                                                    \
-  port_suspend();                                                           \
-  dbg_check_suspend();                                                      \
-}
+#define chSysSuspend() port_suspend()
 
 /**
  * @brief   Lowers the system interrupt priority mask to user level.
@@ -122,30 +113,45 @@
  *
  * @special
  */
-#define chSysEnable() {                                                     \
-  dbg_check_enable();                                                       \
-  port_enable();                                                            \
-}
+#define chSysEnable() port_enable()
 
 /**
  * @brief   Enters the kernel lock mode.
+ * @note    The use of kernel lock mode is not recommended in the user code,
+ *          it is a better idea to use the semaphores or mutexes instead.
+ * @see     CH_USE_NESTED_LOCKS
  *
  * @special
  */
-#define chSysLock()  {                                                      \
-  port_lock();                                                              \
-  dbg_check_lock();                                                         \
+#if CH_USE_NESTED_LOCKS || defined(__DOXYGEN__)
+#if CH_OPTIMIZE_SPEED || defined(__DOXYGEN__)
+#define chSysLock() {                                                   \
+  if (currp->p_locks++ == 0)                                            \
+    port_lock();                                                        \
 }
+#endif /* CH_OPTIMIZE_SPEED */
+#else /* !CH_USE_NESTED_LOCKS */
+#define chSysLock() port_lock()
+#endif /* !CH_USE_NESTED_LOCKS */
 
 /**
  * @brief   Leaves the kernel lock mode.
+ * @note    The use of kernel lock mode is not recommended in the user code,
+ *          it is a better idea to use the semaphores or mutexes instead.
+ * @see     CH_USE_NESTED_LOCKS
  *
  * @special
  */
-#define chSysUnlock() {                                                     \
-  dbg_check_unlock();                                                       \
-  port_unlock();                                                            \
+#if CH_USE_NESTED_LOCKS || defined(__DOXYGEN__)
+#if CH_OPTIMIZE_SPEED || defined(__DOXYGEN__)
+#define chSysUnlock() {                                                 \
+  if (--currp->p_locks == 0)                                            \
+    port_unlock();                                                      \
 }
+#endif /* CH_OPTIMIZE_SPEED */
+#else /* !CH_USE_NESTED_LOCKS */
+#define chSysUnlock() port_unlock()
+#endif /* !CH_USE_NESTED_LOCKS */
 
 /**
  * @brief   Enters the kernel lock mode from within an interrupt handler.
@@ -159,10 +165,7 @@
  *
  * @special
  */
-#define chSysLockFromIsr() {                                                \
-  port_lock_from_isr();                                                     \
-  dbg_check_lock_from_isr();                                                \
-}
+#define chSysLockFromIsr() port_lock_from_isr()
 
 /**
  * @brief   Leaves the kernel lock mode from within an interrupt handler.
@@ -177,69 +180,47 @@
  *
  * @special
  */
-#define chSysUnlockFromIsr() {                                              \
-  dbg_check_unlock_from_isr();                                              \
-  port_unlock_from_isr();                                                   \
-}
-/** @} */
+#define chSysUnlockFromIsr() port_unlock_from_isr()
 
-/**
- * @name    ISRs abstraction macros
- */
 /**
  * @brief   IRQ handler enter code.
  * @note    Usually IRQ handlers functions are also declared naked.
  * @note    On some architectures this macro can be empty.
- *
- * @special
  */
-#define CH_IRQ_PROLOGUE() {                                                 \
-  PORT_IRQ_PROLOGUE();                                                      \
-  dbg_check_enter_isr();                                                    \
-}
+#define CH_IRQ_PROLOGUE() PORT_IRQ_PROLOGUE()
 
 /**
  * @brief   IRQ handler exit code.
  * @note    Usually IRQ handlers function are also declared naked.
  * @note    This macro usually performs the final reschedule by using
- *          @p chSchIsPreemptionRequired() and @p chSchDoReschedule().
- *
- * @special
+ *          @p chSchRescRequiredI() and @p chSchDoRescheduleI().
  */
-#define CH_IRQ_EPILOGUE() {                                                 \
-  dbg_check_leave_isr();                                                    \
-  PORT_IRQ_EPILOGUE();                                                      \
-}
+#define CH_IRQ_EPILOGUE() PORT_IRQ_EPILOGUE()
 
 /**
  * @brief   Standard normal IRQ handler declaration.
  * @note    @p id can be a function name or a vector number depending on the
  *          port implementation.
- *
- * @special
  */
 #define CH_IRQ_HANDLER(id) PORT_IRQ_HANDLER(id)
-/** @} */
 
-/**
- * @name    Fast ISRs abstraction macros
- */
 /**
  * @brief   Standard fast IRQ handler declaration.
  * @note    @p id can be a function name or a vector number depending on the
  *          port implementation.
  * @note    Not all architectures support fast interrupts.
- *
- * @special
  */
 #define CH_FAST_IRQ_HANDLER(id) PORT_FAST_IRQ_HANDLER(id)
-/** @} */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
   void chSysInit(void);
   void chSysTimerHandlerI(void);
+#if CH_USE_NESTED_LOCKS && !CH_OPTIMIZE_SPEED
+  void chSysLock(void);
+  void chSysUnlock(void);
+#endif /* CH_USE_NESTED_LOCKS && !CH_OPTIMIZE_SPEED */
 #ifdef __cplusplus
 }
 #endif

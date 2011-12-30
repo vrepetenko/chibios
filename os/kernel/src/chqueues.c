@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -108,8 +114,6 @@ void chIQInit(InputQueue *iqp, uint8_t *bp, size_t size, qnotify_t infy) {
  */
 void chIQResetI(InputQueue *iqp) {
 
-  chDbgCheckClassI();
-
   iqp->q_rdptr = iqp->q_wrptr = iqp->q_buffer;
   iqp->q_counter = 0;
   while (notempty(&iqp->q_waiting))
@@ -131,8 +135,6 @@ void chIQResetI(InputQueue *iqp) {
  */
 msg_t chIQPutI(InputQueue *iqp, uint8_t b) {
 
-  chDbgCheckClassI();
-
   if (chIQIsFullI(iqp))
     return Q_FULL;
 
@@ -152,8 +154,9 @@ msg_t chIQPutI(InputQueue *iqp, uint8_t b) {
  * @details This function reads a byte value from an input queue. If the queue
  *          is empty then the calling thread is suspended until a byte arrives
  *          in the queue or a timeout occurs.
- * @note    The callback is invoked before reading the character from the
- *          buffer or before entering the state @p THD_STATE_WTQUEUE.
+ * @note    The callback is invoked if the queue is empty before entering the
+ *          @p THD_STATE_WTQUEUE state in order to solicit the low level to
+ *          start queue filling.
  *
  * @param[in] iqp       pointer to an @p InputQueue structure
  * @param[in] time      the number of ticks before the operation timeouts,
@@ -171,11 +174,12 @@ msg_t chIQGetTimeout(InputQueue *iqp, systime_t time) {
   uint8_t b;
 
   chSysLock();
-  if (iqp->q_notify)
-    iqp->q_notify(iqp);
-
   while (chIQIsEmptyI(iqp)) {
     msg_t msg;
+
+    if (iqp->q_notify)
+      iqp->q_notify(iqp);
+
     if ((msg = qwait((GenericQueue *)iqp, time)) < Q_OK) {
       chSysUnlock();
       return msg;
@@ -199,8 +203,9 @@ msg_t chIQGetTimeout(InputQueue *iqp, systime_t time) {
  *          been reset.
  * @note    The function is not atomic, if you need atomicity it is suggested
  *          to use a semaphore or a mutex for mutual exclusion.
- * @note    The callback is invoked before reading each character from the
- *          buffer or before entering the state @p THD_STATE_WTQUEUE.
+ * @note    The callback is invoked if the queue is empty before entering the
+ *          @p THD_STATE_WTQUEUE state in order to solicit the low level to
+ *          start queue filling.
  *
  * @param[in] iqp       pointer to an @p InputQueue structure
  * @param[out] bp       pointer to the data buffer
@@ -224,10 +229,10 @@ size_t chIQReadTimeout(InputQueue *iqp, uint8_t *bp,
 
   chSysLock();
   while (TRUE) {
-    if (nfy)
-      nfy(iqp);
-
     while (chIQIsEmptyI(iqp)) {
+      if (nfy)
+        nfy(iqp);
+
       if (qwait((GenericQueue *)iqp, time) != Q_OK) {
         chSysUnlock();
         return r;
@@ -284,8 +289,6 @@ void chOQInit(OutputQueue *oqp, uint8_t *bp, size_t size, qnotify_t onfy) {
  * @iclass
  */
 void chOQResetI(OutputQueue *oqp) {
-
-  chDbgCheckClassI();
 
   oqp->q_rdptr = oqp->q_wrptr = oqp->q_buffer;
   oqp->q_counter = chQSizeI(oqp);
@@ -351,8 +354,6 @@ msg_t chOQPutTimeout(OutputQueue *oqp, uint8_t b, systime_t time) {
  */
 msg_t chOQGetI(OutputQueue *oqp) {
   uint8_t b;
-
-  chDbgCheckClassI();
 
   if (chOQIsEmptyI(oqp))
     return Q_EMPTY;

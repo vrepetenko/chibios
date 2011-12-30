@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,18 +10,24 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include "ch.h"
 #include "hal.h"
 #include "test.h"
 #include "shell.h"
-#include "chprintf.h"
 
 #define SHELL_WA_SIZE       THD_WA_SIZE(4096)
 #define CONSOLE_WA_SIZE     THD_WA_SIZE(4096)
@@ -36,34 +41,53 @@ static Thread *shelltp2;
 
 static void cmd_mem(BaseChannel *chp, int argc, char *argv[]) {
   size_t n, size;
+  char buf[52];
 
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: mem\r\n");
+    shellPrintLine(chp, "Usage: mem");
     return;
   }
   n = chHeapStatus(NULL, &size);
-  chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
-  chprintf(chp, "heap fragments   : %u\r\n", n);
-  chprintf(chp, "heap free total  : %u bytes\r\n", size);
+  sprintf(buf, "core free memory : %i bytes", chCoreStatus());
+  shellPrintLine(chp, buf);
+  sprintf(buf, "heap fragments   : %i", n);
+  shellPrintLine(chp, buf);
+  sprintf(buf, "heap free total  : %i bytes", size);
+  shellPrintLine(chp, buf);
 }
 
 static void cmd_threads(BaseChannel *chp, int argc, char *argv[]) {
-  static const char *states[] = {THD_STATE_NAMES};
+  static const char *states[] = {
+    "READY",
+    "CURRENT",
+    "SUSPENDED",
+    "WTSEM",
+    "WTMTX",
+    "WTCOND",
+    "SLEEPING",
+    "WTEXIT",
+    "WTOREVT",
+    "WTANDEVT",
+    "SNDMSG",
+    "WTMSG",
+    "FINAL"
+  };
   Thread *tp;
+  char buf[60];
 
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: threads\r\n");
+    shellPrintLine(chp, "Usage: threads");
     return;
   }
-  chprintf(chp, "    addr    stack prio refs     state time\r\n");
+  shellPrintLine(chp, "    addr    stack prio refs     state time");
   tp = chRegFirstThread();
   do {
-    chprintf(chp, "%.8lx %.8lx %4lu %4lu %9s %lu\r\n",
-            (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
-            (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
-            states[tp->p_state], (uint32_t)tp->p_time);
+    sprintf(buf, "%8p %8p %4i %4i %9s %i",
+            tp, tp->p_ctx.esp, tp->p_prio, tp->p_refs - 1,
+            states[tp->p_state], tp->p_time);
+    shellPrintLine(chp, buf);
     tp = chRegNextThread(tp);
   } while (tp != NULL);
 }
@@ -73,13 +97,13 @@ static void cmd_test(BaseChannel *chp, int argc, char *argv[]) {
 
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: test\r\n");
+    shellPrintLine(chp, "Usage: test");
     return;
   }
   tp = chThdCreateFromHeap(NULL, TEST_WA_SIZE, chThdGetPriority(),
                            TestThread, chp);
   if (tp == NULL) {
-    chprintf(chp, "out of memory\r\n");
+    shellPrintLine(chp, "out of memory");
     return;
   }
   chThdWait(tp);
@@ -105,16 +129,15 @@ static const ShellConfig shell_cfg2 = {
 /*
  * Console print server done using synchronous messages. This makes the access
  * to the C printf() thread safe and the print operation atomic among threads.
- * In this example the message is the zero terminated string itself.
+ * In this example the message is the zero termitated string itself.
  */
 static msg_t console_thread(void *arg) {
 
   (void)arg;
   while (!chThdShouldTerminate()) {
-    Thread *tp = chMsgWait();
-    puts((char *)chMsgGet(tp));
+    puts((char *)chMsgWait());
     fflush(stdout);
-    chMsgRelease(tp, RDY_OK);
+    chMsgRelease(RDY_OK);
   }
   return 0;
 }

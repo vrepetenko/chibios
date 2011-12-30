@@ -1,6 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,2011 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -11,11 +10,18 @@
 
     ChibiOS/RT is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -33,10 +39,7 @@
 #define _CHCONF_H_
 
 /*===========================================================================*/
-/**
- * @name Kernel parameters and options
- * @{
- */
+/* Kernel parameters.                                                        */
 /*===========================================================================*/
 
 /**
@@ -61,6 +64,21 @@
  */
 #if !defined(CH_TIME_QUANTUM) || defined(__DOXYGEN__)
 #define CH_TIME_QUANTUM                 20
+#endif
+
+/**
+ * @brief   Nested locks.
+ * @details If enabled then the use of nested @p chSysLock() / @p chSysUnlock()
+ *          operations is allowed.<br>
+ *          For performance and code size reasons the recommended setting
+ *          is to leave this option disabled.<br>
+ *          You may use this option if you need to merge ChibiOS/RT with
+ *          external libraries that require nested lock/unlock operations.
+ *
+ * @note    The default is @p FALSE.
+ */
+#if !defined(CH_USE_NESTED_LOCKS) || defined(__DOXYGEN__)
+#define CH_USE_NESTED_LOCKS             FALSE
 #endif
 
 /**
@@ -95,13 +113,8 @@
 #define CH_NO_IDLE_THREAD               FALSE
 #endif
 
-/** @} */
-
 /*===========================================================================*/
-/**
- * @name Performance options
- * @{
- */
+/* Performance options.                                                      */
 /*===========================================================================*/
 
 /**
@@ -116,13 +129,28 @@
 #define CH_OPTIMIZE_SPEED               TRUE
 #endif
 
-/** @} */
+/**
+ * @brief   Exotic optimization.
+ * @details If defined then a CPU register is used as storage for the global
+ *          @p currp variable. Caching this variable in a register greatly
+ *          improves both space and time OS efficiency. A side effect is that
+ *          one less register has to be saved during the context switch
+ *          resulting in lower RAM usage and faster context switch.
+ *
+ * @note    This option is only usable with the GCC compiler and is only useful
+ *          on processors with many registers like ARM cores.
+ * @note    If this option is enabled then ALL the libraries linked to the
+ *          ChibiOS/RT code <b>must</b> be recompiled with the GCC option @p
+ *          -ffixed-@<reg@>.
+ * @note    This option must be enabled in the Makefile, it is listed here for
+ *          documentation only.
+ */
+#if defined(__DOXYGEN__)
+#define CH_CURRP_REGISTER_CACHE         "reg"
+#endif
 
 /*===========================================================================*/
-/**
- * @name Subsystem options
- * @{
- */
+/* Subsystem options.                                                        */
 /*===========================================================================*/
 
 /**
@@ -344,25 +372,9 @@
 #define CH_USE_DYNAMIC                  TRUE
 #endif
 
-/** @} */
-
 /*===========================================================================*/
-/**
- * @name Debug options
- * @{
- */
+/* Debug options.                                                            */
 /*===========================================================================*/
-
-/**
- * @brief   Debug option, system state check.
- * @details If enabled the correct call protocol for system APIs is checked
- *          at runtime.
- *
- * @note    The default is @p FALSE.
- */
-#if !defined(CH_DBG_SYSTEM_STATE_CHECK) || defined(__DOXYGEN__)
-#define CH_DBG_SYSTEM_STATE_CHECK       TRUE
-#endif
 
 /**
  * @brief   Debug option, parameters checks.
@@ -372,7 +384,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_ENABLE_CHECKS) || defined(__DOXYGEN__)
-#define CH_DBG_ENABLE_CHECKS            TRUE
+#define CH_DBG_ENABLE_CHECKS            FALSE
 #endif
 
 /**
@@ -384,7 +396,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_ENABLE_ASSERTS) || defined(__DOXYGEN__)
-#define CH_DBG_ENABLE_ASSERTS           TRUE
+#define CH_DBG_ENABLE_ASSERTS           FALSE
 #endif
 
 /**
@@ -395,7 +407,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_ENABLE_TRACE) || defined(__DOXYGEN__)
-#define CH_DBG_ENABLE_TRACE             TRUE
+#define CH_DBG_ENABLE_TRACE             FALSE
 #endif
 
 /**
@@ -409,7 +421,7 @@
  *          @p panic_msg variable set to @p NULL.
  */
 #if !defined(CH_DBG_ENABLE_STACK_CHECK) || defined(__DOXYGEN__)
-#define CH_DBG_ENABLE_STACK_CHECK       TRUE
+#define CH_DBG_ENABLE_STACK_CHECK       FALSE
 #endif
 
 /**
@@ -421,7 +433,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_FILL_THREADS) || defined(__DOXYGEN__)
-#define CH_DBG_FILL_THREADS             TRUE
+#define CH_DBG_FILL_THREADS             FALSE
 #endif
 
 /**
@@ -437,13 +449,8 @@
 #define CH_DBG_THREADS_PROFILING        TRUE
 #endif
 
-/** @} */
-
 /*===========================================================================*/
-/**
- * @name Kernel hooks
- * @{
- */
+/* Kernel hooks.                                                             */
 /*===========================================================================*/
 
 /**
@@ -483,16 +490,6 @@
 #endif
 
 /**
- * @brief   Context switch hook.
- * @details This hook is invoked just before switching between threads.
- */
-#if !defined(THREAD_CONTEXT_SWITCH_HOOK) || defined(__DOXYGEN__)
-#define THREAD_CONTEXT_SWITCH_HOOK(ntp, otp) {                              \
-  /* System halt code here.*/                                               \
-}
-#endif
-
-/**
  * @brief   Idle Loop hook.
  * @details This hook is continuously invoked by the idle thread loop.
  */
@@ -523,8 +520,6 @@
   /* System halt code here.*/                                               \
 }
 #endif
-
-/** @} */
 
 /*===========================================================================*/
 /* Port-specific settings (override port settings defaulted in chcore.h).    */
