@@ -149,7 +149,7 @@ static struct pbuf *low_level_input(struct netif *netif) {
 
   (void)netif;
   if (macWaitReceiveDescriptor(&ETH1, &rd, TIME_IMMEDIATE) == RDY_OK) {
-    len = (u16_t)rd.size;
+    len = (u16_t)rd.rd_size;
 
 #if ETH_PAD_SIZE
     len += ETH_PAD_SIZE;        /* allow room for Ethernet padding */
@@ -229,7 +229,6 @@ msg_t lwip_thread(void *p) {
   EventListener el0, el1;
   struct ip_addr ip, gateway, netmask;
   static struct netif thisif;
-  static const MACConfig mac_config = {thisif.hwaddr};
 
   /* Initializes the thing.*/
   sys_init();
@@ -262,7 +261,7 @@ msg_t lwip_thread(void *p) {
     LWIP_GATEWAY(&gateway);
     LWIP_NETMASK(&netmask);
   }
-  macStart(&ETH1, &mac_config);
+  macSetAddress(&ETH1, thisif.hwaddr);
   netif_add(&thisif, &ip, &netmask, &gateway, NULL, ethernetif_init, tcpip_input);
 
   netif_set_default(&thisif);

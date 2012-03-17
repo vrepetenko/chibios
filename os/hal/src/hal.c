@@ -37,10 +37,6 @@
 #include "hal.h"
 
 /*===========================================================================*/
-/* Driver local definitions.                                                 */
-/*===========================================================================*/
-
-/*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
@@ -69,9 +65,6 @@ void halInit(void) {
 
   hal_lld_init();
 
-#if HAL_USE_TM || defined(__DOXYGEN__)
-  tmInit();
-#endif
 #if HAL_USE_PAL || defined(__DOXYGEN__)
   palInit(&pal_default_config);
 #endif
@@ -80,18 +73,6 @@ void halInit(void) {
 #endif
 #if HAL_USE_CAN || defined(__DOXYGEN__)
   canInit();
-#endif
-#if HAL_USE_EXT || defined(__DOXYGEN__)
-  extInit();
-#endif
-#if HAL_USE_GPT || defined(__DOXYGEN__)
-  gptInit();
-#endif
-#if HAL_USE_I2C || defined(__DOXYGEN__)
-  i2cInit();
-#endif
-#if HAL_USE_ICU || defined(__DOXYGEN__)
-  icuInit();
 #endif
 #if HAL_USE_MAC || defined(__DOXYGEN__)
   macInit();
@@ -102,26 +83,14 @@ void halInit(void) {
 #if HAL_USE_SERIAL || defined(__DOXYGEN__)
   sdInit();
 #endif
-#if HAL_USE_SDC || defined(__DOXYGEN__)
-  sdcInit();
-#endif
 #if HAL_USE_SPI || defined(__DOXYGEN__)
   spiInit();
-#endif
-#if HAL_USE_UART || defined(__DOXYGEN__)
-  uartInit();
-#endif
-#if HAL_USE_USB || defined(__DOXYGEN__)
-  usbInit();
 #endif
 #if HAL_USE_MMC_SPI || defined(__DOXYGEN__)
   mmcInit();
 #endif
-#if HAL_USE_SERIAL_USB || defined(__DOXYGEN__)
-  sduInit();
-#endif
-#if HAL_USE_RTC || defined(__DOXYGEN__)
-  rtcInit();
+#if HAL_USE_UART || defined(__DOXYGEN__)
+  uartInit();
 #endif
   /* Board specific initialization.*/
   boardInit();

@@ -2,7 +2,6 @@
 
 # Automatic compiler options
 OPT = $(USE_OPT)
-COPT = $(USE_COPT)
 CPPOPT = $(USE_CPPOPT)
 ifeq ($(USE_CURRP_CACHING),yes)
   OPT += -ffixed-r7 -DCH_CURRP_REGISTER_CACHE='"r7"'
@@ -34,7 +33,7 @@ LIBS    = $(DLIBS) $(ULIBS)
 MCFLAGS = -mmcu=$(MCU)
 ODFLAGS	= -x --syms
 ASFLAGS = $(MCFLAGS) -Wa,-amhls=$(<:.s=.lst) $(ADEFS)
-CPFLAGS = $(MCFLAGS) $(OPT) $(COPT) $(WARN) -Wa,-alms=$(<:.c=.lst) $(DEFS)
+CPFLAGS = $(MCFLAGS) $(OPT) $(WARN) -Wa,-alms=$(<:.c=.lst) $(DEFS)
 ifeq ($(LINK_GC),yes)
   LDFLAGS = $(MCFLAGS) -T$(LDSCRIPT) -Wl,-Map=$(PROJECT).map,--cref,--no-warn-mismatch,--gc-sections $(LLIBDIR)
 else
@@ -47,9 +46,7 @@ CPFLAGS += -MD -MP -MF .dep/$(@F).d
 #
 # Makefile rules
 #
-all: $(OBJS) $(PROJECT).elf $(PROJECT).hex $(PROJECT).bin $(PROJECT).dmp MAKE_ALL_RULE_HOOK
-
-MAKE_ALL_RULE_HOOK:
+all: $(OBJS) $(PROJECT).elf $(PROJECT).hex $(PROJECT).bin $(PROJECT).dmp
 
 $(CPPOBJS) : %.o : %.cpp
 	@echo

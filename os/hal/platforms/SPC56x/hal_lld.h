@@ -43,11 +43,6 @@
 /*===========================================================================*/
 
 /**
- * @brief   Defines the support for realtime counters in the HAL.
- */
-#define HAL_IMPLEMENTS_COUNTERS FALSE
-
-/**
  * @brief   Platform name.
  */
 #define PLATFORM_NAME           "SPC563M64"
@@ -125,7 +120,7 @@
  * @note    The effective divider factor is this value plus one.
  */
 #if !defined(SPC563_CLK_PREDIV) || defined(__DOXYGEN__)
-#define SPC563_CLK_PREDIV           1
+#define SPC563_CLK_PREDIV           0
 #endif
 
 /**
@@ -133,7 +128,7 @@
  * @note    Must be in range 32...96.
  */
 #if !defined(SPC563_CLK_MFD) || defined(__DOXYGEN__)
-#define SPC563_CLK_MFD              80
+#define SPC563_CLK_MFD              40
 #endif
 
 /**

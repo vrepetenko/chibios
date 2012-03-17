@@ -32,7 +32,6 @@
 #include "hal.h"
 #include "test.h"
 #include "shell.h"
-#include "chprintf.h"
 #include "evtimer.h"
 #include "ff.h"
 
@@ -81,7 +80,8 @@ static bool_t mmc_is_protected(void) {
 /* Generic large buffer.*/
 uint8_t fbuff[1024];
 
-static FRESULT scan_files(BaseChannel *chp, char *path) {
+static FRESULT scan_files(char *path)
+{
   FRESULT res;
   FILINFO fno;
   DIR dir;
@@ -99,15 +99,14 @@ static FRESULT scan_files(BaseChannel *chp, char *path) {
         continue;
       fn = fno.fname;
       if (fno.fattrib & AM_DIR) {
-        path[i++] = '/';
-        strcpy(&path[i], fn);
-        res = scan_files(chp, path);
+        siprintf(&path[i], "/%s", fn);
+        res = scan_files(path);
         if (res != FR_OK)
           break;
         path[i] = 0;
       }
       else {
-        chprintf(chp, "%s/%s\r\n", path, fn);
+        iprintf("%s/%s\r\n", path, fn);
       }
     }
   }
@@ -123,34 +122,55 @@ static FRESULT scan_files(BaseChannel *chp, char *path) {
 
 static void cmd_mem(BaseChannel *chp, int argc, char *argv[]) {
   size_t n, size;
+  char buf[52];
 
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: mem\r\n");
+    shellPrintLine(chp, "Usage: mem");
     return;
   }
   n = chHeapStatus(NULL, &size);
-  chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
-  chprintf(chp, "heap fragments   : %u\r\n", n);
-  chprintf(chp, "heap free total  : %u bytes\r\n", size);
+  siprintf(buf, "core free memory : %lu bytes", chCoreStatus());
+  shellPrintLine(chp, buf);
+  siprintf(buf, "heap fragments   : %lu", n);
+  shellPrintLine(chp, buf);
+  siprintf(buf, "heap free total  : %lu bytes", size);
+  shellPrintLine(chp, buf);
 }
 
 static void cmd_threads(BaseChannel *chp, int argc, char *argv[]) {
-  static const char *states[] = {THD_STATE_NAMES};
+  static const char *states[] = {
+    "READY",
+    "CURRENT",
+    "SUSPENDED",
+    "WTSEM",
+    "WTMTX",
+    "WTCOND",
+    "SLEEPING",
+    "WTEXIT",
+    "WTOREVT",
+    "WTANDEVT",
+    "SNDMSG",
+    "WTMSG",
+    "WTQUEUE",
+    "FINAL"
+  };
   Thread *tp;
+  char buf[60];
 
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: threads\r\n");
+    shellPrintLine(chp, "Usage: threads");
     return;
   }
-  chprintf(chp, "    addr    stack prio refs     state time\r\n");
+  shellPrintLine(chp, "    addr    stack prio refs     state time");
   tp = chRegFirstThread();
   do {
-    chprintf(chp, "%.8lx %.8lx %4lu %4lu %9s %lu\r\n",
-            (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
-            (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
-            states[tp->p_state], (uint32_t)tp->p_time);
+    siprintf(buf, "%8lx %8lx %4u %4i %9s %u",
+             (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
+             (unsigned int)tp->p_prio, tp->p_refs - 1,
+             states[tp->p_state], (unsigned int)tp->p_time);
+    shellPrintLine(chp, buf);
     tp = chRegNextThread(tp);
   } while (tp != NULL);
 }
@@ -160,13 +180,13 @@ static void cmd_test(BaseChannel *chp, int argc, char *argv[]) {
 
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: test\r\n");
+    shellPrintLine(chp, "Usage: test");
     return;
   }
   tp = chThdCreateFromHeap(NULL, TEST_WA_SIZE, chThdGetPriority(),
                            TestThread, chp);
   if (tp == NULL) {
-    chprintf(chp, "out of memory\r\n");
+    shellPrintLine(chp, "out of memory");
     return;
   }
   chThdWait(tp);
@@ -179,24 +199,25 @@ static void cmd_tree(BaseChannel *chp, int argc, char *argv[]) {
 
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: tree\r\n");
+    shellPrintLine(chp, "Usage: tree");
     return;
   }
   if (!fs_ready) {
-    chprintf(chp, "File System not mounted\r\n");
+    shellPrintLine(chp, "File System not mounted");
     return;
   }
   err = f_getfree("/", &clusters, &fsp);
   if (err != FR_OK) {
-    chprintf(chp, "FS: f_getfree() failed\r\n");
+    shellPrintLine(chp, "FS: f_getfree() failed");
     return;
   }
-  chprintf(chp,
-           "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\r\n",
+  siprintf((void *)fbuff,
+           "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free",
            clusters, (uint32_t)MMC_FS.csize,
            clusters * (uint32_t)MMC_FS.csize * (uint32_t)MMC_SECTOR_SIZE);
+  shellPrintLine(chp, (void *)fbuff);
   fbuff[0] = 0;
-  scan_files(chp, (char *)fbuff);
+  scan_files((char *)fbuff);
 }
 
 static const ShellCommand commands[] = {
@@ -309,8 +330,8 @@ int main(void) {
    * Normal main() thread activity, in this demo it does nothing except
    * sleeping in a loop and listen for events.
    */
-  chEvtRegister(&MMCD1.inserted_event, &el0, 0);
-  chEvtRegister(&MMCD1.removed_event, &el1, 1);
+  chEvtRegister(&MMCD1.mmc_inserted_event, &el0, 0);
+  chEvtRegister(&MMCD1.mmc_removed_event, &el1, 1);
   while (TRUE) {
     if (!shelltp)
       shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);

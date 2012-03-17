@@ -76,11 +76,6 @@ typedef struct {
 typedef uint32_t ioportmask_t;
 
 /**
- * @brief   Digital I/O modes.
- */
-typedef uint32_t iomode_t;
-
-/**
  * @brief   Port Identifier.
  * @details This type can be a scalar or some kind of pointer, do not make
  *          any assumption about it, use the provided macros when populating
@@ -115,6 +110,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Reads the physical I/O port states.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  *
  * @param[in] port      port identifier
  * @return              The port bits.
@@ -127,6 +124,8 @@ typedef uint32_t ioportid_t;
  * @brief   Reads the output latch.
  * @details The purpose of this function is to read back the latched output
  *          value.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  *
  * @param[in] port      port identifier
  * @return              The latched logical states.
@@ -137,6 +136,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Writes a bits mask on a I/O port.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  *
  * @param[in] port      port identifier
  * @param[in] bits      bits to be written on the specified port
@@ -147,6 +148,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Sets a bits mask on a I/O port.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -160,6 +163,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Clears a bits mask on a I/O port.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -173,6 +178,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Toggles a bits mask on a I/O port.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -186,6 +193,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Reads a group of bits.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -201,6 +210,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Writes a group of bits.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -219,20 +230,22 @@ typedef uint32_t ioportid_t;
  * @brief   Pads group mode setup.
  * @details This function programs a pads group belonging to the same port
  *          with the specified mode.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    Programming an unknown or unsupported mode is silently ignored.
  *
  * @param[in] port      port identifier
  * @param[in] mask      group mask
- * @param[in] offset    group bit offset within the port
  * @param[in] mode      group mode
  *
  * @notapi
  */
-#define pal_lld_setgroupmode(port, mask, offset, mode)                      \
-  _pal_lld_setgroupmode(port, mask << offset, mode)
+#define pal_lld_setgroupmode(port, mask, mode)
 
 /**
  * @brief   Reads a logical state from an I/O pad.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -266,6 +279,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Sets a pad logical state to @p PAL_HIGH.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -279,6 +294,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Clears a pad logical state to @p PAL_LOW.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -292,6 +309,8 @@ typedef uint32_t ioportid_t;
 
 /**
  * @brief   Toggles a pad logical state.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.
@@ -306,6 +325,8 @@ typedef uint32_t ioportid_t;
 /**
  * @brief   Pad mode setup.
  * @details This function programs a pad with the specified mode.
+ * @note    This function is not meant to be invoked directly by the
+ *          application code.
  * @note    The @ref PAL provides a default software implementation of this
  *          functionality, implement this function if can optimize it by using
  *          special hardware functionalities or special coding.

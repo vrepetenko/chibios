@@ -85,10 +85,8 @@ void ChkIntSources(void) {
 
 #if HAL_USE_SERIAL
   if (sd_lld_interrupt_pending()) {
-    dbg_check_lock();
-    if (chSchIsPreemptionRequired())
-      chSchDoReschedule();
-    dbg_check_unlock();
+    if (chSchIsRescRequiredExI())
+      chSchDoRescheduleI();
     return;
   }
 #endif
@@ -96,19 +94,9 @@ void ChkIntSources(void) {
   gettimeofday(&tv, NULL);
   if (timercmp(&tv, &nextcnt, >=)) {
     timeradd(&nextcnt, &tick, &nextcnt);
-
-    CH_IRQ_PROLOGUE();
-
-    chSysLockFromIsr();
     chSysTimerHandlerI();
-    chSysUnlockFromIsr();
-
-    CH_IRQ_EPILOGUE();
-
-    dbg_check_lock();
-    if (chSchIsPreemptionRequired())
-      chSchDoReschedule();
-    dbg_check_unlock();
+    if (chSchIsRescRequiredExI())
+      chSchDoRescheduleI();
   }
 }
 

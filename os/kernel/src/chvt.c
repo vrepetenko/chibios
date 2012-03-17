@@ -47,7 +47,7 @@ VTList vtlist;
  *
  * @notapi
  */
-void _vt_init(void) {
+void vt_init(void) {
 
   vtlist.vt_next = vtlist.vt_prev = (void *)&vtlist;
   vtlist.vt_time = (systime_t)-1;
@@ -77,7 +77,6 @@ void _vt_init(void) {
 void chVTSetI(VirtualTimer *vtp, systime_t time, vtfunc_t vtfunc, void *par) {
   VirtualTimer *p;
 
-  chDbgCheckClassI();
   chDbgCheck((vtp != NULL) && (vtfunc != NULL) && (time != TIME_IMMEDIATE),
              "chVTSetI");
 
@@ -106,7 +105,6 @@ void chVTSetI(VirtualTimer *vtp, systime_t time, vtfunc_t vtfunc, void *par) {
  */
 void chVTResetI(VirtualTimer *vtp) {
 
-  chDbgCheckClassI();
   chDbgCheck(vtp != NULL, "chVTResetI");
   chDbgAssert(vtp->vt_func != NULL,
               "chVTResetI(), #1",

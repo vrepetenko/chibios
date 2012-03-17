@@ -57,8 +57,8 @@ void _port_switch(Thread *otp) {
  */
 void _port_thread_start(void) {
 
-  chSysUnlock();
-  _asm("        popw    x               \n");
+  _asm("        rim                     \n"
+       "        popw    x               \n");
 }
 
 /**

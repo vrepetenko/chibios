@@ -42,17 +42,18 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @name    UART status flags
- * @{
- */
-#define UART_NO_ERROR           0   /**< @brief No pending conditions.      */
-#define UART_PARITY_ERROR       4   /**< @brief Parity error happened.      */
-#define UART_FRAMING_ERROR      8   /**< @brief Framing error happened.     */
-#define UART_OVERRUN_ERROR      16  /**< @brief Overflow happened.          */
-#define UART_NOISE_ERROR        32  /**< @brief Noise on the line.          */
-#define UART_BREAK_DETECTED     64  /**< @brief Break detected.             */
-/** @} */
+/** @brief No pending conditions.*/
+#define UART_NO_ERROR           0
+/** @brief Parity error happened.*/
+#define UART_PARITY_ERROR       4
+/** @brief Framing error happened.*/
+#define UART_FRAMING_ERROR      8
+/** @brief Overflow happened.*/
+#define UART_OVERRUN_ERROR      16
+/** @brief Noise on the line.*/
+#define UART_NOISE_ERROR        32
+/** @brief Break detected.*/
+#define UART_BREAK_DETECTED     64
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */

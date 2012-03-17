@@ -121,7 +121,6 @@ void chMtxLock(Mutex *mp) {
 void chMtxLockS(Mutex *mp) {
   Thread *ctp = currp;
 
-  chDbgCheckClassS();
   chDbgCheck(mp != NULL, "chMtxLockS");
 
   /* Ia the mutex already locked? */
@@ -152,7 +151,7 @@ void chMtxLockS(Mutex *mp) {
       case THD_STATE_WTSEM:
 #endif
 #if CH_USE_MESSAGES && CH_USE_MESSAGES_PRIORITY
-      case THD_STATE_SNDMSGQ:
+      case THD_STATE_SNDMSG:
 #endif
         /* Re-enqueues tp with its new priority on the queue.*/
         prio_insert(dequeue(tp), (ThreadsQueue *)tp->p_u.wtobjp);
@@ -165,7 +164,6 @@ void chMtxLockS(Mutex *mp) {
 #endif
         /* Re-enqueues tp with its new priority on the ready list.*/
         chSchReadyI(dequeue(tp));
-        break;
       }
       break;
     }
@@ -233,7 +231,6 @@ bool_t chMtxTryLock(Mutex *mp) {
  */
 bool_t chMtxTryLockS(Mutex *mp) {
 
-  chDbgCheckClassS();
   chDbgCheck(mp != NULL, "chMtxTryLockS");
 
   if (mp->m_owner != NULL)
@@ -318,7 +315,6 @@ Mutex *chMtxUnlockS(void) {
   Thread *ctp = currp;
   Mutex *ump, *mp;
 
-  chDbgCheckClassS();
   chDbgAssert(ctp->p_mtxlist != NULL,
               "chMtxUnlockS(), #1",
               "owned mutexes list empty");

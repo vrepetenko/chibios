@@ -36,10 +36,6 @@
 #ifndef _CHCORE_H_
 #define _CHCORE_H_
 
-#if CH_DBG_ENABLE_STACK_CHECK
-#error "option CH_DBG_ENABLE_STACK_CHECK not supported by this port"
-#endif
-
 /*===========================================================================*/
 /* Port configurable parameters.                                             */
 /*===========================================================================*/
@@ -48,7 +44,7 @@
  * @brief   Enables the use of the WFI instruction in the idle thread loop.
  */
 #ifndef STM8_ENABLE_WFI_IDLE
-#define STM8_ENABLE_WFI_IDLE            FALSE
+#define STM8_ENABLE_WFI_IDLE    FALSE
 #endif
 
 /*===========================================================================*/
@@ -63,17 +59,7 @@
 /**
  * @brief   Name of the implemented architecture.
  */
-#define CH_ARCHITECTURE_NAME            "STM8"
-
-/**
- * @brief   Name of the compiler supported by this port.
- */
-#define CH_COMPILER_NAME                "Cosmic"
-
-/**
- * @brief   Port-specific information string.
- */
-#define CH_PORT_INFO                    "None"
+#define CH_ARCHITECTURE_NAME    "STM8"
 
 /*===========================================================================*/
 /* Port implementation part.                                                 */
@@ -166,10 +152,10 @@ struct stm8_startctx {
  * @brief   Stack size for the system idle thread.
  * @details This size depends on the idle thread implementation, usually
  *          the idle thread should take no more space than those reserved
- *          by @p PORT_INT_REQUIRED_STACK.
+ *          by @p INT_REQUIRED_STACK.
  */
-#ifndef PORT_IDLE_THREAD_STACK_SIZE
-#define PORT_IDLE_THREAD_STACK_SIZE     0
+#ifndef IDLE_THREAD_STACK_SIZE
+#define IDLE_THREAD_STACK_SIZE      0
 #endif
 
 /**
@@ -177,8 +163,8 @@ struct stm8_startctx {
  * @details This is a safe value, you may trim it down after reading the
  *          right size in the map file.
  */
-#ifndef PORT_INT_REQUIRED_STACK
-#define PORT_INT_REQUIRED_STACK         48
+#ifndef INT_REQUIRED_STACK
+#define INT_REQUIRED_STACK          48
 #endif
 
 /**
@@ -192,7 +178,7 @@ struct stm8_startctx {
 #define THD_WA_SIZE(n) STACK_ALIGN(sizeof(Thread) +                         \
                                    (sizeof(struct intctx) - 1) +            \
                                    (sizeof(struct extctx) - 1) +            \
-                                   (n) + (PORT_INT_REQUIRED_STACK))
+                                   (n) + (INT_REQUIRED_STACK))
 
 /**
  * @brief   Static working area allocation.
@@ -214,10 +200,8 @@ struct stm8_startctx {
  *          enabled to invoke system APIs.
  */
 #define PORT_IRQ_EPILOGUE() {                                               \
-  dbg_check_lock();                                                         \
-  if (chSchIsPreemptionRequired())                                          \
-    chSchDoReschedule();                                                    \
-  dbg_check_unlock();                                                       \
+  if (chSchIsRescRequiredExI())                                             \
+    chSchDoRescheduleI();                                                   \
 }
 
 /**

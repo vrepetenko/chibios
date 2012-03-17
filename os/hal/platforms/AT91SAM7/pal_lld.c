@@ -128,9 +128,9 @@ void _pal_lld_init(const PALConfig *config) {
  */
 void _pal_lld_setgroupmode(ioportid_t port,
                            ioportmask_t mask,
-                           iomode_t mode) {
+                           uint_fast8_t mode) {
 
-  switch (mode) {
+  switch (mode & PAL_MODE_MASK) {
   case PAL_MODE_RESET:
   case PAL_MODE_INPUT_PULLUP:
     port->PIO_PPUER = mask;

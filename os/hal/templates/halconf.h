@@ -42,13 +42,6 @@
 #include "mcuconf.h"
 
 /**
- * @name    Drivers enable switches
- */
-#if !defined(HAL_USE_TM) || defined(__DOXYGEN__)
-#define HAL_USE_TM                  TRUE
-#endif
-
-/**
  * @brief   Enables the PAL subsystem.
  */
 #if !defined(HAL_USE_PAL) || defined(__DOXYGEN__)
@@ -67,34 +60,6 @@
  */
 #if !defined(HAL_USE_CAN) || defined(__DOXYGEN__)
 #define HAL_USE_CAN                 TRUE
-#endif
-
-/**
- * @brief   Enables the EXT subsystem.
- */
-#if !defined(HAL_USE_EXT) || defined(__DOXYGEN__)
-#define HAL_USE_EXT                 FALSE
-#endif
-
-/**
- * @brief   Enables the GPT subsystem.
- */
-#if !defined(HAL_USE_GPT) || defined(__DOXYGEN__)
-#define HAL_USE_GPT                 FALSE
-#endif
-
-/**
- * @brief   Enables the I2C subsystem.
- */
-#if !defined(HAL_USE_I2C) || defined(__DOXYGEN__)
-#define HAL_USE_I2C                 FALSE
-#endif
-
-/**
- * @brief   Enables the ICU subsystem.
- */
-#if !defined(HAL_USE_ICU) || defined(__DOXYGEN__)
-#define HAL_USE_ICU                 FALSE
 #endif
 
 /**
@@ -119,31 +84,10 @@
 #endif
 
 /**
- * @brief   Enables the RTC subsystem.
- */
-#if !defined(HAL_USE_RTC) || defined(__DOXYGEN__)
-#define HAL_USE_RTC                 FALSE
-#endif
-
-/**
- * @brief   Enables the SDC subsystem.
- */
-#if !defined(HAL_USE_SDC) || defined(__DOXYGEN__)
-#define HAL_USE_SDC                 FALSE
-#endif
-
-/**
  * @brief   Enables the SERIAL subsystem.
  */
 #if !defined(HAL_USE_SERIAL) || defined(__DOXYGEN__)
 #define HAL_USE_SERIAL              TRUE
-#endif
-
-/**
- * @brief   Enables the SERIAL over USB subsystem.
- */
-#if !defined(HAL_USE_SERIAL_USB) || defined(__DOXYGEN__)
-#define HAL_USE_SERIAL_USB          TRUE
 #endif
 
 /**
@@ -160,19 +104,8 @@
 #define HAL_USE_UART                TRUE
 #endif
 
-/**
- * @brief   Enables the USB subsystem.
- */
-#if !defined(HAL_USE_USB) || defined(__DOXYGEN__)
-#define HAL_USE_USB                 TRUE
-#endif
-/** @} */
-
 /*===========================================================================*/
-/**
- * @name ADC driver related setting
- * @{
- */
+/* ADC driver related settings.                                              */
 /*===========================================================================*/
 
 /**
@@ -190,13 +123,9 @@
 #if !defined(ADC_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
 #define ADC_USE_MUTUAL_EXCLUSION    TRUE
 #endif
-/** @} */
 
 /*===========================================================================*/
-/**
- * @name CAN driver related setting
- * @{
- */
+/* CAN driver related settings.                                              */
 /*===========================================================================*/
 
 /**
@@ -205,13 +134,9 @@
 #if !defined(CAN_USE_SLEEP_MODE) || defined(__DOXYGEN__)
 #define CAN_USE_SLEEP_MODE          TRUE
 #endif
-/** @} */
 
 /*===========================================================================*/
-/**
- * @name I2C driver related setting
- * @{
- */
+/* I2C driver related settings.                                              */
 /*===========================================================================*/
 
 /**
@@ -220,28 +145,13 @@
 #if !defined(I2C_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
 #define I2C_USE_MUTUAL_EXCLUSION    TRUE
 #endif
-/** @} */
 
 /*===========================================================================*/
-/**
- * @name MAC driver related setting
- * @{
- */
+/* MAC driver related settings.                                              */
 /*===========================================================================*/
 
-/**
- * @brief   Enables an event sources for incoming packets.
- */
-#if !defined(MAC_USE_EVENTS) || defined(__DOXYGEN__)
-#define MAC_USE_EVENTS              TRUE
-#endif
-/** @} */
-
 /*===========================================================================*/
-/**
- * @name MMC_SPI driver related setting
- * @{
- */
+/* MMC_SPI driver related settings.                                          */
 /*===========================================================================*/
 
 /**
@@ -288,48 +198,17 @@
 #if !defined(MMC_USE_SPI_POLLING) || defined(__DOXYGEN__)
 #define MMC_USE_SPI_POLLING         TRUE
 #endif
-/** @} */
 
 /*===========================================================================*/
-/**
- * @name SDC driver related setting
- * @{
- */
+/* PAL driver related settings.                                              */
 /*===========================================================================*/
 
-/**
- * @brief   Number of initialization attempts before rejecting the card.
- * @note    Attempts are performed at 10mS intevals.
- */
-#if !defined(SDC_INIT_RETRY) || defined(__DOXYGEN__)
-#define SDC_INIT_RETRY              100
-#endif
-
-/**
- * @brief   Include support for MMC cards.
- * @note    MMC support is not yet implemented so this option must be kept
- *          at @p FALSE.
- */
-#if !defined(SDC_MMC_SUPPORT) || defined(__DOXYGEN__)
-#define SDC_MMC_SUPPORT             FALSE
-#endif
-
-/**
- * @brief   Delays insertions.
- * @details If enabled this options inserts delays into the MMC waiting
- *          routines releasing some extra CPU time for the threads with
- *          lower priority, this may slow down the driver a bit however.
- */
-#if !defined(SDC_NICE_WAITING) || defined(__DOXYGEN__)
-#define SDC_NICE_WAITING            TRUE
-#endif
-/** @} */
+/*===========================================================================*/
+/* PWM driver related settings.                                              */
+/*===========================================================================*/
 
 /*===========================================================================*/
-/**
- * @name SERIAL driver related setting
- * @{
- */
+/* SERIAL driver related settings.                                           */
 /*===========================================================================*/
 
 /**
@@ -351,32 +230,9 @@
 #if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
 #define SERIAL_BUFFERS_SIZE         16
 #endif
-/** @} */
 
 /*===========================================================================*/
-/**
- * @name SERIAL_USB driver related setting
- * @{
- */
-/*===========================================================================*/
-
-/**
- * @brief   Serial over USB buffers size.
- * @details Configuration parameter, the buffer size must be a multiple of
- *          the USB data endpoint maximum packet size.
- * @note    The default is 64 bytes for both the transmission and receive
- *          buffers.
- */
-#if !defined(SERIAL_USB_BUFFERS_SIZE) || defined(__DOXYGEN__)
-#define SERIAL_USB_BUFFERS_SIZE     64
-#endif
-/** @} */
-
-/*===========================================================================*/
-/**
- * @name SPI driver related setting
- * @{
- */
+/* SPI driver related settings.                                              */
 /*===========================================================================*/
 
 /**
@@ -394,7 +250,10 @@
 #if !defined(SPI_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
 #define SPI_USE_MUTUAL_EXCLUSION    TRUE
 #endif
-/** @} */
+
+/*===========================================================================*/
+/* UART driver related settings.                                             */
+/*===========================================================================*/
 
 #endif /* _HALCONF_H_ */
 

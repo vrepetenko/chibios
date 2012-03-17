@@ -72,7 +72,7 @@ static MemoryHeap default_heap;
  *
  * @notapi
  */
-void _heap_init(void) {
+void heap_init(void) {
   default_heap.h_provider = chCoreAlloc;
   default_heap.h_free.h.u.next = (union heap_header *)NULL;
   default_heap.h_free.h.size = 0;
@@ -280,7 +280,7 @@ static Mutex            hmtx;
 static Semaphore        hsem;
 #endif
 
-void _heap_init(void) {
+void heap_init(void) {
 
 #if CH_USE_MUTEXES
   chMtxInit(&hmtx);

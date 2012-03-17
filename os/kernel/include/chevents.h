@@ -64,11 +64,6 @@ typedef struct EventSource {
 } EventSource;
 
 /**
- * @brief   Event Handler callback function.
- */
-typedef void (*evhandler_t)(eventid_t);
-
-/**
  * @brief   Data part of a static event source initializer.
  * @details This macro should be used when statically initializing an event
  *          source that is part of a bigger structure.
@@ -85,20 +80,12 @@ typedef void (*evhandler_t)(eventid_t);
  */
 #define EVENTSOURCE_DECL(name) EventSource name = _EVENTSOURCE_DATA(name)
 
-/**
- * @brief   All events allowed mask.
- */
+/** All events allowed mask.*/
 #define ALL_EVENTS      ((eventmask_t)-1)
 
-/**
- * @brief   Returns an event mask from an event identifier.
- */
+/** Returns the event mask from the event identifier.*/
 #define EVENT_MASK(eid) ((eventmask_t)(1 << (eid)))
 
-/**
- * @name    Macro Functions
- * @{
- */
 /**
  * @brief   Registers an Event Listener on an Event Source.
  * @note    Multiple Event Listeners can use the same event identifier, the
@@ -140,29 +127,9 @@ typedef void (*evhandler_t)(eventid_t);
   ((void *)(esp) != (void *)(esp)->es_next)
 
 /**
- * @brief   Signals all the Event Listeners registered on the specified Event
- *          Source.
- *
- * @param[in] esp       pointer to the @p EventSource structure
- *
- * @api
+ * @brief   Event Handler callback function.
  */
-#define chEvtBroadcast(esp) chEvtBroadcastFlags(esp, 0)
-
-/**
- * @brief   Signals all the Event Listeners registered on the specified Event
- *          Source.
- * @post    This function does not reschedule so a call to a rescheduling
- *          function must be performed before unlocking the kernel. Note that
- *          interrupt handlers always reschedule on exit so an explicit
- *          reschedule must not be performed in ISRs.
- *
- * @param[in] esp       pointer to the @p EventSource structure
- *
- * @iclass
- */
-#define chEvtBroadcastI(esp) chEvtBroadcastFlagsI(esp, 0)
-/** @} */
+typedef void (*evhandler_t)(eventid_t);
 
 #ifdef __cplusplus
 extern "C" {
@@ -173,10 +140,10 @@ extern "C" {
   void chEvtUnregister(EventSource *esp, EventListener *elp);
   eventmask_t chEvtClearFlags(eventmask_t mask);
   eventmask_t chEvtAddFlags(eventmask_t mask);
-  void chEvtSignalFlags(Thread *tp, eventmask_t mask);
-  void chEvtSignalFlagsI(Thread *tp, eventmask_t mask);
-  void chEvtBroadcastFlags(EventSource *esp, eventmask_t mask);
-  void chEvtBroadcastFlagsI(EventSource *esp, eventmask_t mask);
+  void chEvtSignal(Thread *tp, eventmask_t mask);
+  void chEvtSignalI(Thread *tp, eventmask_t mask);
+  void chEvtBroadcast(EventSource *esp);
+  void chEvtBroadcastI(EventSource *esp);
   void chEvtDispatch(const evhandler_t *handlers, eventmask_t mask);
 #if CH_OPTIMIZE_SPEED || !CH_USE_EVENTS_TIMEOUT
   eventmask_t chEvtWaitOne(eventmask_t mask);

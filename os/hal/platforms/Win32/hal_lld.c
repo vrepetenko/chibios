@@ -90,31 +90,19 @@ void ChkIntSources(void) {
 
 #if HAL_USE_SERIAL
   if (sd_lld_interrupt_pending()) {
-    dbg_check_lock();
-    if (chSchIsPreemptionRequired())
-      chSchDoReschedule();
-    dbg_check_unlock();
+    if (chSchIsRescRequiredExI())
+      chSchDoRescheduleI();
     return;
   }
 #endif
 
-  /* Interrupt Timer simulation (10ms interval).*/
+  // Interrupt Timer simulation (10ms interval).
   QueryPerformanceCounter(&n);
   if (n.QuadPart > nextcnt.QuadPart) {
     nextcnt.QuadPart += slice.QuadPart;
-
-    CH_IRQ_PROLOGUE();
-
-    chSysLockFromIsr();
     chSysTimerHandlerI();
-    chSysUnlockFromIsr();
-
-    CH_IRQ_EPILOGUE();
-
-    dbg_check_lock();
-    if (chSchIsPreemptionRequired())
-      chSchDoReschedule();
-    dbg_check_unlock();
+    if (chSchIsRescRequiredExI())
+      chSchDoRescheduleI();
   }
 }
 

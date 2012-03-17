@@ -43,8 +43,11 @@
 #include "ch.h"
 
 #if !CH_NO_IDLE_THREAD || defined(__DOXYGEN__)
-/* Idle thread working area.*/
-WORKING_AREA(_idle_thread_wa, PORT_IDLE_THREAD_STACK_SIZE);
+/**
+ * @brief   Idle thread working area.
+ * @see     IDLE_THREAD_STACK_SIZE
+ */
+WORKING_AREA(_idle_thread_wa, IDLE_THREAD_STACK_SIZE);
 
 /**
  * @brief   This function implements the idle thread infinite loop.
@@ -81,31 +84,23 @@ void _idle_thread(void *p) {
  */
 void chSysInit(void) {
   static Thread mainthread;
-#if CH_DBG_ENABLE_STACK_CHECK
-  extern stkalign_t __main_thread_stack_base__;
-#endif
 
   port_init();
-  _scheduler_init();
-  _vt_init();
+  scheduler_init();
+  vt_init();
 #if CH_USE_MEMCORE
-  _core_init();
+  core_init();
 #endif
 #if CH_USE_HEAP
-  _heap_init();
+  heap_init();
 #endif
 #if CH_DBG_ENABLE_TRACE
-  _trace_init();
+  trace_init();
 #endif
 
   /* Now this instructions flow becomes the main thread.*/
   setcurrp(_thread_init(&mainthread, NORMALPRIO));
   currp->p_state = THD_STATE_CURRENT;
-#if CH_DBG_ENABLE_STACK_CHECK
-  /* This is a special case because the main thread Thread structure is not
-     adjacent to its stack area.*/
-  currp->p_stklimit = &__main_thread_stack_base__;
-#endif
   chSysEnable();
 
   chRegSetThreadName("main");
@@ -132,8 +127,6 @@ void chSysInit(void) {
  */
 void chSysTimerHandlerI(void) {
 
-  chDbgCheckClassI();
-
 #if CH_TIME_QUANTUM > 0
   /* Running thread has not used up quantum yet? */
   if (rlist.r_preempt > 0)
@@ -148,5 +141,25 @@ void chSysTimerHandlerI(void) {
   SYSTEM_TICK_EVENT_HOOK();
 #endif
 }
+
+#if CH_USE_NESTED_LOCKS && !CH_OPTIMIZE_SPEED
+void chSysLock(void) {
+
+  chDbgAssert(currp->p_locks >= 0,
+              "chSysLock(), #1",
+              "negative nesting counter");
+  if (currp->p_locks++ == 0)
+    port_lock();
+}
+
+void chSysUnlock(void) {
+
+  chDbgAssert(currp->p_locks > 0,
+              "chSysUnlock(), #1",
+              "non-positive nesting counter");
+  if (--currp->p_locks == 0)
+    port_unlock();
+}
+#endif /* CH_USE_NESTED_LOCKS && !CH_OPTIMIZE_SPEED */
 
 /** @} */

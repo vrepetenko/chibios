@@ -57,7 +57,7 @@
  */
 
 /**
- * @defgroup SPC563_SERIAL SPC563Mx Serial Support
+ * @defgroup SPC563_SERIAL SPC563Mx ESCI Support (buffered)
  * @details The SPC563Mx/MPC563xM Serial driver uses the ESCI peripherals
  *          in a buffered, interrupt driven, implementation.
  *

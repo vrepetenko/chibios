@@ -58,7 +58,7 @@
  * @brief Mailboxes header file
  */
 
-#if CH_USE_MAILBOXES || defined(__DOXYGEN__)
+#if CH_USE_MAILBOXES
 
 #define ALLOWED_DELAY MS2ST(5)
 #define MB_SIZE 5
@@ -108,23 +108,19 @@ static void mbox1_execute(void) {
    */
   msg1 = chMBPost(&mb1, 'X', 1);
   test_assert(4, msg1 == RDY_TIMEOUT, "wrong wake-up message");
-  chSysLock();
   msg1 = chMBPostI(&mb1, 'X');
-  chSysUnlock();
   test_assert(5, msg1 == RDY_TIMEOUT, "wrong wake-up message");
   msg1 = chMBPostAhead(&mb1, 'X', 1);
   test_assert(6, msg1 == RDY_TIMEOUT, "wrong wake-up message");
-  chSysLock();
   msg1 = chMBPostAheadI(&mb1, 'X');
-  chSysUnlock();
   test_assert(7, msg1 == RDY_TIMEOUT, "wrong wake-up message");
 
   /*
    * Testing final conditions.
    */
-  test_assert_lock(8, chMBGetFreeCountI(&mb1) == 0, "still empty");
-  test_assert_lock(9, chMBGetUsedCountI(&mb1) == MB_SIZE, "not full");
-  test_assert_lock(10, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
+  test_assert(8, chMBGetFreeCountI(&mb1) == 0, "still empty");
+  test_assert(9, chMBGetUsedCountI(&mb1) == MB_SIZE, "not full");
+  test_assert(10, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
 
   /*
    * Testing dequeuing.
@@ -151,22 +147,19 @@ static void mbox1_execute(void) {
    */
   msg1 = chMBFetch(&mb1, &msg2, 1);
   test_assert(17, msg1 == RDY_TIMEOUT, "wrong wake-up message");
-  chSysLock();
   msg1 = chMBFetchI(&mb1, &msg2);
-  chSysUnlock();
   test_assert(18, msg1 == RDY_TIMEOUT, "wrong wake-up message");
 
   /*
    * Testing final conditions.
    */
-  test_assert_lock(19, chMBGetFreeCountI(&mb1) == MB_SIZE, "not empty");
-  test_assert_lock(20, chMBGetUsedCountI(&mb1) == 0, "still full");
-  test_assert_lock(21, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
+  test_assert(19, chMBGetFreeCountI(&mb1) == MB_SIZE, "not empty");
+  test_assert(20, chMBGetUsedCountI(&mb1) == 0, "still full");
+  test_assert(21, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
 
   /*
    * Testing I-Class.
    */
-  chSysLock()
   msg1 = chMBPostI(&mb1, 'A');
   test_assert(22, msg1 == RDY_OK, "wrong wake-up message");
   msg1 = chMBPostI(&mb1, 'B');
@@ -176,20 +169,16 @@ static void mbox1_execute(void) {
   msg1 = chMBPostI(&mb1, 'D');
   test_assert(25, msg1 == RDY_OK, "wrong wake-up message");
   msg1 = chMBPostI(&mb1, 'E');
-  chSysUnlock()
   test_assert(26, msg1 == RDY_OK, "wrong wake-up message");
   test_assert(27, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
   for (i = 0; i < MB_SIZE; i++) {
-    chSysLock();
     msg1 = chMBFetchI(&mb1, &msg2);
-    chSysUnlock();
     test_assert(28, msg1 == RDY_OK, "wrong wake-up message");
     test_emit_token(msg2);
   }
   test_assert_sequence(29, "ABCDE");
   test_assert(30, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
 
-  chSysLock();
   msg1 = chMBPostAheadI(&mb1, 'E');
   test_assert(31, msg1 == RDY_OK, "wrong wake-up message");
   msg1 = chMBPostAheadI(&mb1, 'D');
@@ -199,13 +188,10 @@ static void mbox1_execute(void) {
   msg1 = chMBPostAheadI(&mb1, 'B');
   test_assert(34, msg1 == RDY_OK, "wrong wake-up message");
   msg1 = chMBPostAheadI(&mb1, 'A');
-  chSysUnlock();
   test_assert(35, msg1 == RDY_OK, "wrong wake-up message");
   test_assert(36, mb1.mb_rdptr == mb1.mb_wrptr, "pointers not aligned");
   for (i = 0; i < MB_SIZE; i++) {
-    chSysLock();
     msg1 = chMBFetchI(&mb1, &msg2);
-    chSysUnlock();
     test_assert(37, msg1 == RDY_OK, "wrong wake-up message");
     test_emit_token(msg2);
   }
@@ -220,10 +206,10 @@ static void mbox1_execute(void) {
   /*
    * Re-testing final conditions.
    */
-  test_assert_lock(40, chMBGetFreeCountI(&mb1) == MB_SIZE, "not empty");
-  test_assert_lock(41, chMBGetUsedCountI(&mb1) == 0, "still full");
-  test_assert_lock(42, mb1.mb_buffer == mb1.mb_wrptr, "write pointer not aligned to base");
-  test_assert_lock(43, mb1.mb_buffer == mb1.mb_rdptr, "read pointer not aligned to base");
+  test_assert(40, chMBGetFreeCountI(&mb1) == MB_SIZE, "not empty");
+  test_assert(41, chMBGetUsedCountI(&mb1) == 0, "still full");
+  test_assert(42, mb1.mb_buffer == mb1.mb_wrptr, "write pointer not aligned to base");
+  test_assert(43, mb1.mb_buffer == mb1.mb_rdptr, "read pointer not aligned to base");
 }
 
 ROMCONST struct testcase testmbox1 = {
@@ -239,7 +225,7 @@ ROMCONST struct testcase testmbox1 = {
  * @brief   Test sequence for mailboxes.
  */
 ROMCONST struct testcase * ROMCONST patternmbox[] = {
-#if CH_USE_MAILBOXES || defined(__DOXYGEN__)
+#if CH_USE_MAILBOXES
   &testmbox1,
 #endif
   NULL

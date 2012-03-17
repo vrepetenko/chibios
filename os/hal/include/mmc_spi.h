@@ -44,12 +44,10 @@
 
 #define MMC_CMD0_RETRY              10
 #define MMC_CMD1_RETRY              100
-#define MMC_ACMD41_RETRY            100
 #define MMC_WAIT_DATA               10000
 
 #define MMC_CMDGOIDLE               0
 #define MMC_CMDINIT                 1
-#define MMC_CMDINTERFACE_CONDITION  8
 #define MMC_CMDREADCSD              9
 #define MMC_CMDSTOP                 12
 #define MMC_CMDSETBLOCKLEN          16
@@ -57,18 +55,11 @@
 #define MMC_CMDREADMULTIPLE         18
 #define MMC_CMDWRITE                24
 #define MMC_CMDWRITEMULTIPLE        25
-#define MMC_CMDAPP                  55
-#define MMC_CMDREADOCR              58
-#define MMC_ACMDOPCONDITION         41
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
 
-/**
- * @name    MMC_SPI configuration options
- * @{
- */
 /**
  * @brief   Block size for MMC transfers.
  */
@@ -102,7 +93,6 @@
 #if !defined(MMC_POLLING_DELAY) || defined(__DOXYGEN__)
 #define MMC_POLLING_DELAY           10
 #endif
-/** @} */
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
@@ -151,61 +141,53 @@ typedef struct {
   /**
    * @brief Driver state.
    */
-  mmcstate_t            state;
+  mmcstate_t            mmc_state;
   /**
    * @brief Current configuration data.
    */
-  const MMCConfig       *config;
+  const MMCConfig       *mmc_config;
   /**
    * @brief SPI driver associated to this MMC driver.
    */
-  SPIDriver             *spip;
+  SPIDriver             *mmc_spip;
   /**
    * @brief SPI low speed configuration used during initialization.
    */
-  const SPIConfig       *lscfg;
+  const SPIConfig       *mmc_lscfg;
   /**
    * @brief SPI high speed configuration used during transfers.
    */
-  const SPIConfig       *hscfg;
+  const SPIConfig       *mmc_hscfg;
   /**
    * @brief Write protect status query function.
    */
-  mmcquery_t            is_protected;
+  mmcquery_t            mmc_is_protected;
   /**
    * @brief Insertion status query function.
    */
-  mmcquery_t            is_inserted;
+  mmcquery_t            mmc_is_inserted;
   /**
    * @brief Card insertion event source.
    */
-  EventSource           inserted_event;
+  EventSource           mmc_inserted_event;
   /**
    * @brief Card removal event source.
    */
-  EventSource           removed_event;
+  EventSource           mmc_removed_event;
   /**
    * @brief MMC insertion polling timer.
    */
-  VirtualTimer          vt;
+  VirtualTimer          mmc_vt;
   /**
    * @brief Insertion counter.
    */
-  uint_fast8_t          cnt;
-  /***
-   * @brief Addresses use blocks instead of bytes.
-   */
-  bool_t                block_addresses;
+  uint_fast8_t          mmc_cnt;
 } MMCDriver;
 
 /*===========================================================================*/
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
-/**
- * @name    Macro Functions
- * @{
- */
 /**
  * @brief   Returns the driver state.
  *
@@ -214,7 +196,7 @@ typedef struct {
  *
  * @api
  */
-#define mmcGetDriverState(mmcp) ((mmcp)->state)
+#define mmcGetDriverState(mmcp) ((mmcp)->mmc_state)
 
 /**
  * @brief   Returns the write protect status.
@@ -226,8 +208,7 @@ typedef struct {
  *
  * @api
  */
-#define mmcIsWriteProtected(mmcp) ((mmcp)->is_protected())
-/** @} */
+#define mmcIsWriteProtected(mmcp) ((mmcp)->mmc_is_protected())
 
 /*===========================================================================*/
 /* External declarations.                                                    */

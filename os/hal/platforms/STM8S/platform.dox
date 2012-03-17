@@ -48,7 +48,7 @@
  */
 
 /**
- * @defgroup STM8S_PAL STM8S PAL Support
+ * @defgroup STM8S_PAL STM8S GPIO Support
  * @details The STM8S PAL driver uses the GPIO peripherals.
  *
  * @section stm8s_pal_1 Supported HW resources
@@ -91,26 +91,6 @@
  */
 
 /**
- * @defgroup STM8S_SERIAL STM8S Serial Support
- * @details The STM8S Serial driver uses the UART peripherals in a
- *          buffered, interrupt driven, implementation.
- *
- * @section stm8s_serial_1 Supported HW resources
- * The serial driver can support any of the following hardware resources:
- * - UART1.
- * - UART2 (where present).
- * - UART3 (where present).
- * .
- * @section stm8s_serial_2 STM8S Serial driver implementation features
- * - Clock stop for reduced power usage when the driver is in stop state.
- * - Each UART can be independently enabled and programmed. Unused
- *   peripherals are left in low power mode.
- * - Fully interrupt driven.
- * .
- * @ingroup STM8S
- */
-
-/**
  * @defgroup STM8S_SPI STM8S SPI Support
  * @details The SPI driver supports the STM8S SPI peripheral in an interrupt
  *          driven implementation.
@@ -124,6 +104,26 @@
  * .
  * @section stm8s_spi_2 STM8S SPI driver implementation features
  * - Clock stop for reduced power usage when the driver is in stop state.
+ * - Fully interrupt driven.
+ * .
+ * @ingroup STM8S
+ */
+
+/**
+ * @defgroup STM8S_SERIAL STM8S UART Support (buffered)
+ * @details The STM8S Serial driver uses the UART peripherals in a
+ *          buffered, interrupt driven, implementation.
+ *
+ * @section stm8s_serial_1 Supported HW resources
+ * The serial driver can support any of the following hardware resources:
+ * - UART1.
+ * - UART2 (where present).
+ * - UART3 (where present).
+ * .
+ * @section stm8s_serial_2 STM8S Serial driver implementation features
+ * - Clock stop for reduced power usage when the driver is in stop state.
+ * - Each UART can be independently enabled and programmed. Unused
+ *   peripherals are left in low power mode.
  * - Fully interrupt driven.
  * .
  * @ingroup STM8S

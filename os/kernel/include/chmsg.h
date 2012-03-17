@@ -39,10 +39,6 @@
 #if CH_USE_MESSAGES || defined(__DOXYGEN__)
 
 /**
- * @name    Macro Functions
- * @{
- */
-/**
  * @brief   Evaluates to TRUE if the thread has pending messages.
  *
  * @iclass
@@ -51,48 +47,20 @@
         ((tp)->p_msgqueue.p_next != (Thread *)&(tp)->p_msgqueue)
 
 /**
- * @brief   Returns the message carried by the specified thread.
- * @pre     This function must be invoked immediately after exiting a call
- *          to @p chMsgWait().
+ * @brief   Returns the first message in the queue.
  *
- * @param[in] tp        pointer to the thread
- * @return              The message carried by the sender.
- *
- * @api
+ * @iclass
  */
-#define chMsgGet(tp) ((tp)->p_msg)
-
-/**
- * @brief   Returns the message carried by the specified thread.
- * @pre     This function must be invoked immediately after exiting a call
- *          to @p chMsgWait().
- *
- * @param[in] tp        pointer to the thread
- * @return              The message carried by the sender.
- *
- * @sclass
- */
-#define chMsgGetS(tp) ((tp)->p_msg)
-
-/**
- * @brief   Releases the thread waiting on top of the messages queue.
- * @pre     Invoke this function only after a message has been received
- *          using @p chMsgWait().
- *
- * @param[in] tp        pointer to the thread
- * @param[in] msg       message to be returned to the sender
- *
- * @sclass
- */
-#define chMsgReleaseS(tp, msg) chSchWakeupS(tp, msg)
-/** @} */
+#define chMsgGetI(tp) \
+        ((tp)->p_msgqueue.p_next->p_msg)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
   msg_t chMsgSend(Thread *tp, msg_t msg);
-  Thread * chMsgWait(void);
-  void chMsgRelease(Thread *tp, msg_t msg);
+  msg_t chMsgWait(void);
+  msg_t chMsgGet(void);
+  void chMsgRelease(msg_t msg);
 #ifdef __cplusplus
 }
 #endif

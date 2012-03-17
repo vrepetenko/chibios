@@ -47,12 +47,8 @@
 /**
  * @brief   Kernel version string.
  */
-#define CH_KERNEL_VERSION       "2.4.0"
+#define CH_KERNEL_VERSION       "2.2.9"
 
-/**
- * @name    Kernel version
- * @{
- */
 /**
  * @brief   Kernel version major number.
  */
@@ -61,13 +57,12 @@
 /**
  * @brief   Kernel version minor number.
  */
-#define CH_KERNEL_MINOR         4
+#define CH_KERNEL_MINOR         2
 
 /**
  * @brief   Kernel version patch number.
  */
-#define CH_KERNEL_PATCH         0
-/** @} */
+#define CH_KERNEL_PATCH         9
 
 /*
  * Common values.
@@ -107,7 +102,7 @@
 #include "chdebug.h"
 
 #if !defined(__DOXYGEN__)
-extern WORKING_AREA(_idle_thread_wa, PORT_IDLE_THREAD_STACK_SIZE);
+extern WORKING_AREA(_idle_thread_wa, IDLE_THREAD_STACK_SIZE);
 #endif
 
 #ifdef __cplusplus

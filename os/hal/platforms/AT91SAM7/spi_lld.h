@@ -135,20 +135,20 @@ typedef struct {
   /**
    * @brief Operation complete callback or @p NULL.
    */
-  spicallback_t         end_cb;
+  spicallback_t         spc_endcb;
   /* End of the mandatory fields.*/
   /**
    * @brief The chip select line port.
    */
-  ioportid_t            ssport;
+  ioportid_t            spc_ssport;
   /**
    * @brief The chip select line pad number.
    */
-  uint16_t              sspad;
+  uint16_t              spc_sspad;
   /**
    * @brief SPI Chip Select Register initialization data.
    */
-  uint32_t              csr;
+  uint32_t              spc_csr;
 } SPIConfig;
 
 /**
@@ -158,25 +158,25 @@ struct SPIDriver {
   /**
    * @brief Driver state.
    */
-  spistate_t            state;
+  spistate_t            spd_state;
   /**
    * @brief Current configuration data.
    */
-  const SPIConfig       *config;
+  const SPIConfig       *spd_config;
 #if SPI_USE_WAIT || defined(__DOXYGEN__)
   /**
    * @brief Waiting thread.
    */
-  Thread                *thread;
+  Thread                *spd_thread;
 #endif /* SPI_USE_WAIT */
 #if SPI_USE_MUTUAL_EXCLUSION || defined(__DOXYGEN__)
 #if CH_USE_MUTEXES || defined(__DOXYGEN__)
   /**
    * @brief Mutex protecting the bus.
    */
-  Mutex                 mutex;
+  Mutex                 spd_mutex;
 #elif CH_USE_SEMAPHORES
-  Semaphore             semaphore;
+  Semaphore             spd_semaphore;
 #endif
 #endif /* SPI_USE_MUTUAL_EXCLUSION */
 #if defined(SPI_DRIVER_EXT_FIELDS)
@@ -186,7 +186,7 @@ struct SPIDriver {
   /**
    * @brief Pointer to the SPIx registers block.
    */
-  AT91PS_SPI            spi;
+  AT91PS_SPI            spd_spi;
 };
 
 /*===========================================================================*/

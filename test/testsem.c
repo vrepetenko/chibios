@@ -58,7 +58,7 @@
  * @brief Semaphores test header file
  */
 
-#if CH_USE_SEMAPHORES || defined(__DOXYGEN__)
+#if CH_USE_SEMAPHORES
 
 #define ALLOWED_DELAY MS2ST(5)
 
@@ -111,11 +111,9 @@ static void sem1_execute(void) {
   test_assert_sequence(1, "ABCDE");
 #endif
   threads[0] = chThdCreateStatic(wa[0], WA_SIZE, chThdGetPriority()+5, thread1, "A");
-  chSysLock();
-  chSemAddCounterI(&sem1, 2);
-  chSysUnlock();
+  chSemSetCounterI(&sem1, 2);
   test_wait_threads();
-  test_assert(2, chSemGetCounterI(&sem1) == 1, "invalid counter");
+  test_assert(2, chSemGetCounterI(&sem1) == 2, "invalid counter");
 }
 
 ROMCONST struct testcase testsem1 = {
@@ -199,7 +197,7 @@ ROMCONST struct testcase testsem2 = {
   sem2_execute
 };
 
-#if CH_USE_SEMSW || defined(__DOXYGEN__)
+#if CH_USE_SEMSW
 /**
  * @page test_sem_003 Atomic signal-wait test
  *
@@ -301,10 +299,10 @@ ROMCONST struct testcase testsem4 = {
  * @brief   Test sequence for semaphores.
  */
 ROMCONST struct testcase * ROMCONST patternsem[] = {
-#if CH_USE_SEMAPHORES || defined(__DOXYGEN__)
+#if CH_USE_SEMAPHORES
   &testsem1,
   &testsem2,
-#if CH_USE_SEMSW || defined(__DOXYGEN__)
+#if CH_USE_SEMSW
   &testsem3,
 #endif
   &testsem4,
