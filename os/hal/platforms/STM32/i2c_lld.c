@@ -173,9 +173,11 @@ static void i2c_lld_safety_timeout(void *p) {
   I2CDriver *i2cp = (I2CDriver *)p;
 
   if (i2cp->thread) {
+    Thread *tp = i2cp->thread;
     i2c_lld_abort_operation(i2cp);
-    i2cp->thread->p_u.rdymsg = RDY_TIMEOUT;
-    chSchReadyI(i2cp->thread);
+    i2cp->thread = NULL;
+    tp->p_u.rdymsg = RDY_TIMEOUT;
+    chSchReadyI(tp);
   }
 }
 
@@ -210,11 +212,14 @@ static void i2c_lld_set_clock(I2CDriver *i2cp) {
                 "Invalid standard mode duty cycle");
 
     /* Standard mode clock_div calculate: Tlow/Thigh = 1/1.*/
+    chDbgAssert((STM32_PCLK1 % (clock_speed * 2)) == 0,
+                "i2c_lld_set_clock(), #2",
+                "PCLK1 must be divided without remainder");
     clock_div = (uint16_t)(STM32_PCLK1 / (clock_speed * 2));
 
-    /* Clock divider values under four are not allowed.*/
-    if (clock_div < 0x04)
-      clock_div = 0x04;
+    chDbgAssert(clock_div >= 0x04,
+                "i2c_lld_set_clock(), #3",
+                "Clock divider less then 0x04 not allowed");
     regCCR |= (clock_div & I2C_CCR_CCR);
 
     /* Sets the Maximum Rise Time for standard mode.*/
@@ -223,21 +228,28 @@ static void i2c_lld_set_clock(I2CDriver *i2cp) {
   else if (clock_speed <= 400000) {
     /* Configure clock_div in fast mode.*/
     chDbgAssert((duty == FAST_DUTY_CYCLE_2) || (duty == FAST_DUTY_CYCLE_16_9),
-                "i2c_lld_set_clock(), #2",
+                "i2c_lld_set_clock(), #4",
                 "Invalid fast mode duty cycle");
 
     if (duty == FAST_DUTY_CYCLE_2) {
       /* Fast mode clock_div calculate: Tlow/Thigh = 2/1.*/
+      chDbgAssert((STM32_PCLK1 % (clock_speed * 3)) == 0,
+                  "i2c_lld_set_clock(), #5",
+                  "PCLK1 must be divided without remainder");
       clock_div = (uint16_t)(STM32_PCLK1 / (clock_speed * 3));
     }
     else if (duty == FAST_DUTY_CYCLE_16_9) {
       /* Fast mode clock_div calculate: Tlow/Thigh = 16/9.*/
+      chDbgAssert((STM32_PCLK1 % (clock_speed * 25)) == 0,
+                  "i2c_lld_set_clock(), #6",
+                  "PCLK1 must be divided without remainder");
       clock_div = (uint16_t)(STM32_PCLK1 / (clock_speed * 25));
       regCCR |= I2C_CCR_DUTY;
     }
-    /* Clock divider values under one are not allowed.*/
-    if (clock_div < 0x01)
-      clock_div = 0x01;
+
+    chDbgAssert(clock_div >= 0x01,
+                    "i2c_lld_set_clock(), #7",
+                    "Clock divider less then 0x04 not allowed");
     regCCR |= (I2C_CCR_FS | (clock_div & I2C_CCR_CCR));
 
     /* Sets the Maximum Rise Time for fast mode.*/
@@ -245,7 +257,7 @@ static void i2c_lld_set_clock(I2CDriver *i2cp) {
   }
 
   chDbgAssert((clock_div <= I2C_CCR_CCR),
-              "i2c_lld_set_clock(), #3", "the selected clock is too low");
+              "i2c_lld_set_clock(), #8", "the selected clock is too low");
 
   dp->CCR = regCCR;
 }
@@ -773,12 +785,12 @@ msg_t i2c_lld_master_receive_timeout(I2CDriver *i2cp, i2caddr_t addr,
                                      systime_t timeout) {
   I2C_TypeDef *dp = i2cp->i2c;
   VirtualTimer vt;
-  msg_t rdymsg;
 
   chDbgCheck((rxbytes > 1), "i2c_lld_master_receive_timeout");
 
   /* Global timeout for the whole operation.*/
-  chVTSetI(&vt, timeout, i2c_lld_safety_timeout, (void *)i2cp);
+  if (timeout != TIME_INFINITE)
+    chVTSetI(&vt, timeout, i2c_lld_safety_timeout, (void *)i2cp);
 
   /* Releases the lock from high level driver.*/
   chSysUnlock();
@@ -794,10 +806,10 @@ msg_t i2c_lld_master_receive_timeout(I2CDriver *i2cp, i2caddr_t addr,
   /* Waits until BUSY flag is reset and the STOP from the previous operation
      is completed, alternatively for a timeout condition.*/
   while ((dp->SR2 & I2C_SR2_BUSY) || (dp->CR1 & I2C_CR1_STOP)) {
-    if (!chVTIsArmedI(&vt)) {
-      chSysLock();
+    chSysLock();
+    if ((timeout != TIME_INFINITE) && !chVTIsArmedI(&vt))
       return RDY_TIMEOUT;
-    }
+    chSysUnlock();
   }
 
   /* This lock will be released in high level driver.*/
@@ -805,7 +817,7 @@ msg_t i2c_lld_master_receive_timeout(I2CDriver *i2cp, i2caddr_t addr,
 
   /* Atomic check on the timer in order to make sure that a timeout didn't
      happen outside the critical zone.*/
-  if (!chVTIsArmedI(&vt))
+  if ((timeout != TIME_INFINITE) && !chVTIsArmedI(&vt))
     return RDY_TIMEOUT;
 
   /* Starts the operation.*/
@@ -815,11 +827,10 @@ msg_t i2c_lld_master_receive_timeout(I2CDriver *i2cp, i2caddr_t addr,
   /* Waits for the operation completion or a timeout.*/
   i2cp->thread = chThdSelf();
   chSchGoSleepS(THD_STATE_SUSPENDED);
-  rdymsg = chThdSelf()->p_u.rdymsg;
-  if (rdymsg != RDY_TIMEOUT)
+  if ((timeout != TIME_INFINITE) && chVTIsArmedI(&vt))
     chVTResetI(&vt);
 
-  return rdymsg;
+  return chThdSelf()->p_u.rdymsg;
 }
 
 /**
@@ -853,13 +864,13 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
                                       systime_t timeout) {
   I2C_TypeDef *dp = i2cp->i2c;
   VirtualTimer vt;
-  msg_t rdymsg;
 
   chDbgCheck(((rxbytes == 0) || ((rxbytes > 1) && (rxbuf != NULL))),
              "i2c_lld_master_transmit_timeout");
 
   /* Global timeout for the whole operation.*/
-  chVTSetI(&vt, timeout, i2c_lld_safety_timeout, (void *)i2cp);
+  if (timeout != TIME_INFINITE)
+    chVTSetI(&vt, timeout, i2c_lld_safety_timeout, (void *)i2cp);
 
   /* Releases the lock from high level driver.*/
   chSysUnlock();
@@ -879,10 +890,10 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
   /* Waits until BUSY flag is reset and the STOP from the previous operation
      is completed, alternatively for a timeout condition.*/
   while ((dp->SR2 & I2C_SR2_BUSY) || (dp->CR1 & I2C_CR1_STOP)) {
-    if (!chVTIsArmedI(&vt)) {
-      chSysLock();
+    chSysLock();
+    if ((timeout != TIME_INFINITE) && !chVTIsArmedI(&vt))
       return RDY_TIMEOUT;
-    }
+    chSysUnlock();
   }
 
   /* This lock will be released in high level driver.*/
@@ -890,7 +901,7 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
 
   /* Atomic check on the timer in order to make sure that a timeout didn't
      happen outside the critical zone.*/
-  if (!chVTIsArmedI(&vt))
+  if ((timeout != TIME_INFINITE) && !chVTIsArmedI(&vt))
     return RDY_TIMEOUT;
 
   /* Starts the operation.*/
@@ -900,11 +911,10 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
   /* Waits for the operation completion or a timeout.*/
   i2cp->thread = chThdSelf();
   chSchGoSleepS(THD_STATE_SUSPENDED);
-  rdymsg = chThdSelf()->p_u.rdymsg;
-  if (rdymsg != RDY_TIMEOUT)
+  if ((timeout != TIME_INFINITE) && chVTIsArmedI(&vt))
     chVTResetI(&vt);
 
-  return rdymsg;
+  return chThdSelf()->p_u.rdymsg;
 }
 
 #endif /* HAL_USE_I2C */

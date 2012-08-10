@@ -77,6 +77,21 @@
  */
 
 /**
+ * @defgroup STM32F2xx_CAN STM32F2xx CAN Support
+ * @details The STM32F2xx CAN driver uses the CAN peripherals.
+ *
+ * @section stm32f2xx_can_1 Supported HW resources
+ * - bxCAN1.
+ * .
+ * @section stm32f2xx_can_2 STM32F2xx CAN driver implementation features
+ * - Clock stop for reduced power usage when the driver is in stop state.
+ * - Support for bxCAN sleep mode.
+ * - Programmable bxCAN interrupts priority level.
+ * .
+ * @ingroup STM32F2xx_DRIVERS
+ */
+
+/**
  * @defgroup STM32F2xx_EXT STM32F2xx EXT Support
  * @details The STM32F2xx EXT driver uses the EXTI peripheral.
  *
@@ -215,6 +230,23 @@
  */
 
 /**
+ * @defgroup STM32F2xx_SDC STM32F2xx SDC Support
+ * @details The STM32F2xx SDC driver uses the SDIO peripheral.
+ *
+ * @section stm32f2xx_sdc_1 Supported HW resources
+ * - SDIO.
+ * - DMA2.
+ * .
+ * @section stm32f2xx_sdc_2 STM32F4xx SDC driver implementation features
+ * - Clock stop for reduced power usage when the driver is in stop state.
+ * - Programmable interrupt priority.
+ * - DMA is used for receiving and transmitting.
+ * - Programmable DMA bus priority for each DMA channel.
+ * .
+ * @ingroup STM32F2xx_DRIVERS
+ */
+
+/**
  * @defgroup STM32F2xx_SERIAL STM32F2xx Serial Support
  * @details The STM32F2xx Serial driver uses the USART/UART peripherals in a
  *          buffered, interrupt driven, implementation.
@@ -322,7 +354,7 @@
  * @details This RCC helper driver is used by the other drivers in order to
  *          access the shared RCC resources in a consistent way.
  *
- * @section stm32f1xx_rcc_1 Supported HW resources
+ * @section stm32f2xx_rcc_1 Supported HW resources
  * - RCC.
  * .
  * @section stm32f2xx_rcc_2 STM32F2xx RCC driver implementation features
