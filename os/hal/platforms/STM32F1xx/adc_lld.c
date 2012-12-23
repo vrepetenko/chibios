@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -181,7 +188,7 @@ void adc_lld_stop(ADCDriver *adcp) {
  * @notapi
  */
 void adc_lld_start_conversion(ADCDriver *adcp) {
-  uint32_t mode, n, cr2;
+  uint32_t mode, n;
   const ADCConversionGroup *grpp = adcp->grpp;
 
   /* DMA setup.*/
@@ -203,10 +210,7 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
 
   /* ADC setup.*/
   adcp->adc->CR1   = grpp->cr1 | ADC_CR1_SCAN;
-  cr2 = grpp->cr2 | ADC_CR2_DMA | ADC_CR2_ADON;
-  if ((cr2 & (ADC_CR2_EXTTRIG | ADC_CR2_JEXTTRIG)) == 0)
-    cr2 |= ADC_CR2_CONT;
-  adcp->adc->CR2   = grpp->cr2 | cr2;
+  adcp->adc->CR2   = grpp->cr2 | ADC_CR2_DMA | ADC_CR2_CONT | ADC_CR2_ADON;
   adcp->adc->SMPR1 = grpp->smpr1;
   adcp->adc->SMPR2 = grpp->smpr2;
   adcp->adc->SQR1  = grpp->sqr1;
@@ -214,7 +218,7 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
   adcp->adc->SQR3  = grpp->sqr3;
 
   /* ADC start by writing ADC_CR2_ADON a second time.*/
-  adcp->adc->CR2   = cr2;
+  adcp->adc->CR2   = grpp->cr2 | ADC_CR2_DMA | ADC_CR2_CONT | ADC_CR2_ADON;
 }
 
 /**

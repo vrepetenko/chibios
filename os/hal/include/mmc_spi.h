@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -40,6 +47,20 @@
 #define MMC_ACMD41_RETRY            100
 #define MMC_WAIT_DATA               10000
 
+#define MMC_CMDGOIDLE               0
+#define MMC_CMDINIT                 1
+#define MMC_CMDINTERFACE_CONDITION  8
+#define MMC_CMDREADCSD              9
+#define MMC_CMDSTOP                 12
+#define MMC_CMDSETBLOCKLEN          16
+#define MMC_CMDREAD                 17
+#define MMC_CMDREADMULTIPLE         18
+#define MMC_CMDWRITE                24
+#define MMC_CMDWRITEMULTIPLE        25
+#define MMC_CMDAPP                  55
+#define MMC_CMDREADOCR              58
+#define MMC_ACMDOPCONDITION         41
+
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -48,6 +69,13 @@
  * @name    MMC_SPI configuration options
  * @{
  */
+/**
+ * @brief   Block size for MMC transfers.
+ */
+#if !defined(MMC_SECTOR_SIZE) || defined(__DOXYGEN__)
+#define MMC_SECTOR_SIZE             512
+#endif
+
 /**
  * @brief   Delays insertions.
  * @details If enabled this options inserts delays into the MMC waiting
@@ -58,6 +86,21 @@
  */
 #if !defined(MMC_NICE_WAITING) || defined(__DOXYGEN__)
 #define MMC_NICE_WAITING            TRUE
+#endif
+
+/**
+ * @brief   Number of positive insertion queries before generating the
+ *          insertion event.
+ */
+#if !defined(MMC_POLLING_INTERVAL) || defined(__DOXYGEN__)
+#define MMC_POLLING_INTERVAL        10
+#endif
+
+/**
+ * @brief   Interval, in milliseconds, between insertion queries.
+ */
+#if !defined(MMC_POLLING_DELAY) || defined(__DOXYGEN__)
+#define MMC_POLLING_DELAY           10
 #endif
 /** @} */
 
@@ -74,9 +117,45 @@
 /*===========================================================================*/
 
 /**
- * @brief   MMC/SD over SPI driver configuration structure.
+ * @brief   Driver state machine possible states.
+ */
+typedef enum {
+  MMC_UNINIT = 0,                           /**< Not initialized.           */
+  MMC_STOP = 1,                             /**< Stopped.                   */
+  MMC_WAIT = 2,                             /**< Waiting card.              */
+  MMC_INSERTED = 3,                         /**< Card inserted.             */
+  MMC_READY = 4,                            /**< Card ready.                */
+  MMC_READING = 5,                          /**< Reading.                   */
+  MMC_WRITING = 6                           /**< Writing.                   */
+} mmcstate_t;
+
+/**
+ * @brief   Function used to query some hardware status bits.
+ *
+ * @return              The status.
+ */
+typedef bool_t (*mmcquery_t)(void);
+
+/**
+ * @brief   Driver configuration structure.
+ * @note    Not required in the current implementation.
  */
 typedef struct {
+  uint8_t               dummy;
+} MMCConfig;
+
+/**
+ * @brief   Structure representing a MMC driver.
+ */
+typedef struct {
+  /**
+   * @brief Driver state.
+   */
+  mmcstate_t            state;
+  /**
+   * @brief Current configuration data.
+   */
+  const MMCConfig       *config;
   /**
    * @brief SPI driver associated to this MMC driver.
    */
@@ -89,38 +168,30 @@ typedef struct {
    * @brief SPI high speed configuration used during transfers.
    */
   const SPIConfig       *hscfg;
-} MMCConfig;
-
-/**
- * @brief   @p MMCDriver specific methods.
- */
-#define _mmc_driver_methods                                                 \
-  _mmcsd_block_device_methods
-
-/**
- * @extends MMCSDBlockDeviceVMT
- *
- * @brief   @p MMCDriver virtual methods table.
- */
-struct MMCDriverVMT {
-  _mmc_driver_methods
-};
-
-/**
- * @extends MMCSDBlockDevice
- *
- * @brief   Structure representing a MMC/SD over SPI driver.
- */
-typedef struct {
   /**
-   * @brief Virtual Methods Table.
+   * @brief Write protect status query function.
    */
-  const struct MMCDriverVMT *vmt;
-  _mmcsd_block_device_data
+  mmcquery_t            is_protected;
   /**
-   * @brief Current configuration data.
+   * @brief Insertion status query function.
    */
-  const MMCConfig       *config;
+  mmcquery_t            is_inserted;
+  /**
+   * @brief Card insertion event source.
+   */
+  EventSource           inserted_event;
+  /**
+   * @brief Card removal event source.
+   */
+  EventSource           removed_event;
+  /**
+   * @brief MMC insertion polling timer.
+   */
+  VirtualTimer          vt;
+  /**
+   * @brief Insertion counter.
+   */
+  uint_fast8_t          cnt;
   /***
    * @brief Addresses use blocks instead of bytes.
    */
@@ -136,20 +207,14 @@ typedef struct {
  * @{
  */
 /**
- * @brief   Returns the card insertion status.
- * @note    This macro wraps a low level function named
- *          @p sdc_lld_is_card_inserted(), this function must be
- *          provided by the application because it is not part of the
- *          SDC driver.
+ * @brief   Returns the driver state.
  *
  * @param[in] mmcp      pointer to the @p MMCDriver object
- * @return              The card state.
- * @retval FALSE        card not inserted.
- * @retval TRUE         card inserted.
+ * @return              The driver state.
  *
  * @api
  */
-#define mmcIsCardInserted(mmcp) mmc_lld_is_card_inserted(mmcp)
+#define mmcGetDriverState(mmcp) ((mmcp)->state)
 
 /**
  * @brief   Returns the write protect status.
@@ -161,7 +226,7 @@ typedef struct {
  *
  * @api
  */
-#define mmcIsWriteProtected(mmcp) mmc_lld_is_write_protected(mmcp)
+#define mmcIsWriteProtected(mmcp) ((mmcp)->is_protected())
 /** @} */
 
 /*===========================================================================*/
@@ -172,7 +237,9 @@ typedef struct {
 extern "C" {
 #endif
   void mmcInit(void);
-  void mmcObjectInit(MMCDriver *mmcp);
+  void mmcObjectInit(MMCDriver *mmcp, SPIDriver *spip,
+                     const SPIConfig *lscfg, const SPIConfig *hscfg,
+                     mmcquery_t is_protected, mmcquery_t is_inserted);
   void mmcStart(MMCDriver *mmcp, const MMCConfig *config);
   void mmcStop(MMCDriver *mmcp);
   bool_t mmcConnect(MMCDriver *mmcp);
@@ -183,11 +250,6 @@ extern "C" {
   bool_t mmcStartSequentialWrite(MMCDriver *mmcp, uint32_t startblk);
   bool_t mmcSequentialWrite(MMCDriver *mmcp, const uint8_t *buffer);
   bool_t mmcStopSequentialWrite(MMCDriver *mmcp);
-  bool_t mmcSync(MMCDriver *mmcp);
-  bool_t mmcGetInfo(MMCDriver *mmcp, BlockDeviceInfo *bdip);
-  bool_t mmcErase(MMCDriver *mmcp, uint32_t startblk, uint32_t endblk);
-  bool_t mmc_lld_is_card_inserted(MMCDriver *mmcp);
-  bool_t mmc_lld_is_write_protected(MMCDriver *mmcp);
 #ifdef __cplusplus
 }
 #endif

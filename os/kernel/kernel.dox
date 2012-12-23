@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -110,11 +117,6 @@
  */
 
 /**
- * @defgroup io_queues I/O Queues
- * @ingroup synchronization
- */
-
-/**
  * @defgroup memory Memory Management
  * @details Memory Management services.
  * @ingroup kernel
@@ -141,19 +143,29 @@
  */
 
  /**
- * @defgroup streams Streams and Files
- * @details Stream and Files interfaces.
+ * @defgroup io_support I/O Support
+ * @details I/O related services.
  * @ingroup kernel
  */
 
 /**
  * @defgroup data_streams Abstract Sequential Streams
- * @ingroup streams
+ * @ingroup io_support
  */
 
 /**
  * @defgroup data_files Abstract File Streams
- * @ingroup streams
+ * @ingroup io_support
+ */
+
+/**
+ * @defgroup io_channels Abstract I/O Channels
+ * @ingroup io_support
+ */
+ 
+/**
+ * @defgroup io_queues I/O Queues
+ * @ingroup io_support
  */
 
 /**

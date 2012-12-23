@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -35,23 +42,6 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @brief Value to clear all interrupts flag at once.
- */
-#define STM32_SDIO_ICR_ALL_FLAGS (SDIO_ICR_CCRCFAILC | SDIO_ICR_DCRCFAILC | \
-                                  SDIO_ICR_CTIMEOUTC | SDIO_ICR_DTIMEOUTC | \
-                                  SDIO_ICR_TXUNDERRC | SDIO_ICR_RXOVERRC |  \
-                                  SDIO_ICR_CMDRENDC  | SDIO_ICR_CMDSENTC |  \
-                                  SDIO_ICR_DATAENDC  | SDIO_ICR_STBITERRC | \
-                                  SDIO_ICR_DBCKENDC  | SDIO_ICR_SDIOITC |   \
-                                  SDIO_ICR_CEATAENDC)
-
-/**
- * @brief Mask of error flags in STA register.
- */
-#define STM32_SDIO_STA_ERROR_MASK (SDIO_STA_CCRCFAIL | SDIO_STA_DCRCFAIL |  \
-                                   SDIO_STA_CTIMEOUT | SDIO_STA_DTIMEOUT |  \
-                                   SDIO_STA_TXUNDERR | SDIO_STA_RXOVERR)
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
@@ -61,6 +51,13 @@
  * @name    Configuration options
  * @{
  */
+/**
+ * @brief   SDIO data timeout in SDIO clock cycles.
+ */
+#if !defined(STM32_SDC_DATATIMEOUT) || defined(__DOXYGEN__)
+#define STM32_SDC_DATATIMEOUT               0x000FFFFF
+#endif
+
 /**
  * @brief   SDIO DMA priority (0..3|lowest..highest).
  */
@@ -76,41 +73,11 @@
 #endif
 
 /**
- * @brief   Write timeout in milliseconds.
+ * @brief   SDIO support for unaligned transfers.
  */
-#if !defined(SDC_WRITE_TIMEOUT_MS) || defined(__DOXYGEN__)
-#define SDC_WRITE_TIMEOUT_MS                250
+#if !defined(STM32_SDC_UNALIGNED_SUPPORT) || defined(__DOXYGEN__)
+#define STM32_SDC_UNALIGNED_SUPPORT         TRUE
 #endif
-
-/**
- * @brief   Read timeout in milliseconds.
- */
-#if !defined(SDC_READ_TIMEOUT_MS) || defined(__DOXYGEN__)
-#define SDC_READ_TIMEOUT_MS                 5
-#endif
-
-/**
- * @brief   Support for unaligned transfers.
- * @note    Unaligned transfers are much slower.
- */
-#if !defined(STM32_SDC_SDIO_UNALIGNED_SUPPORT) || defined(__DOXYGEN__)
-#define STM32_SDC_SDIO_UNALIGNED_SUPPORT    TRUE
-#endif
-
-#if STM32_ADVANCED_DMA || defined(__DOXYGEN__)
-
-/**
- * @brief   DMA stream used for SDC operations.
- * @note    This option is only available on platforms with enhanced DMA.
- */
-#if !defined(STM32_SDC_SDIO_DMA_STREAM) || defined(__DOXYGEN__)
-#define STM32_SDC_SDIO_DMA_STREAM           STM32_DMA_STREAM_ID(2, 3)
-#endif
-
-#else /* !STM32_ADVANCED_DMA*/
-#define STM32_SDC_SDIO_DMA_STREAM           STM32_DMA_STREAM_ID(2, 4)
-
-#endif /* !STM32_ADVANCED_DMA*/
 /** @} */
 
 /*===========================================================================*/
@@ -121,14 +88,6 @@
 #error "SDIO not present in the selected device"
 #endif
 
-#if !CORTEX_IS_VALID_KERNEL_PRIORITY(STM32_SDC_SDIO_IRQ_PRIORITY)
-#error "Invalid IRQ priority assigned to SDIO"
-#endif
-
-#if !STM32_DMA_IS_VALID_PRIORITY(STM32_SDC_SDIO_DMA_PRIORITY)
-#error "Invalid DMA priority assigned to SDIO"
-#endif
-
 #if !defined(STM32_DMA_REQUIRED)
 #define STM32_DMA_REQUIRED
 #endif
@@ -136,37 +95,12 @@
 /*
  * SDIO clock divider.
  */
-#if (defined(STM32F4XX) || defined(STM32F2XX))
-#define STM32_SDIO_DIV_HS                   0
-#define STM32_SDIO_DIV_LS                   120
-
-#elif STM32_HCLK > 48000000
-#define STM32_SDIO_DIV_HS                   1
-#define STM32_SDIO_DIV_LS                   178
+#if STM32_HCLK > 48000000
+#define STM32_SDIO_DIV_HS                   0x01
+#define STM32_SDIO_DIV_LS                   0xB2
 #else
-
-#define STM32_SDIO_DIV_HS                   0
-#define STM32_SDIO_DIV_LS                   118
-#endif
-
-/**
- * @brief   SDIO data timeouts in SDIO clock cycles.
- */
-#if (defined(STM32F4XX) || defined(STM32F2XX))
-#if !STM32_CLOCK48_REQUIRED
-#error "SDIO requires STM32_CLOCK48_REQUIRED to be enabled"
-#endif
-
-#define STM32_SDC_WRITE_TIMEOUT                                             \
-  (((STM32_PLL48CLK / (STM32_SDIO_DIV_HS + 2)) / 1000) * SDC_WRITE_TIMEOUT_MS)
-#define STM32_SDC_READ_TIMEOUT                                              \
-  (((STM32_PLL48CLK / (STM32_SDIO_DIV_HS + 2)) / 1000) * SDC_READ_TIMEOUT_MS)
-
-#else
-#define STM32_SDC_WRITE_TIMEOUT                                             \
-  (((STM32_HCLK / (STM32_SDIO_DIV_HS + 2)) / 1000) * SDC_WRITE_TIMEOUT_MS)
-#define STM32_SDC_READ_TIMEOUT                                              \
-  (((STM32_HCLK / (STM32_SDIO_DIV_HS + 2)) / 1000) * SDC_READ_TIMEOUT_MS)
+#define STM32_SDIO_DIV_HS                   0x00
+#define STM32_SDIO_DIV_LS                   0x76
 #endif
 
 /*===========================================================================*/
@@ -188,11 +122,6 @@ typedef enum {
 typedef uint32_t sdcmode_t;
 
 /**
- * @brief   SDC Driver condition flags type.
- */
-typedef uint32_t sdcflags_t;
-
-/**
  * @brief   Type of a structure representing an SDC driver.
  */
 typedef struct SDCDriver SDCDriver;
@@ -206,29 +135,13 @@ typedef struct {
 } SDCConfig;
 
 /**
- * @brief   @p SDCDriver specific methods.
- */
-#define _sdc_driver_methods                                                 \
-  _mmcsd_block_device_methods
-
-/**
- * @extends MMCSDBlockDeviceVMT
- *
- * @brief   @p SDCDriver virtual methods table.
- */
-struct SDCDriverVMT {
-  _sdc_driver_methods
-};
-
-/**
  * @brief   Structure representing an SDC driver.
  */
 struct SDCDriver {
   /**
-   * @brief Virtual Methods Table.
+   * @brief Driver state.
    */
-  const struct SDCDriverVMT *vmt;
-  _mmcsd_block_device_data
+  sdcstate_t                state;
   /**
    * @brief Current configuration data.
    */
@@ -238,9 +151,13 @@ struct SDCDriver {
    */
   sdcmode_t                 cardmode;
   /**
-   * @brief Errors flags.
+   * @brief Card CID.
    */
-  sdcflags_t                errors;
+  uint32_t                  cid[4];
+  /**
+   * @brief Card CSD.
+   */
+  uint32_t                  csd[4];
   /**
    * @brief Card RCA.
    */
@@ -250,52 +167,11 @@ struct SDCDriver {
    * @brief Thread waiting for I/O completion IRQ.
    */
   Thread                    *thread;
-  /**
-   * @brief     DMA mode bit mask.
-   */
-  uint32_t                  dmamode;
-  /**
-   * @brief     Transmit DMA channel.
-   */
-  const stm32_dma_stream_t  *dma;
-  /**
-   * @brief     Pointer to the SDIO registers block.
-   * @note      Used only for dubugging purpose.
-   */
-#if CH_DBG_ENABLE_ASSERTS
-  SDIO_TypeDef              *sdio;
-#endif
 };
 
 /*===========================================================================*/
 /* Driver macros.                                                            */
 /*===========================================================================*/
-
-/**
- * @name    R1 response utilities
- * @{
- */
-/**
- * @brief   Evaluates to @p TRUE if the R1 response contains error flags.
- *
- * @param[in] r1        the r1 response
- */
-#define MMCSD_R1_ERROR(r1)              (((r1) & MMCSD_R1_ERROR_MASK) != 0)
-
-/**
- * @brief   Returns the status field of an R1 response.
- *
- * @param[in] r1        the r1 response
- */
-#define MMCSD_R1_STS(r1)                (((r1) >> 9) & 15)
-
-/**
- * @brief   Evaluates to @p TRUE if the R1 response indicates a locked card.
- *
- * @param[in] r1        the r1 response
- */
-#define MMCSD_R1_IS_CARD_LOCKED(r1)     (((r1) >> 21) & 1)
-/** @} */
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -326,7 +202,6 @@ extern "C" {
                       uint8_t *buf, uint32_t n);
   bool_t sdc_lld_write(SDCDriver *sdcp, uint32_t startblk,
                        const uint8_t *buf, uint32_t n);
-  bool_t sdc_lld_sync(SDCDriver *sdcp);
   bool_t sdc_lld_is_card_inserted(SDCDriver *sdcp);
   bool_t sdc_lld_is_write_protected(SDCDriver *sdcp);
 #ifdef __cplusplus

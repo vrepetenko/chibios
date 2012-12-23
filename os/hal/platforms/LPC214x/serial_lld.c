@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -106,7 +113,7 @@ static void uart_deinit(UART *u) {
  * @param[in] err       UART LSR register value
  */
 static void set_error(SerialDriver *sdp, IOREG32 err) {
-  flagsmask_t sts = 0;
+  ioflags_t sts = 0;
 
   if (err & LSR_OVERRUN)
     sts |= SD_OVERRUN_ERROR;
@@ -117,7 +124,7 @@ static void set_error(SerialDriver *sdp, IOREG32 err) {
   if (err & LSR_BREAK)
     sts |= SD_BREAK_DETECTED;
   chSysLockFromIsr();
-  chnAddFlagsI(sdp, sts);
+  chIOAddFlagsI(sdp, sts);
   chSysUnlockFromIsr();
 }
 
@@ -145,12 +152,12 @@ static void serve_interrupt(SerialDriver *sdp) {
     case IIR_SRC_RX:
       chSysLockFromIsr();
       if (chIQIsEmptyI(&sdp->iqueue))
-        chnAddFlagsI(sdp, CHN_INPUT_AVAILABLE);
+        chIOAddFlagsI(sdp, IO_INPUT_AVAILABLE);
       chSysUnlockFromIsr();
       while (u->UART_LSR & LSR_RBR_FULL) {
         chSysLockFromIsr();
         if (chIQPutI(&sdp->iqueue, u->UART_RBR) < Q_OK)
-          chnAddFlagsI(sdp, SD_OVERRUN_ERROR);
+          chIOAddFlagsI(sdp, SD_OVERRUN_ERROR);
         chSysUnlockFromIsr();
       }
       break;
@@ -166,7 +173,7 @@ static void serve_interrupt(SerialDriver *sdp) {
           if (b < Q_OK) {
             u->UART_IER &= ~IER_THRE;
             chSysLockFromIsr();
-            chnAddFlagsI(sdp, CHN_OUTPUT_EMPTY);
+            chIOAddFlagsI(sdp, IO_OUTPUT_EMPTY);
             chSysUnlockFromIsr();
             break;
           }
@@ -192,7 +199,7 @@ static void preload(SerialDriver *sdp) {
     do {
       msg_t b = chOQGetI(&sdp->oqueue);
       if (b < Q_OK) {
-        chnAddFlagsI(sdp, CHN_OUTPUT_EMPTY);
+        chIOAddFlagsI(sdp, IO_OUTPUT_EMPTY);
         return;
       }
       u->UART_THR = b;

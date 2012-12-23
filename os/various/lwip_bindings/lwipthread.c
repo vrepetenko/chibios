@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 /*
  * **** This file incorporates work covered by the following copyright and ****
@@ -266,7 +273,7 @@ msg_t lwip_thread(void *p) {
   evtStart(&evt);
   chEvtRegisterMask(&evt.et_es, &el0, PERIODIC_TIMER_ID);
   chEvtRegisterMask(macGetReceiveEventSource(&ETHD1), &el1, FRAME_RECEIVED_ID);
-  chEvtAddEvents(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID);
+  chEvtAddFlags(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID);
 
   /* Goes to the final priority after initialization.*/
   chThdSetPriority(LWIP_THREAD_PRIORITY);

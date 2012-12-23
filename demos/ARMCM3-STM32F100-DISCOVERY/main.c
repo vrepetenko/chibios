@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include "ch.h"
@@ -209,7 +216,7 @@ int main(void) {
   palSetGroupMode(GPIOC, PAL_PORT_BIT(0), 0, PAL_MODE_INPUT_ANALOG);
 
   /*
-   * Initializes the PWM driver 3, re-routes the TIM3 outputs, programs the
+   * Initializes the PWM driver 1, re-routes the TIM3 outputs, programs the
    * pins as alternate functions.
    * Note, the AFIO access routes the TIM3 output pins on the PC6...PC9
    * where the LEDs are connected.

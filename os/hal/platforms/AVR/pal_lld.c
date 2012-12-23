@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -94,26 +101,6 @@ void _pal_lld_init(const PALConfig *config) {
 #if defined(PORTG) || defined(__DOXYGEN__)
   PORTG = config->portg.out;
   DDRG = config->portg.dir;
-#endif
-
-#if defined(PORTH) || defined(__DOXYGEN__)
-  PORTH = config->porth.out;
-  DDRH = config->porth.dir;
-#endif
-
-#if defined(PORTJ) || defined(__DOXYGEN__)
-  PORTJ = config->portj.out;
-  DDRJ = config->portj.dir;
-#endif
-
-#if defined(PORTK) || defined(__DOXYGEN__)
-  PORTK = config->portk.out;
-  DDRK = config->portk.dir;
-#endif
-
-#if defined(PORTL) || defined(__DOXYGEN__)
-  PORTL = config->portl.out;
-  DDRL = config->portl.dir;
 #endif
 }
 

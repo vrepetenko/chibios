@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -25,27 +32,24 @@
  * @addtogroup PPC_CORE
  * @{
  */
+/** @cond never */
 
-#if !defined(__DOXYGEN__)
-
-        .section    .crt0, "ax"
+        .section    .text
         .align		2
         .globl      _boot_address
-        .type       _boot_address, @function
 _boot_address:
         /*
          * Stack setup.
          */
-        lis         %r1, __process_stack_end__@h
-        ori         %r1, %r1, __process_stack_end__@l
+        lis         %r1, __ram_end__@h
+        ori         %r1, %r1, __ram_end__@l
         li          %r0, 0
         stwu        %r0, -8(%r1)
         /*
          * IVPR initialization.
          */
         lis         %r4, __ivpr_base__@h
-        ori         %r4, %r4, __ivpr_base__@l
-        mtIVPR      %r4
+        mtIVPR      %r4    
         /*
          * Small sections registers initialization.
          */
@@ -91,10 +95,6 @@ _boot_address:
         b           .dataloop
 .dataend:
         /*
-         * Late initialization.
-         */
-        bl          __late_init
-        /*
          * Main program invocation.
          */
         bl          main
@@ -105,28 +105,17 @@ _boot_address:
          */
         .weak       _main_exit_handler
         .globl      _main_exit_handler
-        .type       _main_exit_handler, @function
 _main_exit_handler:
-        b           _main_exit_handler
+forever:
+        b           forever
 
         /*
-         * Default early initialization code, none.
+         * Default initialization code, none.
          */
         .weak       __early_init
         .globl      __early_init
-        .type       __early_init, @function
 __early_init:
         blr
 
-        /*
-         * Default late initialization code, none.
-         */
-        .weak       __late_init
-        .globl      __late_init
-        .type       __late_init, @function
-__late_init:
-        blr
-
-#endif /* !defined(__DOXYGEN__) */
-
+/** @endcond */
 /** @} */

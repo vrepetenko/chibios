@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -94,12 +101,12 @@
 /**
  * @brief   Logical low state.
  */
-#define PAL_LOW                         0
+#define PAL_LOW 0
 
 /**
  * @brief   Logical high state.
  */
-#define PAL_HIGH                        1
+#define PAL_HIGH 1
 /** @} */
 
 /*===========================================================================*/
@@ -151,9 +158,7 @@ typedef struct {
  * @param[in] n         bit position within the port
  * @return              The bit mask.
  */
-#if !defined(PAL_PORT_BIT) || defined(__DOXYGEN__)
 #define PAL_PORT_BIT(n) ((ioportmask_t)(1 << (n)))
-#endif
 
 /**
  * @brief   Bits group mask helper.
@@ -162,9 +167,7 @@ typedef struct {
  * @param[in] width         group width
  * @return                  The group mask.
  */
-#if !defined(PAL_GROUP_MASK) || defined(__DOXYGEN__)
 #define PAL_GROUP_MASK(width) ((ioportmask_t)(1 << (width)) - 1)
-#endif
 
 /**
  * @brief   Data part of a static I/O bus initializer.
@@ -176,7 +179,7 @@ typedef struct {
  * @param[in] width     bus width in bits
  * @param[in] offset     bus bit offset within the port
  */
-#define _IOBUS_DATA(name, port, width, offset)                              \
+#define _IOBUS_DATA(name, port, width, offset)                          \
   {port, PAL_GROUP_MASK(width), offset}
 
 /**
@@ -187,7 +190,7 @@ typedef struct {
  * @param[in] width     bus width in bits
  * @param[in] offset    bus bit offset within the port
  */
-#define IOBUS_DECL(name, port, width, offset)                               \
+#define IOBUS_DECL(name, port, width, offset)                           \
   IOBus name = _IOBUS_DATA(name, port, width, offset)
 
 /**
@@ -273,7 +276,7 @@ typedef struct {
  * @api
  */
 #if !defined(pal_lld_setport) || defined(__DOXYGEN__)
-#define palSetPort(port, bits)                                              \
+#define palSetPort(port, bits)                                          \
   palWritePort(port, palReadLatch(port) | (bits))
 #else
 #define palSetPort(port, bits) pal_lld_setport(port, bits)
@@ -295,7 +298,7 @@ typedef struct {
  * @api
  */
 #if !defined(pal_lld_clearport) || defined(__DOXYGEN__)
-#define palClearPort(port, bits)                                            \
+#define palClearPort(port, bits)                                        \
   palWritePort(port, palReadLatch(port) & ~(bits))
 #else
 #define palClearPort(port, bits) pal_lld_clearport(port, bits)
@@ -317,7 +320,7 @@ typedef struct {
  * @api
  */
 #if !defined(pal_lld_toggleport) || defined(__DOXYGEN__)
-#define palTogglePort(port, bits)                                           \
+#define palTogglePort(port, bits)                                       \
   palWritePort(port, palReadLatch(port) ^ (bits))
 #else
 #define palTogglePort(port, bits) pal_lld_toggleport(port, bits)
@@ -335,7 +338,7 @@ typedef struct {
  * @api
  */
 #if !defined(pal_lld_readgroup) || defined(__DOXYGEN__)
-#define palReadGroup(port, mask, offset)                                    \
+#define palReadGroup(port, mask, offset)                               \
   ((palReadPort(port) >> (offset)) & (mask))
 #else
 #define palReadGroup(port, mask, offset) pal_lld_readgroup(port, mask, offset)
@@ -354,11 +357,11 @@ typedef struct {
  * @api
  */
 #if !defined(pal_lld_writegroup) || defined(__DOXYGEN__)
-#define palWriteGroup(port, mask, offset, bits)                             \
-  palWritePort(port, (palReadLatch(port) & ~((mask) << (offset))) |         \
+#define palWriteGroup(port, mask, offset, bits)                         \
+  palWritePort(port, (palReadLatch(port) & ~((mask) << (offset))) |     \
                      (((bits) & (mask)) << (offset)))
 #else
-#define palWriteGroup(port, mask, offset, bits)                             \
+#define palWriteGroup(port, mask, offset, bits)                         \
   pal_lld_writegroup(port, mask, offset, bits)
 #endif
 
@@ -424,8 +427,8 @@ typedef struct {
  * @api
  */
 #if !defined(pal_lld_writepad) || defined(__DOXYGEN__)
-#define palWritePad(port, pad, bit)                                         \
-  palWritePort(port, (palReadLatch(port) & ~PAL_PORT_BIT(pad)) |            \
+#define palWritePad(port, pad, bit)                                     \
+  palWritePort(port, (palReadLatch(port) & ~PAL_PORT_BIT(pad)) |        \
                      (((bit) & 1) << pad))
 #else
 #define palWritePad(port, pad, bit) pal_lld_writepad(port, pad, bit)
@@ -497,6 +500,7 @@ typedef struct {
 #define palTogglePad(port, pad) pal_lld_togglepad(port, pad)
 #endif
 
+
 /**
  * @brief   Pad mode setup.
  * @details This function programs a pad with the specified mode.
@@ -512,7 +516,7 @@ typedef struct {
  * @api
  */
 #if !defined(pal_lld_setpadmode) || defined(__DOXYGEN__)
-#define palSetPadMode(port, pad, mode)                                      \
+#define palSetPadMode(port, pad, mode)                                  \
   palSetGroupMode(port, PAL_PORT_BIT(pad), 0, mode)
 #else
 #define palSetPadMode(port, pad, mode) pal_lld_setpadmode(port, pad, mode)

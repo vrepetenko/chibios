@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -41,7 +48,7 @@
  *          If larger messages need to be exchanged then a pointer to a
  *          structure can be posted in the mailbox but the posting side has
  *          no predefined way to know when the message has been processed. A
- *          possible approach is to allocate memory (from a memory pool for
+ *          possible approach is to allocate memory (from a memory pool as
  *          example) from the posting side and free it on the fetching side.
  *          Another approach is to set a "done" flag into the structure pointed
  *          by the message.
@@ -57,8 +64,8 @@
  * @brief   Initializes a Mailbox object.
  *
  * @param[out] mbp      the pointer to the Mailbox structure to be initialized
- * @param[in] buf       pointer to the messages buffer as an array of @p msg_t
- * @param[in] n         number of elements in the buffer array
+ * @param[in] buf       the circular messages buffer
+ * @param[in] n         the buffer size as number of @p msg_t
  *
  * @init
  */
@@ -346,7 +353,7 @@ msg_t chMBFetchS(Mailbox *mbp, msg_t *msgp, systime_t time) {
 /**
  * @brief   Retrieves a message from a mailbox.
  * @details This variant is non-blocking, the function returns a timeout
- *          condition if the queue is empty.
+ *          condition if the queue is full.
  *
  * @param[in] mbp       the pointer to an initialized Mailbox object
  * @param[out] msgp     pointer to a message variable for the received message

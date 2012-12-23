@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -122,12 +129,6 @@ struct Thread {
    */
   trefs_t               p_refs;
 #endif
-  /**
-   * @brief Number of ticks remaining to this thread.
-   */
-#if (CH_TIME_QUANTUM > 0) || defined(__DOXYGEN__)
-  tslices_t             p_preempt;
-#endif
 #if CH_DBG_THREADS_PROFILING || defined(__DOXYGEN__)
   /**
    * @brief Thread consumed time in ticks.
@@ -227,17 +228,15 @@ typedef msg_t (*tfunc_t)(void *);
  */
 /**
  * @brief   Returns a pointer to the current @p Thread.
- * @note    Can be invoked in any context.
  *
- * @special
+ * @api
  */
 #define chThdSelf() currp
 
 /**
  * @brief   Returns the current thread priority.
- * @note    Can be invoked in any context.
  *
- * @special
+ * @api
  */
 #define chThdGetPriority() (currp->p_prio)
 
@@ -245,42 +244,38 @@ typedef msg_t (*tfunc_t)(void *);
  * @brief   Returns the number of ticks consumed by the specified thread.
  * @note    This function is only available when the
  *          @p CH_DBG_THREADS_PROFILING configuration option is enabled.
- * @note    Can be invoked in any context.
  *
  * @param[in] tp        pointer to the thread
  *
- * @special
+ * @api
  */
 #define chThdGetTicks(tp) ((tp)->p_time)
 
 /**
  * @brief   Returns the pointer to the @p Thread local storage area, if any.
- * @note    Can be invoked in any context.
  *
- * @special
+ * @api
  */
 #define chThdLS() (void *)(currp + 1)
 
 /**
  * @brief   Verifies if the specified thread is in the @p THD_STATE_FINAL state.
- * @note    Can be invoked in any context.
  *
  * @param[in] tp        pointer to the thread
  * @retval TRUE         thread terminated.
  * @retval FALSE        thread not terminated.
  *
- * @special
+ * @api
  */
 #define chThdTerminated(tp) ((tp)->p_state == THD_STATE_FINAL)
 
 /**
  * @brief   Verifies if the current thread has a termination request pending.
- * @note    Can be invoked in any context.
  *
- * @retval TRUE         termination request pending.
- * @retval FALSE        termination request not pending.
+ * @retval TRUE         termination request pended.
+ * @retval FALSE        termination request not pended.
  *
- * @special
+ * @api
  */
 #define chThdShouldTerminate() (currp->p_flags & THD_TERMINATE)
 

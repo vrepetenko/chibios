@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #ifndef _BOARD_H_
@@ -87,11 +94,9 @@
  * PA0  - Normal input      (BUTTON).
  * PA2  - Alternate output  (USART2 TX).
  * PA3  - Normal input      (USART2 RX).
- * PA11 - Normal input      (USB DM).
- * PA12 - Normal input      (USB DP).
  */
 #define VAL_GPIOACRL            0x88884B84      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x88844888      /* PA15...PA8 */
+#define VAL_GPIOACRH            0x88888888      /* PA15...PA8 */
 #define VAL_GPIOAODR            0xFFFFFFFF
 
 /*

@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -32,10 +39,8 @@
 static void tmrcb(void *p) {
   EvTimer *etp = p;
 
-  chSysLockFromIsr();
   chEvtBroadcastI(&etp->et_es);
   chVTSetI(&etp->et_vt, etp->et_interval, tmrcb, etp);
-  chSysUnlockFromIsr();
 }
 
 /**
@@ -62,7 +67,12 @@ void evtStart(EvTimer *etp) {
  */
 void evtStop(EvTimer *etp) {
 
-  chVTReset(&etp->et_vt);
+  chSysLock();
+
+  if (chVTIsArmedI(&etp->et_vt))
+    chVTResetI(&etp->et_vt);
+
+  chSysUnlock();
 }
 
 /** @} */

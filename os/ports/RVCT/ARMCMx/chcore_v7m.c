@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -114,7 +121,7 @@ void _port_init(void) {
 
   /* Initialization of the vector table and priority related settings.*/
   SCB_VTOR = CORTEX_VTOR_INIT;
-  SCB_AIRCR = AIRCR_VECTKEY | AIRCR_PRIGROUP(CORTEX_PRIGROUP_INIT);
+  SCB_AIRCR = AIRCR_VECTKEY | AIRCR_PRIGROUP(0);
 
 #if CORTEX_USE_FPU
   {
@@ -196,7 +203,7 @@ void _port_irq_epilogue(void) {
 #endif
 
     /* Note, returning without unlocking is intentional, this is done in
-       order to keep the rest of the context switch atomic.*/
+       order to keep the rest of the context switching atomic.*/
     return;
   }
   port_unlock_from_isr();

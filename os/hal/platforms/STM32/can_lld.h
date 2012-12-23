@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -80,7 +87,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(STM32_CAN_USE_CAN1) || defined(__DOXYGEN__)
-#define STM32_CAN_USE_CAN1                  FALSE
+#define STM32_CAN_USE_CAN1                  TRUE
 #endif
 
 /**
@@ -110,6 +117,11 @@
 /*===========================================================================*/
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
+
+/**
+ * @brief   CAN status flags.
+ */
+typedef uint32_t canstatus_t;
 
 /**
  * @brief   CAN transmission frame.
@@ -268,6 +280,10 @@ typedef struct {
    * @brief A CAN bus error happened.
    */
   EventSource               error_event;
+  /**
+   * @brief Error flags set when an error event is broadcasted.
+   */
+  canstatus_t               status;
 #if CAN_USE_SLEEP_MODE || defined (__DOXYGEN__)
   /**
    * @brief Entering sleep state event.

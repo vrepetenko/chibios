@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -85,7 +92,7 @@ void * ROMCONST wa[5] = {test.wa.T0, test.wa.T1, test.wa.T2,
 /*
  * Console output.
  */
-static BaseSequentialStream *chp;
+static BaseChannel *chp;
 
 /**
  * @brief   Prints a decimal unsigned number.
@@ -96,13 +103,13 @@ void test_printn(uint32_t n) {
   char buf[16], *p;
 
   if (!n)
-    chSequentialStreamPut(chp, '0');
+    chIOPut(chp, '0');
   else {
     p = buf;
     while (n)
       *p++ = (n % 10) + '0', n /= 10;
     while (p > buf)
-      chSequentialStreamPut(chp, *--p);
+      chIOPut(chp, *--p);
   }
 }
 
@@ -114,7 +121,7 @@ void test_printn(uint32_t n) {
 void test_print(const char *msgp) {
 
   while (*msgp)
-    chSequentialStreamPut(chp, *msgp++);
+    chIOPut(chp, *msgp++);
 }
 
 /**
@@ -125,7 +132,8 @@ void test_print(const char *msgp) {
 void test_println(const char *msgp) {
 
   test_print(msgp);
-  chSequentialStreamWrite(chp, (const uint8_t *)"\r\n", 2);
+  chIOPut(chp, '\r');
+  chIOPut(chp, '\n');
 }
 
 /*
@@ -140,7 +148,7 @@ static void print_tokens(void) {
   char *cp = tokens_buffer;
 
   while (cp < tokp)
-    chSequentialStreamPut(chp, *cp++);
+    chIOPut(chp, *cp++);
 }
 
 /**
@@ -277,7 +285,9 @@ void test_start_timer(unsigned ms) {
 
   systime_t duration = MS2ST(ms);
   test_timer_done = FALSE;
-  chVTSet(&vt, duration, tmr, NULL);
+  chSysLock();
+  chVTSetI(&vt, duration, tmr, NULL);
+  chSysUnlock();
 }
 
 /*
@@ -305,8 +315,9 @@ static void print_line(void) {
   unsigned i;
 
   for (i = 0; i < 76; i++)
-    chSequentialStreamPut(chp, '-');
-  chSequentialStreamWrite(chp, (const uint8_t *)"\r\n", 2);
+    chIOPut(chp, '-');
+  chIOPut(chp, '\r');
+  chIOPut(chp, '\n');
 }
 
 /**

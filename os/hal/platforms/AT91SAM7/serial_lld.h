@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -57,17 +64,6 @@
 #define USE_SAM7_USART1             TRUE
 #endif
 
-#if (SAM7_PLATFORM == SAM7A3)
-/**
- * @brief   UART2 driver enable switch.
- * @details If set to @p TRUE the support for USART3 is included.
- * @note    The default is @p TRUE.
- */
-#if !defined(USE_SAM7_USART2) || defined(__DOXYGEN__)
-#define USE_SAM7_USART2             TRUE
-#endif
-#endif /* (SAM7_PLATFORM == SAM7A3) */
-
 /**
  * @brief   DBGU UART driver enable switch.
  * @details If set to @p TRUE the support for the DBGU UART is included.
@@ -90,15 +86,6 @@
 #if !defined(SAM7_USART1_PRIORITY) || defined(__DOXYGEN__)
 #define SAM7_USART1_PRIORITY        (AT91C_AIC_PRIOR_HIGHEST - 2)
 #endif
-
-#if (SAM7_PLATFORM == SAM7A3)
-/**
- * @brief   UART2 interrupt priority level setting.
- */
-#if !defined(SAM7_USART2_PRIORITY) || defined(__DOXYGEN__)
-#define SAM7_USART2_PRIORITY        (AT91C_AIC_PRIOR_HIGHEST - 2)
-#endif
-#endif /* (SAM7_PLATFORM == SAM7A3) */
 
 /**
  * @brief   DBGU_UART interrupt priority level setting.
@@ -166,13 +153,8 @@ extern SerialDriver SD1;
 #if USE_SAM7_USART1 && !defined(__DOXYGEN__)
 extern SerialDriver SD2;
 #endif
-#if (SAM7_PLATFORM == SAM7A3)
-#if USE_SAM7_USART2 && !defined(__DOXYGEN__)
-extern SerialDriver SD3;
-#endif
-#endif
 #if USE_SAM7_DBGU_UART
-extern SerialDriver SDDBG;
+extern SerialDriver SD3;
 #endif
 
 #ifdef __cplusplus

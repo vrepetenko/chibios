@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -45,7 +52,7 @@
 EXTDriver EXTDA;
 
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3)
+    (SAM7_PLATFORM == SAM7X512)
 /**
  * @brief   EXTDB driver identifier.
  */
@@ -75,7 +82,7 @@ static void ext_lld_serveInterrupt(EXTDriver *extp) {
   irqFlags = extp->pio->PIO_ISR;
 
   /* Call callback function for any pending interrupt.*/
-  for(ch = 0; ch < EXT_MAX_CHANNELS; ch++) {
+  for(ch = 0; ch < 32; ch++) {
 
     /* Check if the channel is activated and if its IRQ flag is set.*/
     if((extp->config->channels[ch].mode &
@@ -109,7 +116,7 @@ CH_IRQ_HANDLER(EXTIA_IRQHandler) {
 }
 
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3)
+    (SAM7_PLATFORM == SAM7X512)
 /**
  * @brief   EXTI[1] interrupt handler.
  *
@@ -145,7 +152,7 @@ void ext_lld_init(void) {
   EXTDA.pid = AT91C_ID_PIOA;
 
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3)
+    (SAM7_PLATFORM == SAM7X512)
   /* Same for PIOB.*/
   extObjectInit(&EXTDB);
   EXTDB.pio = AT91C_BASE_PIOB;
@@ -172,7 +179,7 @@ void ext_lld_start(EXTDriver *extp) {
                                                    EXTIA_IRQHandler);
     break;
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3)
+    (SAM7_PLATFORM == SAM7X512)
   case AT91C_ID_PIOB:
     AIC_ConfigureIT(AT91C_ID_PIOB, SAM7_computeSMR(config->mode,
                                                    config->priority),
@@ -214,9 +221,6 @@ void ext_lld_stop(EXTDriver *extp) {
  * @notapi
  */
 void ext_lld_channel_enable(EXTDriver *extp, expchannel_t channel) {
-
-  chDbgCheck((extp->config->channels[channel].cb != NULL),
-      "Call back pointer can not be NULL");
 
   extp->pio->PIO_IER = (1 << channel);
 }

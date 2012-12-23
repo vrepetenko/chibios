@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include "ch.h"
@@ -78,7 +85,7 @@ static EVENTSOURCE_DECL(es2);
 
 static void evt1_setup(void) {
 
-  chEvtGetAndClearEvents(ALL_EVENTS);
+  chEvtClearFlags(ALL_EVENTS);
 }
 
 static void h1(eventid_t id) {(void)id;test_emit_token('A');}
@@ -131,13 +138,13 @@ ROMCONST struct testcase testevt1 = {
 
 static void evt2_setup(void) {
 
-  chEvtGetAndClearEvents(ALL_EVENTS);
+  chEvtClearFlags(ALL_EVENTS);
 }
 
 static msg_t thread1(void *p) {
 
   chThdSleepMilliseconds(50);
-  chEvtSignal((Thread *)p, 1);
+  chEvtSignalFlags((Thread *)p, 1);
   return 0;
 }
 
@@ -158,12 +165,12 @@ static void evt2_execute(void) {
   /*
    * Test on chEvtWaitOne() without wait.
    */
-  chEvtAddEvents(5);
+  chEvtAddFlags(5);
   m = chEvtWaitOne(ALL_EVENTS);
   test_assert(1, m == 1, "single event error");
   m = chEvtWaitOne(ALL_EVENTS);
   test_assert(2, m == 4, "single event error");
-  m = chEvtGetAndClearEvents(ALL_EVENTS);
+  m = chEvtClearFlags(ALL_EVENTS);
   test_assert(3, m == 0, "stuck event");
 
   /*
@@ -176,17 +183,17 @@ static void evt2_execute(void) {
   m = chEvtWaitOne(ALL_EVENTS);
   test_assert_time_window(4, target_time, target_time + ALLOWED_DELAY);
   test_assert(5, m == 1, "single event error");
-  m = chEvtGetAndClearEvents(ALL_EVENTS);
+  m = chEvtClearFlags(ALL_EVENTS);
   test_assert(6, m == 0, "stuck event");
   test_wait_threads();
 
   /*
    * Test on chEvtWaitAny() without wait.
    */
-  chEvtAddEvents(5);
+  chEvtAddFlags(5);
   m = chEvtWaitAny(ALL_EVENTS);
   test_assert(7, m == 5, "unexpected pending bit");
-  m = chEvtGetAndClearEvents(ALL_EVENTS);
+  m = chEvtClearFlags(ALL_EVENTS);
   test_assert(8, m == 0, "stuck event");
 
   /*
@@ -199,7 +206,7 @@ static void evt2_execute(void) {
   m = chEvtWaitAny(ALL_EVENTS);
   test_assert_time_window(9, target_time, target_time + ALLOWED_DELAY);
   test_assert(10, m == 1, "single event error");
-  m = chEvtGetAndClearEvents(ALL_EVENTS);
+  m = chEvtClearFlags(ALL_EVENTS);
   test_assert(11, m == 0, "stuck event");
   test_wait_threads();
 
@@ -216,7 +223,7 @@ static void evt2_execute(void) {
                                  thread2, "A");
   m = chEvtWaitAll(5);
   test_assert_time_window(12, target_time, target_time + ALLOWED_DELAY);
-  m = chEvtGetAndClearEvents(ALL_EVENTS);
+  m = chEvtClearFlags(ALL_EVENTS);
   test_assert(13, m == 0, "stuck event");
   test_wait_threads();
   chEvtUnregister(&es1, &el1);
@@ -250,7 +257,7 @@ ROMCONST struct testcase testevt2 = {
 
 static void evt3_setup(void) {
 
-  chEvtGetAndClearEvents(ALL_EVENTS);
+  chEvtClearFlags(ALL_EVENTS);
 }
 
 static void evt3_execute(void) {

@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 #include "ch.h"
@@ -67,8 +74,8 @@ static void notify(GenericQueue *qp) {
  * variables are explicitly initialized in each test case. It is done in order
  * to test the macros.
  */
-static INPUTQUEUE_DECL(iq, test.wa.T0, TEST_QUEUES_SIZE, notify, NULL);
-static OUTPUTQUEUE_DECL(oq, test.wa.T1, TEST_QUEUES_SIZE, notify, NULL);
+static INPUTQUEUE_DECL(iq, test.wa.T0, TEST_QUEUES_SIZE, notify);
+static OUTPUTQUEUE_DECL(oq, test.wa.T1, TEST_QUEUES_SIZE, notify);
 
 /**
  * @page test_queues_001 Input Queues functionality and APIs
@@ -81,7 +88,7 @@ static OUTPUTQUEUE_DECL(oq, test.wa.T1, TEST_QUEUES_SIZE, notify, NULL);
 
 static void queues1_setup(void) {
 
-  chIQInit(&iq, wa[0], TEST_QUEUES_SIZE, notify, NULL);
+  chIQInit(&iq, wa[0], TEST_QUEUES_SIZE, notify);
 }
 
 static msg_t thread1(void *p) {
@@ -168,7 +175,7 @@ ROMCONST struct testcase testqueues1 = {
 
 static void queues2_setup(void) {
 
-  chOQInit(&oq, wa[0], TEST_QUEUES_SIZE, notify, NULL);
+  chOQInit(&oq, wa[0], TEST_QUEUES_SIZE, notify);
 }
 
 static msg_t thread2(void *p) {

@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -306,10 +313,8 @@ void mac_lld_start(MACDriver *macp) {
   /* ISR vector enabled.*/
   nvicEnableVector(ETH_IRQn, CORTEX_PRIORITY_MASK(STM32_ETH1_IRQ_PRIORITY));
 
-#if STM32_ETH1_CHANGE_PHY_STATE
   /* PHY in power up mode.*/
   mii_write(macp, MII_BMCR, mii_read(macp, MII_BMCR) & ~BMCR_PDOWN);
-#endif
 
   /* MAC configuration.*/
   ETH->MACFFR    = 0;
@@ -363,10 +368,8 @@ void mac_lld_start(MACDriver *macp) {
 void mac_lld_stop(MACDriver *macp) {
 
   if (macp->state != MAC_STOP) {
-#if STM32_ETH1_CHANGE_PHY_STATE
     /* PHY in power down mode until the driver will be restarted.*/
     mii_write(macp, MII_BMCR, mii_read(macp, MII_BMCR) | BMCR_PDOWN);
-#endif
 
     /* MAC and DMA stopped.*/
     ETH->MACCR    = 0;

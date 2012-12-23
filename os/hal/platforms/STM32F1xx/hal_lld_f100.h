@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -45,13 +52,13 @@
  * @{
  */
 #if defined(__DOXYGEN__)
-#define PLATFORM_NAME           "STM32F100 Value Line"
+#define PLATFORM_NAME           "STM32F1 Value Line"
 
 #elif defined(STM32F10X_LD_VL)
-#define PLATFORM_NAME           "STM32F100 Value Line Low Density"
+#define PLATFORM_NAME           "STM32F1 Value Line Low Density"
 
 #elif defined(STM32F10X_MD_VL)
-#define PLATFORM_NAME           "STM32F100 Value Line Medium Density"
+#define PLATFORM_NAME           "STM32F1 Value Line Medium Density"
 #else
 #error "unsupported STM32 Value Line member"
 #endif
@@ -640,13 +647,6 @@
 /*===========================================================================*/
 
 /*
- * Configuration-related checks.
- */
-#if !defined(STM32F100_MCUCONF)
-#error "Using a wrong mcuconf.h file, STM32F100_MCUCONF not defined"
-#endif
-
-/*
  * HSI related checks.
  */
 #if STM32_HSI_ENABLED
@@ -801,7 +801,7 @@
 #elif (STM32_SW == STM32_SW_HSE)
 #define STM32_SYSCLK                STM32_HSECLK
 #else
-#error "invalid STM32_SW value specified"
+#error "invalid STM32_SYSCLK_SW value specified"
 #endif
 
 /* Check on the system clock.*/

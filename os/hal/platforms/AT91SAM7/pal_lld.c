@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -63,7 +70,7 @@ void _pal_lld_init(const PALConfig *config) {
 
   uint32_t ports = (1 << AT91C_ID_PIOA);
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3)
+    (SAM7_PLATFORM == SAM7X512)
   ports |= (1 << AT91C_ID_PIOB);
 #endif
   AT91C_BASE_PMC->PMC_PCER = ports;
@@ -87,7 +94,7 @@ void _pal_lld_init(const PALConfig *config) {
    * PIOB setup.
    */
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3)
+    (SAM7_PLATFORM == SAM7X512)
   AT91C_BASE_PIOB->PIO_PPUER  = config->P1Data.pusr;    /* Pull-up as spec.*/
   AT91C_BASE_PIOB->PIO_PPUDR  = ~config->P1Data.pusr;
   AT91C_BASE_PIOB->PIO_PER  = 0xFFFFFFFF;               /* PIO enabled.*/

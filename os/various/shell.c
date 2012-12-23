@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -55,12 +62,12 @@ static char *_strtok(char *str, const char *delim, char **saveptr) {
   return *token ? token : NULL;
 }
 
-static void usage(BaseSequentialStream *chp, char *p) {
+static void usage(BaseChannel *chp, char *p) {
 
   chprintf(chp, "Usage: %s\r\n", p);
 }
 
-static void list_commands(BaseSequentialStream *chp, const ShellCommand *scp) {
+static void list_commands(BaseChannel *chp, const ShellCommand *scp) {
 
   while (scp->sc_name != NULL) {
     chprintf(chp, "%s ", scp->sc_name);
@@ -68,7 +75,7 @@ static void list_commands(BaseSequentialStream *chp, const ShellCommand *scp) {
   }
 }
 
-static void cmd_info(BaseSequentialStream *chp, int argc, char *argv[]) {
+static void cmd_info(BaseChannel *chp, int argc, char *argv[]) {
 
   (void)argv;
   if (argc > 0) {
@@ -100,7 +107,7 @@ static void cmd_info(BaseSequentialStream *chp, int argc, char *argv[]) {
 #endif
 }
 
-static void cmd_systime(BaseSequentialStream *chp, int argc, char *argv[]) {
+static void cmd_systime(BaseChannel *chp, int argc, char *argv[]) {
 
   (void)argv;
   if (argc > 0) {
@@ -119,7 +126,7 @@ static ShellCommand local_commands[] = {
   {NULL, NULL}
 };
 
-static bool_t cmdexec(const ShellCommand *scp, BaseSequentialStream *chp,
+static bool_t cmdexec(const ShellCommand *scp, BaseChannel *chp,
                       char *name, int argc, char *argv[]) {
 
   while (scp->sc_name != NULL) {
@@ -135,7 +142,7 @@ static bool_t cmdexec(const ShellCommand *scp, BaseSequentialStream *chp,
 /**
  * @brief   Shell thread function.
  *
- * @param[in] p         pointer to a @p BaseSequentialStream object
+ * @param[in] p         pointer to a @p BaseChannel object
  * @return              Termination reason.
  * @retval RDY_OK       terminated by command.
  * @retval RDY_RESET    terminated by reset condition on the I/O channel.
@@ -143,7 +150,7 @@ static bool_t cmdexec(const ShellCommand *scp, BaseSequentialStream *chp,
 static msg_t shell_thread(void *p) {
   int n;
   msg_t msg = RDY_OK;
-  BaseSequentialStream *chp = ((ShellConfig *)p)->sc_channel;
+  BaseChannel *chp = ((ShellConfig *)p)->sc_channel;
   const ShellCommand *scp = ((ShellConfig *)p)->sc_commands;
   char *lp, *cmd, *tokp, line[SHELL_MAX_LINE_LENGTH];
   char *args[SHELL_MAX_ARGUMENTS + 1];
@@ -245,20 +252,19 @@ Thread *shellCreateStatic(const ShellConfig *scp, void *wsp,
 /**
  * @brief   Reads a whole line from the input channel.
  *
- * @param[in] chp       pointer to a @p BaseSequentialStream object
+ * @param[in] chp       pointer to a @p BaseChannel object
  * @param[in] line      pointer to the line buffer
  * @param[in] size      buffer maximum length
  * @return              The operation status.
  * @retval TRUE         the channel was reset or CTRL-D pressed.
  * @retval FALSE        operation successful.
  */
-bool_t shellGetLine(BaseSequentialStream *chp, char *line, unsigned size) {
+bool_t shellGetLine(BaseChannel *chp, char *line, unsigned size) {
   char *p = line;
 
   while (TRUE) {
-    char c;
-
-    if (chSequentialStreamRead(chp, (uint8_t *)&c, 1) == 0)
+    short c = (short)chIOGet(chp);
+    if (c < 0)
       return TRUE;
     if (c == 4) {
       chprintf(chp, "^D");
@@ -266,9 +272,9 @@ bool_t shellGetLine(BaseSequentialStream *chp, char *line, unsigned size) {
     }
     if (c == 8) {
       if (p != line) {
-        chSequentialStreamPut(chp, c);
-        chSequentialStreamPut(chp, 0x20);
-        chSequentialStreamPut(chp, c);
+        chIOPut(chp, (uint8_t)c);
+        chIOPut(chp, 0x20);
+        chIOPut(chp, (uint8_t)c);
         p--;
       }
       continue;
@@ -281,7 +287,7 @@ bool_t shellGetLine(BaseSequentialStream *chp, char *line, unsigned size) {
     if (c < 0x20)
       continue;
     if (p < line + size - 1) {
-      chSequentialStreamPut(chp, c);
+      chIOPut(chp, (uint8_t)c);
       *p++ = (char)c;
     }
   }

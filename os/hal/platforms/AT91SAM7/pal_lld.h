@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -64,8 +71,7 @@ typedef struct {
   /** @brief Port 0 setup data.*/
   at91sam7_pio_setup_t P0Data;
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3) || \
-    defined(__DOXYGEN__)
+    (SAM7_PLATFORM == SAM7X512) || defined(__DOXYGEN__)
   /** @brief Port 1 setup data.*/
   at91sam7_pio_setup_t P1Data;
 #endif
@@ -113,8 +119,7 @@ typedef AT91PS_PIO ioportid_t;
  * @brief   PIO port B identifier.
  */
 #if (SAM7_PLATFORM == SAM7X128) || (SAM7_PLATFORM == SAM7X256) || \
-    (SAM7_PLATFORM == SAM7X512) || (SAM7_PLATFORM == SAM7A3) || \
-    defined(__DOXYGEN__)
+    (SAM7_PLATFORM == SAM7X512) || defined(__DOXYGEN__)
 #define IOPORT2         AT91C_BASE_PIOB
 #endif
 
