@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -251,13 +251,14 @@ typedef enum {
  * @notapi
  */
 #define _spi_wakeup_isr(spip) {                                             \
+  chSysLockFromIsr();                                                       \
   if ((spip)->thread != NULL) {                                             \
     Thread *tp = (spip)->thread;                                            \
     (spip)->thread = NULL;                                                  \
-    chSysLockFromIsr();                                                     \
+    tp->p_u.rdymsg = RDY_OK;                                                \
     chSchReadyI(tp);                                                        \
-    chSysUnlockFromIsr();                                                   \
   }                                                                         \
+  chSysUnlockFromIsr();                                                     \
 }
 #else /* !SPI_USE_WAIT */
 #define _spi_wait_s(spip)

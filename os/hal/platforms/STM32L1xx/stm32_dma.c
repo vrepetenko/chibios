@@ -1,28 +1,17 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
-    This file is part of ChibiOS/RT.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
 
 /**
@@ -128,7 +117,7 @@ CH_IRQ_HANDLER(DMA1_Ch1_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
   flags = (DMA1->ISR >> 0) & STM32_DMA_ISR_MASK;
-  DMA1->IFCR = STM32_DMA_ISR_MASK << 0;
+  DMA1->IFCR = flags << 0;
   if (dma_isr_redir[0].dma_func)
     dma_isr_redir[0].dma_func(dma_isr_redir[0].dma_param, flags);
 
@@ -146,7 +135,7 @@ CH_IRQ_HANDLER(DMA1_Ch2_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
   flags = (DMA1->ISR >> 4) & STM32_DMA_ISR_MASK;
-  DMA1->IFCR = STM32_DMA_ISR_MASK << 4;
+  DMA1->IFCR = flags << 4;
   if (dma_isr_redir[1].dma_func)
     dma_isr_redir[1].dma_func(dma_isr_redir[1].dma_param, flags);
 
@@ -164,7 +153,7 @@ CH_IRQ_HANDLER(DMA1_Ch3_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
   flags = (DMA1->ISR >> 8) & STM32_DMA_ISR_MASK;
-  DMA1->IFCR = STM32_DMA_ISR_MASK << 8;
+  DMA1->IFCR = flags << 8;
   if (dma_isr_redir[2].dma_func)
     dma_isr_redir[2].dma_func(dma_isr_redir[2].dma_param, flags);
 
@@ -182,7 +171,7 @@ CH_IRQ_HANDLER(DMA1_Ch4_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
   flags = (DMA1->ISR >> 12) & STM32_DMA_ISR_MASK;
-  DMA1->IFCR = STM32_DMA_ISR_MASK << 12;
+  DMA1->IFCR = flags << 12;
   if (dma_isr_redir[3].dma_func)
     dma_isr_redir[3].dma_func(dma_isr_redir[3].dma_param, flags);
 
@@ -200,7 +189,7 @@ CH_IRQ_HANDLER(DMA1_Ch5_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
   flags = (DMA1->ISR >> 16) & STM32_DMA_ISR_MASK;
-  DMA1->IFCR = STM32_DMA_ISR_MASK << 16;
+  DMA1->IFCR = flags << 16;
   if (dma_isr_redir[4].dma_func)
     dma_isr_redir[4].dma_func(dma_isr_redir[4].dma_param, flags);
 
@@ -218,7 +207,7 @@ CH_IRQ_HANDLER(DMA1_Ch6_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
   flags = (DMA1->ISR >> 20) & STM32_DMA_ISR_MASK;
-  DMA1->IFCR = STM32_DMA_ISR_MASK << 20;
+  DMA1->IFCR = flags << 20;
   if (dma_isr_redir[5].dma_func)
     dma_isr_redir[5].dma_func(dma_isr_redir[5].dma_param, flags);
 
@@ -236,7 +225,7 @@ CH_IRQ_HANDLER(DMA1_Ch7_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
   flags = (DMA1->ISR >> 24) & STM32_DMA_ISR_MASK;
-  DMA1->IFCR = STM32_DMA_ISR_MASK << 24;
+  DMA1->IFCR = flags << 24;
   if (dma_isr_redir[6].dma_func)
     dma_isr_redir[6].dma_func(dma_isr_redir[6].dma_param, flags);
 
