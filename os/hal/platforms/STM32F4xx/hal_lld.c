@@ -1,42 +1,47 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+                 2011,2012 Giovanni Di Sirio.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+    This file is part of ChibiOS/RT.
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    ChibiOS/RT is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    ChibiOS/RT is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
  * @file    STM32F4xx/hal_lld.c
- * @brief   STM32F4xx/STM32F2xx HAL subsystem low level driver source.
+ * @brief   STM32F4xx HAL subsystem low level driver source.
  *
  * @addtogroup HAL
  * @{
  */
 
-/* TODO: LSEBYP like in F3.*/
-
 #include "ch.h"
 #include "hal.h"
-
-/*===========================================================================*/
-/* Driver local definitions.                                                 */
-/*===========================================================================*/
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver local variables and types.                                         */
+/* Driver local variables.                                                   */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -45,8 +50,6 @@
 
 /**
  * @brief   Initializes the backup domain.
- * @note    WARNING! Changing clock source impossible without resetting
- *          of the whole BKP domain.
  */
 static void hal_lld_backup_domain_init(void) {
 
@@ -60,19 +63,14 @@ static void hal_lld_backup_domain_init(void) {
     RCC->BDCR = 0;
   }
 
+  /* If enabled then the LSE is started.*/
 #if STM32_LSE_ENABLED
-#if defined(STM32_LSE_BYPASS)
-  /* LSE Bypass.*/
-  RCC->BDCR |= RCC_BDCR_LSEON | RCC_BDCR_LSEBYP;
-#else
-  /* No LSE Bypass.*/
   RCC->BDCR |= RCC_BDCR_LSEON;
-#endif
   while ((RCC->BDCR & RCC_BDCR_LSERDY) == 0)
-    ;                                       /* Waits until LSE is stable.   */
+    ;                                     /* Waits until LSE is stable.   */
 #endif
 
-#if HAL_USE_RTC
+#if STM32_RTCSEL != STM32_RTCSEL_NOCLOCK
   /* If the backup domain hasn't been initialized yet then proceed with
      initialization.*/
   if ((RCC->BDCR & RCC_BDCR_RTCEN) == 0) {
@@ -82,17 +80,7 @@ static void hal_lld_backup_domain_init(void) {
     /* RTC clock enabled.*/
     RCC->BDCR |= RCC_BDCR_RTCEN;
   }
-#endif /* HAL_USE_RTC */
-
-#if STM32_BKPRAM_ENABLE
-  rccEnableBKPSRAM(false);
-
-  PWR->CSR |= PWR_CSR_BRE;
-  while ((PWR->CSR & PWR_CSR_BRR) == 0)
-    ;                                /* Waits until the regulator is stable */
-#else
-  PWR->CSR &= ~PWR_CSR_BRE;
-#endif /* STM32_BKPRAM_ENABLE */
+#endif /* STM32_RTCSEL != STM32_RTCSEL_NOCLOCK */
 }
 
 /*===========================================================================*/
@@ -158,31 +146,19 @@ void stm32_clock_init(void) {
   RCC->APB1ENR = RCC_APB1ENR_PWREN;
 
   /* PWR initialization.*/
-#if defined(STM32F4XX) || defined(__DOXYGEN__)
   PWR->CR = STM32_VOS;
-#else
-  PWR->CR = 0;
-#endif
+  while ((PWR->CSR & PWR_CSR_VOSRDY) == 0)
+    ;                           /* Waits until power regulator is stable.   */
 
-  /* HSI setup, it enforces the reset situation in order to handle possible
-     problems with JTAG probes and re-initializations.*/
-  RCC->CR |= RCC_CR_HSION;                  /* Make sure HSI is ON.         */
-  while (!(RCC->CR & RCC_CR_HSIRDY))
-    ;                                       /* Wait until HSI is stable.    */
-  RCC->CR &= RCC_CR_HSITRIM | RCC_CR_HSION; /* CR Reset value.              */
-  RCC->CFGR = 0;                            /* CFGR reset value.            */
-  while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI)
-    ;                                       /* Waits until HSI is selected. */
+  /* Initial clocks setup and wait for HSI stabilization, the MSI clock is
+     always enabled because it is the fallback clock when PLL the fails.*/
+  RCC->CR |= RCC_CR_HSION;
+  while ((RCC->CR & RCC_CR_HSIRDY) == 0)
+    ;                           /* Waits until HSI is stable.               */
 
 #if STM32_HSE_ENABLED
   /* HSE activation.*/
-#if defined(STM32_HSE_BYPASS)
-  /* HSE Bypass.*/
-  RCC->CR |= RCC_CR_HSEON | RCC_CR_HSEBYP;
-#else
-  /* No HSE Bypass.*/
   RCC->CR |= RCC_CR_HSEON;
-#endif
   while ((RCC->CR & RCC_CR_HSERDY) == 0)
     ;                           /* Waits until HSE is stable.               */
 #endif
@@ -194,47 +170,36 @@ void stm32_clock_init(void) {
     ;                           /* Waits until LSI is stable.               */
 #endif
 
+#if STM32_LSE_ENABLED
+  /* LSE activation, have to unlock the register.*/
+  if ((RCC->BDCR & RCC_BDCR_LSEON) == 0) {
+    PWR->CR |= PWR_CR_DBP;
+    RCC->BDCR |= RCC_BDCR_LSEON;
+    PWR->CR &= ~PWR_CR_DBP;
+  }
+  while ((RCC->BDCR & RCC_BDCR_LSERDY) == 0)
+    ;                           /* Waits until LSE is stable.               */
+#endif
+
 #if STM32_ACTIVATE_PLL
   /* PLL activation.*/
-  RCC->PLLCFGR = STM32_PLLQ | STM32_PLLSRC | STM32_PLLP | STM32_PLLN |
-                 STM32_PLLM;
+  RCC->PLLCFGR = STM32_PLLQ | STM32_PLLSRC | STM32_PLLP | STM32_PLLN | STM32_PLLM;
   RCC->CR |= RCC_CR_PLLON;
-
-  /* Synchronization with voltage regulator stabilization.*/
-#if defined(STM32F4XX)
-  while ((PWR->CSR & PWR_CSR_VOSRDY) == 0)
-    ;                           /* Waits until power regulator is stable.   */
-
-#if STM32_OVERDRIVE_REQUIRED
-  /* Overdrive activation performed after activating the PLL in order to save
-     time as recommended in RM in "Entering Over-drive mode" paragraph.*/
-  PWR->CR |= PWR_CR_ODEN;
-  while (!(PWR->CSR & PWR_CSR_ODRDY))
-      ;
-  PWR->CR |= PWR_CR_ODSWEN;
-  while (!(PWR->CSR & PWR_CSR_ODSWRDY))
-      ;
-#endif /* STM32_OVERDRIVE_REQUIRED */
-#endif /* defined(STM32F4XX) */
-
-  /* Waiting for PLL lock.*/
   while (!(RCC->CR & RCC_CR_PLLRDY))
-    ;
-#endif /* STM32_OVERDRIVE_REQUIRED */
+    ;                           /* Waits until PLL is stable.               */
+#endif
 
 #if STM32_ACTIVATE_PLLI2S
   /* PLLI2S activation.*/
   RCC->PLLI2SCFGR = STM32_PLLI2SR | STM32_PLLI2SN;
   RCC->CR |= RCC_CR_PLLI2SON;
-
-  /* Waiting for PLL lock.*/
   while (!(RCC->CR & RCC_CR_PLLI2SRDY))
-    ;
+    ;                           /* Waits until PLLI2S is stable.            */
 #endif
 
   /* Other clock-related settings (dividers, MCO etc).*/
-  RCC->CFGR = STM32_MCO2PRE | STM32_MCO2SEL | STM32_MCO1PRE | STM32_MCO1SEL |
-              STM32_RTCPRE | STM32_PPRE2 | STM32_PPRE1 | STM32_HPRE;
+  RCC->CFGR |= STM32_MCO2PRE | STM32_MCO2SEL | STM32_MCO1PRE | STM32_MCO1SEL |
+               STM32_RTCPRE | STM32_PPRE2 | STM32_PPRE1 | STM32_HPRE;
 
   /* Flash setup.*/
 #if defined(STM32_USE_REVISION_A_FIX)

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012,2013 Giovanni Di Sirio.
+                 2011,2012 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -56,7 +56,8 @@ void _vt_init(void) {
 
 /**
  * @brief   Enables a virtual timer.
- * @note    The associated function is invoked from interrupt context.
+ * @note    The associated function is invoked by an interrupt handler within
+ *          the I-Locked state, see @ref system_states.
  *
  * @param[out] vtp      the @p VirtualTimer structure pointer
  * @param[in] time      the number of ticks before the operation timeouts, the
@@ -116,6 +117,26 @@ void chVTResetI(VirtualTimer *vtp) {
   vtp->vt_prev->vt_next = vtp->vt_next;
   vtp->vt_next->vt_prev = vtp->vt_prev;
   vtp->vt_func = (vtfunc_t)NULL;
+}
+
+/**
+ * @brief   Checks if the current system time is within the specified time
+ *          window.
+ * @note    When start==end then the function returns always true because the
+ *          whole time range is specified.
+ *
+ * @param[in] start     the start of the time window (inclusive)
+ * @param[in] end       the end of the time window (non inclusive)
+ * @retval TRUE         current time within the specified time window.
+ * @retval FALSE        current time not within the specified time window.
+ *
+ * @api
+ */
+bool_t chTimeIsWithin(systime_t start, systime_t end) {
+
+  systime_t time = chTimeNow();
+  return end > start ? (time >= start) && (time < end) :
+                       (time >= start) || (time < end);
 }
 
 /** @} */
