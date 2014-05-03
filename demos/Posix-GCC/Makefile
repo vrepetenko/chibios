@@ -72,6 +72,7 @@ SRC  = ${PORTSRC} \
        ${PLATFORMSRC} \
        $(BOARDSRC) \
        ${CHIBIOS}/os/various/shell.c \
+       ${CHIBIOS}/os/various/memstreams.c \
        ${CHIBIOS}/os/various/chprintf.c \
        main.c
 
@@ -104,7 +105,7 @@ OBJS    = $(ASRC:.s=.o) $(SRC:.c=.o)
 LIBS    = $(DLIBS) $(ULIBS)
 
 ASFLAGS = -Wa,-amhls=$(<:.s=.lst) $(ADEFS)
-CPFLAGS = $(OPT) -Wall -Wextra -Wstrict-prototypes -fverbose-asm $(DEFS)
+CPFLAGS = $(OPT) -Wall -Wextra -Wstrict-prototypes -fverbose-asm $(DEFS) 
 
 ifeq ($(HOST_OSX),yes)
   ifeq ($(OSX_SDK),)
@@ -119,8 +120,8 @@ ifeq ($(HOST_OSX),yes)
   LIBS += $(OSX_ARCH)
 else
   # Linux, or other
-  CPFLAGS += -Wa,-alms=$(<:.c=.lst)
-  LDFLAGS += -Wl,-Map=$(PROJECT).map,--cref,--no-warn-mismatch $(LIBDIR)
+  CPFLAGS += -m32 -Wa,-alms=$(<:.c=.lst)
+  LDFLAGS = -m32 -Wl,-Map=$(PROJECT).map,--cref,--no-warn-mismatch $(LIBDIR)
 endif
 
 # Generate dependency information

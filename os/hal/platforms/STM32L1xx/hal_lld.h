@@ -1,28 +1,17 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
-    This file is part of ChibiOS/RT.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
 
 /**
@@ -32,9 +21,12 @@
  *          @p board.h file:
  *          - STM32_LSECLK.
  *          - STM32_HSECLK.
+ *          - STM32_HSE_BYPASS (optionally).
  *          .
  *          One of the following macros must also be defined:
  *          - STM32L1XX_MD for Ultra Low Power Medium-density devices.
+ *          - STM32L1XX_MDP for Ultra Low Power Medium-density Plus devices.
+ *          - STM32L1XX_HD for Ultra Low Power High-density devices.
  *          .
  *
  * @addtogroup HAL
@@ -59,7 +51,21 @@
  * @name    Platform identification
  * @{
  */
-#define PLATFORM_NAME           "STM32L1 Ultra Low Power Medium Density"
+#if defined(STM32L1XX_MD) || defined(__DOXYGEN__)
+#define PLATFORM_NAME           "STM32L1xx Ultra Low Power Medium Density"
+#define STM32L1XX
+
+#elif defined(STM32L1XX_MDP)
+#define PLATFORM_NAME           "STM32L1xx Ultra Low Power Medium Density Plus"
+#define STM32L1XX
+
+#elif defined(STM32L1XX_HD)
+#define PLATFORM_NAME           "STM32L1xx Ultra Low Power High Density"
+#define STM32L1XX
+
+#else
+#error "STM32L1xx device not specified"
+#endif
 /** @} */
 
 /**
@@ -188,6 +194,7 @@
 #define STM32_HAS_ADC1          TRUE
 #define STM32_HAS_ADC2          FALSE
 #define STM32_HAS_ADC3          FALSE
+#define STM32_HAS_ADC4          FALSE
 
 /* CAN attributes.*/
 #define STM32_HAS_CAN1          FALSE
@@ -244,7 +251,7 @@
 #define STM32_RTC_IS_CALENDAR   TRUE
 
 /* SDIO attributes.*/
-#define STM32_HAS_SDIO          FALSE
+#define STM32_HAS_SDIO          TRUE
 
 /* SPI attributes.*/
 #define STM32_HAS_SPI1          TRUE
@@ -260,10 +267,9 @@
 #define STM32_SPI2_TX_DMA_CHN   0x00000000
 
 #define STM32_HAS_SPI3          FALSE
-#define STM32_SPI3_RX_DMA_MSK   0
-#define STM32_SPI3_RX_DMA_CHN   0x00000000
-#define STM32_SPI3_TX_DMA_MSK   0
-#define STM32_SPI3_TX_DMA_CHN   0x00000000
+#define STM32_HAS_SPI4          FALSE
+#define STM32_HAS_SPI5          FALSE
+#define STM32_HAS_SPI6          FALSE
 
 /* TIM attributes.*/
 #define STM32_HAS_TIM1          FALSE
@@ -283,6 +289,8 @@
 #define STM32_HAS_TIM15         FALSE
 #define STM32_HAS_TIM16         FALSE
 #define STM32_HAS_TIM17         FALSE
+#define STM32_HAS_TIM18         FALSE
+#define STM32_HAS_TIM19         FALSE
 
 /* USART attributes.*/
 #define STM32_HAS_USART1        TRUE
@@ -562,7 +570,7 @@
 /**
  * @brief   HSE divider toward RTC setting.
  */
-#if !defined(STM32_RTCSEL) || defined(__DOXYGEN__)
+#if !defined(STM32_RTCPRE) || defined(__DOXYGEN__)
 #define STM32_RTCPRE                STM32_RTCPRE_DIV2
 #endif
 /** @} */
@@ -570,6 +578,13 @@
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
+
+/*
+ * Configuration-related checks.
+ */
+#if !defined(STM32L1xx_MCUCONF)
+#error "Using a wrong mcuconf.h file, STM32L1xx_MCUCONF not defined"
+#endif
 
 /* Voltage related limits.*/
 #if (STM32_VOS == STM32_VOS_1P8) || defined(__DOXYGEN__)
@@ -667,7 +682,7 @@
     (STM32_MCOSEL == STM32_MCOSEL_HSE) ||                                   \
     ((STM32_MCOSEL == STM32_MCOSEL_PLL) &&                                  \
      (STM32_PLLSRC == STM32_PLLSRC_HSE)) ||                                 \
-    (STM_RTC_SOURCE == STM32_RTCSEL_HSEDIV)
+    (STM32_RTCSEL == STM32_RTCSEL_HSEDIV)
 #error "required HSE clock is not enabled"
 #endif
 #endif /* !STM32_HSE_ENABLED */
@@ -675,7 +690,7 @@
 /* LSI related checks.*/
 #if STM32_LSI_ENABLED
 #else /* !STM32_LSI_ENABLED */
-#if STM_RTCCLK == STM32_LSICLK
+#if STM32_RTCCLK == STM32_LSICLK
 #error "required LSI clock is not enabled"
 #endif
 #endif /* !STM32_LSI_ENABLED */
@@ -689,7 +704,7 @@
 #error "STM32_LSECLK outside acceptable range (1...1000kHz)"
 #endif
 #else /* !STM32_LSE_ENABLED */
-#if STM_RTCCLK == STM32_LSECLK
+#if STM32_RTCCLK == STM32_LSECLK
 #error "required LSE clock is not enabled"
 #endif
 #endif /* !STM32_LSE_ENABLED */
@@ -903,19 +918,19 @@
  * @brief   MCO divider clock.
  */
 #if (STM32_MCOSEL == STM32_MCOSEL_NOCLOCK) || defined(__DOXYGEN__)
-#define STM_MCODIVCLK               0
+#define STM32_MCODIVCLK             0
 #elif STM32_MCOSEL == STM32_MCOSEL_HSI
-#define STM_MCODIVCLK               STM32_HSICLK
+#define STM32_MCODIVCLK             STM32_HSICLK
 #elif STM32_MCOSEL == STM32_MCOSEL_MSI
-#define STM_MCODIVCLK               STM32_MSICLK
+#define STM32_MCODIVCLK             STM32_MSICLK
 #elif STM32_MCOSEL == STM32_MCOSEL_HSE
-#define STM_MCODIVCLK               STM32_HSECLK
+#define STM32_MCODIVCLK             STM32_HSECLK
 #elif STM32_MCOSEL == STM32_MCOSEL_PLL
-#define STM_MCODIVCLK               STM32_PLLCLKOUT
+#define STM32_MCODIVCLK             STM32_PLLCLKOUT
 #elif STM32_MCOSEL == STM32_MCOSEL_LSI
-#define STM_MCODIVCLK               STM32_LSICLK
+#define STM32_MCODIVCLK             STM32_LSICLK
 #elif STM32_MCOSEL == STM32_MCOSEL_LSE
-#define STM_MCODIVCLK               STM32_LSECLK
+#define STM32_MCODIVCLK             STM32_LSECLK
 #else
 #error "invalid STM32_MCOSEL value specified"
 #endif
@@ -924,15 +939,15 @@
  * @brief   MCO output pin clock.
  */
 #if (STM32_MCOPRE == STM32_MCOPRE_DIV1) || defined(__DOXYGEN__)
-#define STM_MCOCLK                  STM_MCODIVCLK
+#define STM32_MCOCLK                STM32_MCODIVCLK
 #elif STM32_MCOPRE == STM32_MCOPRE_DIV2
-#define STM_MCOCLK                  (STM_MCODIVCLK / 2)
+#define STM32_MCOCLK                (STM32_MCODIVCLK / 2)
 #elif STM32_MCOPRE == STM32_MCOPRE_DIV4
-#define STM_MCOCLK                  (STM_MCODIVCLK / 4)
+#define STM32_MCOCLK                (STM32_MCODIVCLK / 4)
 #elif STM32_MCOPRE == STM32_MCOPRE_DIV8
-#define STM_MCOCLK                  (STM_MCODIVCLK / 8)
+#define STM32_MCOCLK                (STM32_MCODIVCLK / 8)
 #elif STM32_MCOPRE == STM32_MCOPRE_DIV16
-#define STM_MCOCLK                  (STM_MCODIVCLK / 16)
+#define STM32_MCOCLK                (STM32_MCODIVCLK / 16)
 #else
 #error "invalid STM32_MCOPRE value specified"
 #endif
@@ -1050,7 +1065,8 @@ typedef uint32_t halrtcnt_t;
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-/* STM32 DMA and RCC helpers.*/
+/* STM32 ISR, DMA and RCC helpers.*/
+#include "stm32_isr.h"
 #include "stm32_dma.h"
 #include "stm32_rcc.h"
 

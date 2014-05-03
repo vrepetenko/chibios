@@ -1,28 +1,17 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
-    This file is part of ChibiOS/RT.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
 
 /**
@@ -38,10 +27,25 @@
 
 #if HAL_USE_PAL || defined(__DOXYGEN__)
 
-#if defined(STM32L1XX_MD)
+/*===========================================================================*/
+/* Driver local definitions.                                                 */
+/*===========================================================================*/
+
+#if defined(STM32L1XX)
 #define AHB_EN_MASK     (RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN |          \
                          RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |          \
                          RCC_AHBENR_GPIOEEN | RCC_AHBENR_GPIOHEN)
+#define AHB_LPEN_MASK   AHB_EN_MASK
+
+#elif defined(STM32F030) || defined(STM32F0XX_MD)
+#define AHB_EN_MASK     (RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN |          \
+                         RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |          \
+                         RCC_AHBENR_GPIOFEN)
+
+#elif defined(STM32F0XX_LD)
+#define AHB_EN_MASK     (RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN |          \
+                         RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIOFEN)
+
 #elif defined(STM32F2XX)
 #define AHB1_EN_MASK    (RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN |        \
                          RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN |        \
@@ -49,6 +53,12 @@
                          RCC_AHB1ENR_GPIOGEN | RCC_AHB1ENR_GPIOHEN |        \
                          RCC_AHB1ENR_GPIOIEN)
 #define AHB1_LPEN_MASK  AHB1_EN_MASK
+
+#elif defined(STM32F30X) || defined(STM32F37X)
+#define AHB_EN_MASK     (RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN |          \
+                         RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |          \
+                         RCC_AHBENR_GPIOEEN | RCC_AHBENR_GPIOFEN)
+
 #elif defined(STM32F4XX)
 #define AHB1_EN_MASK    (RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN |        \
                          RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN |        \
@@ -56,6 +66,7 @@
                          RCC_AHB1ENR_GPIOGEN | RCC_AHB1ENR_GPIOHEN |        \
                          RCC_AHB1ENR_GPIOIEN)
 #define AHB1_LPEN_MASK  AHB1_EN_MASK
+
 #else
 #error "missing or unsupported platform for GPIOv2 PAL driver"
 #endif
@@ -65,7 +76,7 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver local variables.                                                   */
+/* Driver local variables and types.                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -74,13 +85,13 @@
 
 static void initgpio(GPIO_TypeDef *gpiop, const stm32_gpio_setup_t *config) {
 
-  gpiop->ODR     = config->odr;
-  gpiop->MODER   = config->moder;
   gpiop->OTYPER  = config->otyper;
   gpiop->OSPEEDR = config->ospeedr;
   gpiop->PUPDR   = config->pupdr;
+  gpiop->ODR     = config->odr;
   gpiop->AFRL    = config->afrl;
   gpiop->AFRH    = config->afrh;
+  gpiop->MODER   = config->moder;
 }
 
 /*===========================================================================*/
@@ -104,7 +115,12 @@ void _pal_lld_init(const PALConfig *config) {
   /*
    * Enables the GPIO related clocks.
    */
-#if defined(STM32L1XX_MD)
+#if defined(STM32L1XX)
+  rccEnableAHB(AHB_EN_MASK, TRUE);
+  RCC->AHBLPENR |= AHB_LPEN_MASK;
+#elif defined(STM32F0XX)
+  rccEnableAHB(AHB_EN_MASK, TRUE);
+#elif defined(STM32F30X) || defined(STM32F37X)
   rccEnableAHB(AHB_EN_MASK, TRUE);
 #elif defined(STM32F2XX) || defined(STM32F4XX)
   RCC->AHB1ENR   |= AHB1_EN_MASK;
@@ -114,10 +130,18 @@ void _pal_lld_init(const PALConfig *config) {
   /*
    * Initial GPIO setup.
    */
+#if STM32_HAS_GPIOA
   initgpio(GPIOA, &config->PAData);
+#endif
+#if STM32_HAS_GPIOB
   initgpio(GPIOB, &config->PBData);
+#endif
+#if STM32_HAS_GPIOC
   initgpio(GPIOC, &config->PCData);
+#endif
+#if STM32_HAS_GPIOD
   initgpio(GPIOD, &config->PDData);
+#endif
 #if STM32_HAS_GPIOE
   initgpio(GPIOE, &config->PEData);
 #endif

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -73,13 +73,13 @@
  * @brief   Per-thread stack overhead for interrupts servicing.
  * @details This constant is used in the calculation of the correct working
  *          area size.
- * @note    In this port this value is conservatively set to 32 because the
+ * @note    In this port this value is conservatively set to 64 because the
  *          function @p chSchDoReschedule() can have a stack frame, especially
  *          with compiler optimizations disabled. The value can be reduced
  *          when compiler optimizations are enabled.
  */
 #if !defined(PORT_INT_REQUIRED_STACK)
-#define PORT_INT_REQUIRED_STACK         32
+#define PORT_INT_REQUIRED_STACK         64
 #endif
 
 /**
