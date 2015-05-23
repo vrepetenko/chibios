@@ -73,7 +73,19 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
+*** 3.0.0p5 ***
+- HAL: Added no-DMA mode to the STM32 I2Cv2 driver.
+- HAL: Added DAC support to all STM32 sub-platforms, added another demo for
+       the STM32F3xx.
+- HAL: Fixed STM32 USARTv1: incorrect txend2_cb callback behaviour (bug #596).
+- DEM: Fixed wrong comment in ARMCM4-STM32F401RE-NUCLEO demo (bug #595).
+- HAL: Fixed STM32 SDC LLD driver initialization with Asserts disabled
+       (bug #594).
+
 *** 3.0.0p4 ***
+- NEW: Added no-DMA mode to STM32 I2Cv2 driver.
+- BLD: New "smart build" mode added to makefiles, now only used files are
+       compiled.
 - HAL: Change to the Serial_USB driver, now the INT endpoint is no more
        mandatory.
 - HAL: New DAC driver implementation for STM32F4xx.
