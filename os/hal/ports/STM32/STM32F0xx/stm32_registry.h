@@ -65,6 +65,7 @@
 #define STM32_ADVANCED_DMA                  FALSE
 #define STM32_HAS_DMA1                      TRUE
 #define STM32_HAS_DMA2                      FALSE
+#define STM32_DMA_STREAMS                   5
 
 /* ETH attributes.*/
 #define STM32_HAS_ETH                       FALSE
@@ -189,6 +190,15 @@
 #define STM32_HAS_OTG1                      FALSE
 #define STM32_HAS_OTG2                      FALSE
 
+/* LTDC attributes.*/
+#define STM32_HAS_LTDC                      FALSE
+
+/* DMA2D attributes.*/
+#define STM32_HAS_DMA2D                     FALSE
+
+/* FSMC attributes.*/
+#define STM32_HAS_FSMC                      FALSE
+
 /*===========================================================================*/
 /* STM32F071xB, STM32F072xB, STM32F078xx.                                    */
 /*===========================================================================*/
@@ -202,7 +212,12 @@
 #define STM32_HAS_ADC4                      FALSE
 
 /* CAN attributes.*/
+#if defined(STM32F072xB)
+#define STM32_HAS_CAN1                      TRUE
+#define STM32_CAN_MAX_FILTERS               14
+#else
 #define STM32_HAS_CAN1                      FALSE
+#endif
 #define STM32_HAS_CAN2                      FALSE
 
 /* DAC attributes.*/
@@ -219,6 +234,7 @@
 #define STM32_ADVANCED_DMA                  FALSE
 #define STM32_HAS_DMA1                      TRUE
 #define STM32_HAS_DMA2                      FALSE
+#define STM32_DMA_STREAMS                   7
 
 /* ETH attributes.*/
 #define STM32_HAS_ETH                       FALSE
@@ -355,6 +371,15 @@
 #define STM32_HAS_OTG1                      FALSE
 #define STM32_HAS_OTG2                      FALSE
 
+/* LTDC attributes.*/
+#define STM32_HAS_LTDC                      FALSE
+
+/* DMA2D attributes.*/
+#define STM32_HAS_DMA2D                     FALSE
+
+/* FSMC attributes.*/
+#define STM32_HAS_FSMC                      FALSE
+
 /*===========================================================================*/
 /* STM32F048xx.                                                              */
 /*===========================================================================*/
@@ -380,6 +405,7 @@
 #define STM32_ADVANCED_DMA                  FALSE
 #define STM32_HAS_DMA1                      TRUE
 #define STM32_HAS_DMA2                      FALSE
+#define STM32_DMA_STREAMS                   5
 
 /* ETH attributes.*/
 #define STM32_HAS_ETH                       FALSE
@@ -497,6 +523,15 @@
 #define STM32_HAS_OTG1                      FALSE
 #define STM32_HAS_OTG2                      FALSE
 
+/* LTDC attributes.*/
+#define STM32_HAS_LTDC                      FALSE
+
+/* DMA2D attributes.*/
+#define STM32_HAS_DMA2D                     FALSE
+
+/* FSMC attributes.*/
+#define STM32_HAS_FSMC                      FALSE
+
 /*===========================================================================*/
 /* STM32F031x6, STM32F038xx.                                                 */
 /*===========================================================================*/
@@ -522,6 +557,7 @@
 #define STM32_ADVANCED_DMA                  FALSE
 #define STM32_HAS_DMA1                      TRUE
 #define STM32_HAS_DMA2                      FALSE
+#define STM32_DMA_STREAMS                   5
 
 /* ETH attributes.*/
 #define STM32_HAS_ETH                       FALSE
@@ -637,6 +673,15 @@
 #define STM32_HAS_OTG1                      FALSE
 #define STM32_HAS_OTG2                      FALSE
 
+/* LTDC attributes.*/
+#define STM32_HAS_LTDC                      FALSE
+
+/* DMA2D attributes.*/
+#define STM32_HAS_DMA2D                     FALSE
+
+/* FSMC attributes.*/
+#define STM32_HAS_FSMC                      FALSE
+
 /*===========================================================================*/
 /* STM32F042x6.                                                              */
 /*===========================================================================*/
@@ -651,6 +696,7 @@
 /* CAN attributes.*/
 #define STM32_HAS_CAN1                      TRUE
 #define STM32_HAS_CAN2                      FALSE
+#define STM32_CAN_MAX_FILTERS               14
 
 /* DAC attributes.*/
 #define STM32_HAS_DAC1_CH1                  FALSE
@@ -662,6 +708,7 @@
 #define STM32_ADVANCED_DMA                  FALSE
 #define STM32_HAS_DMA1                      TRUE
 #define STM32_HAS_DMA2                      FALSE
+#define STM32_DMA_STREAMS                   5
 
 /* ETH attributes.*/
 #define STM32_HAS_ETH                       FALSE
@@ -774,6 +821,15 @@
 #define STM32_HAS_OTG1                      FALSE
 #define STM32_HAS_OTG2                      FALSE
 
+/* LTDC attributes.*/
+#define STM32_HAS_LTDC                      FALSE
+
+/* DMA2D attributes.*/
+#define STM32_HAS_DMA2D                     FALSE
+
+/* FSMC attributes.*/
+#define STM32_HAS_FSMC                      FALSE
+
 /*===========================================================================*/
 /* STM32F030x6, STM32F030x8.                                                 */
 /*===========================================================================*/
@@ -799,6 +855,7 @@
 #define STM32_ADVANCED_DMA                  FALSE
 #define STM32_HAS_DMA1                      TRUE
 #define STM32_HAS_DMA2                      FALSE
+#define STM32_DMA_STREAMS                   5
 
 /* ETH attributes.*/
 #define STM32_HAS_ETH                       FALSE
@@ -922,6 +979,15 @@
 #define STM32_HAS_USB                       FALSE
 #define STM32_HAS_OTG1                      FALSE
 #define STM32_HAS_OTG2                      FALSE
+
+/* LTDC attributes.*/
+#define STM32_HAS_LTDC                      FALSE
+
+/* DMA2D attributes.*/
+#define STM32_HAS_DMA2D                     FALSE
+
+/* FSMC attributes.*/
+#define STM32_HAS_FSMC                      FALSE
 
 #else
 #error "STM32F0xx device not specified"

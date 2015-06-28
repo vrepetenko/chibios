@@ -73,11 +73,33 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
+*** 3.0.0p6 ***
+- HAL: Removed call to localtime_r() function for non-GNU compilers in
+       STM32F1xx RTC driver.
+- DEM: Fixed the FatFS demo timeout, now it is expressed in milliseconds.
+- DEM: Added -Wundef to all the demos and test programs in order to find
+       common error cases.
+- NIL: Added INTC priorities check to the e200z port.
+- RT:  Added INTC priorities check to the e200z port.
+- HAL: Added support for CAN in STM32F042/72 devices.
+- HAL: Added support for extra DMA channels in STM32F072 devices.
+- HAL: Modified the STM32 CAN driver to support unified IRQs.
+- RT:  SPE-related issue in e200z ports (bug #607).
+- NIL: SPE-related issue in e200z ports (bug #607).
+- HAL: Fixed dependency between STM32 MAC driver and RT (bug #606).
+- HAL: Fixed wrong macro names in STM32F0xx HAL driver (bug #605).
+- HAL: Fixed wrong check on ADC3 in STM32F3xx ADC driver (bug #604).
+- HAL: Fixed wrong macro names in STM32F3xx HAL driver (bug #603).
+- HAL: Fixed errors in STM32 OTGv1 driver (bug #601).
+- DEM: Fixed missing paths in e200z demos (bug #600).
+- HAL: Fixed error in platform_f105_f107.mk file (bug #599).
+- HAL: Fixed issue in DMA drivers when channels share ISRs (bug #597).
+
 *** 3.0.0p5 ***
 - HAL: Added no-DMA mode to the STM32 I2Cv2 driver.
 - HAL: Added DAC support to all STM32 sub-platforms, added another demo for
        the STM32F3xx.
-- HAL: Fixed STM32 USARTv1: incorrect txend2_cb callback behaviour (bug #596).
+- HAL: Fixed STM32 USARTv1: incorrect txend2_cb callback behavior (bug #596).
 - DEM: Fixed wrong comment in ARMCM4-STM32F401RE-NUCLEO demo (bug #595).
 - HAL: Fixed STM32 SDC LLD driver initialization with Asserts disabled
        (bug #594).
