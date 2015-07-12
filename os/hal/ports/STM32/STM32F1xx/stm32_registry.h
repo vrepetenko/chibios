@@ -116,7 +116,7 @@
 #define STM32_TIM1_CHANNELS                 4
 
 #define STM32_HAS_TIM2                      TRUE
-#define STM32_TIM2_IS_32BITS                TRUE
+#define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
 
 #define STM32_HAS_TIM3                      TRUE
@@ -182,6 +182,10 @@
 
 /* FSMC attributes.*/
 #define STM32_HAS_FSMC                      FALSE
+
+/* CRC attributes.*/
+#define STM32_HAS_CRC                       TRUE
+#define STM32_CRC_PROGRAMMABLE              FALSE
 /** @} */
 #endif /* defined(STM32F10X_LD_VL) */
 
@@ -278,7 +282,7 @@
 #define STM32_TIM1_CHANNELS                 4
 
 #define STM32_HAS_TIM2                      TRUE
-#define STM32_TIM2_IS_32BITS                TRUE
+#define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
 
 #define STM32_HAS_TIM3                      TRUE
@@ -350,6 +354,10 @@
 
 /* FSMC attributes.*/
 #define STM32_HAS_FSMC                      FALSE
+
+/* CRC attributes.*/
+#define STM32_HAS_CRC                       TRUE
+#define STM32_CRC_PROGRAMMABLE              FALSE
 /** @} */
 #endif /* defined(STM32F10X_MD_VL) */
 
@@ -436,7 +444,7 @@
 #define STM32_TIM1_CHANNELS                 4
 
 #define STM32_HAS_TIM2                      TRUE
-#define STM32_TIM2_IS_32BITS                TRUE
+#define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
 
 #define STM32_HAS_TIM3                      TRUE
@@ -487,6 +495,10 @@
 
 /* FSMC attributes.*/
 #define STM32_HAS_FSMC                      FALSE
+
+/* CRC attributes.*/
+#define STM32_HAS_CRC                       TRUE
+#define STM32_CRC_PROGRAMMABLE              FALSE
 /** @} */
 #endif /* defined(STM32F10X_LD) */
 
@@ -579,7 +591,7 @@
 #define STM32_TIM1_CHANNELS                 4
 
 #define STM32_HAS_TIM2                      TRUE
-#define STM32_TIM2_IS_32BITS                TRUE
+#define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
 
 #define STM32_HAS_TIM3                      TRUE
@@ -639,6 +651,10 @@
 
 /* FSMC attributes.*/
 #define STM32_HAS_FSMC                      FALSE
+
+/* CRC attributes.*/
+#define STM32_HAS_CRC                       TRUE
+#define STM32_CRC_PROGRAMMABLE              FALSE
 /** @} */
 #endif /* defined(STM32F10X_MD) */
 
@@ -738,7 +754,7 @@
 #define STM32_TIM1_CHANNELS                 4
 
 #define STM32_HAS_TIM2                      TRUE
-#define STM32_TIM2_IS_32BITS                TRUE
+#define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
 
 #define STM32_HAS_TIM3                      TRUE
@@ -831,6 +847,10 @@
 
 /* FSMC attributes.*/
 #define STM32_HAS_FSMC                      FALSE
+
+/* CRC attributes.*/
+#define STM32_HAS_CRC                       TRUE
+#define STM32_CRC_PROGRAMMABLE              FALSE
 /** @} */
 #endif /* defined(STM32F10X_HD) */
 
@@ -930,7 +950,7 @@
 #define STM32_TIM1_CHANNELS                 4
 
 #define STM32_HAS_TIM2                      TRUE
-#define STM32_TIM2_IS_32BITS                TRUE
+#define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
 
 #define STM32_HAS_TIM3                      TRUE
@@ -1023,6 +1043,10 @@
 
 /* FSMC attributes.*/
 #define STM32_HAS_FSMC                      FALSE
+
+/* CRC attributes.*/
+#define STM32_HAS_CRC                       TRUE
+#define STM32_CRC_PROGRAMMABLE              FALSE
 /** @} */
 #endif /* defined(STM32F10X_XL) */
 
@@ -1122,7 +1146,7 @@
 #define STM32_TIM1_CHANNELS                 4
 
 #define STM32_HAS_TIM2                      TRUE
-#define STM32_TIM2_IS_32BITS                TRUE
+#define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
 
 #define STM32_HAS_TIM3                      TRUE
@@ -1192,6 +1216,10 @@
 
 /* FSMC attributes.*/
 #define STM32_HAS_FSMC                      FALSE
+
+/* CRC attributes.*/
+#define STM32_HAS_CRC                       TRUE
+#define STM32_CRC_PROGRAMMABLE              FALSE
 /** @} */
 #endif /* defined(STM32F10X_CL) */
 

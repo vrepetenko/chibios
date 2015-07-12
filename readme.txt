@@ -59,12 +59,12 @@
   |  |  +--templates/     - RT port template files.
   |  +--various/          - Various portable support files.
   +--test/                - Kernel test suite source code.
-  |  +--lib\              - Portable test engine.
-  |  +--hal\              - HAL test suites.
+  |  +--lib/              - Portable test engine.
+  |  +--hal/              - HAL test suites.
   |  |  +--testbuild/     - HAL uild test and MISRA check.
-  |  +--nil\              - NIL test suites.
+  |  +--nil/              - NIL test suites.
   |  |  +--testbuild/     - NIL nuild test and MISRA check.
-  |  +--rt\               - RT test suites.
+  |  +--rt/               - RT test suites.
   |  |  +--testbuild/     - RT build test and MISRA check.
   |  |  +--coverage/      - RT code coverage project.
   +--testhal/             - HAL integration test demos.
@@ -72,6 +72,16 @@
 *****************************************************************************
 *** Releases and Change Log                                               ***
 *****************************************************************************
+
+*** 3.0.0 ***
+- NEW: Added an initialization function to the lwIP bindings, now it is
+       sufficient to call lwipInit(NULL); in order to start the subsystem.
+       Demo updated.
+- RT:  Fixed compilation error in RT when registry is disabled (bug #614).
+- NIL: Fixed OSAL_ST_MODE not defined in AVR port (bug #613).
+- NIL: Fixed nilrtos redefinition of systime_t (bug #611).
+- HAL: Fixed TIM2 wrongly classified as 32bits in STM32F1xx devices
+       (bug #610).
 
 *** 3.0.0p6 ***
 - HAL: Removed call to localtime_r() function for non-GNU compilers in

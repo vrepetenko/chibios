@@ -61,7 +61,7 @@ typedef struct nil_thread thread_t;
 /**
  * @brief   Kernel version string.
  */
-#define CH_KERNEL_VERSION       "1.0.0p6"
+#define CH_KERNEL_VERSION       "1.0.0"
 
 /**
  * @brief   Kernel version major number.
@@ -402,7 +402,7 @@ struct nil_system {
   /**
    * @brief   System time.
    */
-  systime_t             systime;
+  volatile systime_t    systime;
 #endif
 #if (NIL_CFG_ST_TIMEDELTA > 0) || defined(__DOXYGEN__)
   /**
@@ -618,8 +618,8 @@ struct nil_system {
  * @api
  */
 #define MS2ST(msec)                                                         \
-  ((systime_t)((((uint32_t)(msec)) *                                        \
-                ((uint32_t)NIL_CFG_ST_FREQUENCY) + 999UL) / 1000UL))
+  ((systime_t)(((((uint32_t)(msec)) *                                       \
+                 ((uint32_t)NIL_CFG_ST_FREQUENCY)) + 999UL) / 1000UL))
 
 /**
  * @brief   Microseconds to system ticks.
@@ -632,8 +632,8 @@ struct nil_system {
  * @api
  */
 #define US2ST(usec)                                                         \
-  ((systime_t)((((uint32_t)(usec)) *                                        \
-                ((uint32_t)NIL_CFG_ST_FREQUENCY) + 999999UL) / 1000000UL))
+  ((systime_t)(((((uint32_t)(usec)) *                                       \
+                 ((uint32_t)NIL_CFG_ST_FREQUENCY)) + 999999UL) / 1000000UL))
 /** @} */
 
 /**
