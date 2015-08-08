@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2015 Giovanni Di Sirio
+    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@
  * @{
  */
 
+#include "ch.h"
 #include "hal.h"
 #include "evtimer.h"
 
@@ -72,22 +73,13 @@
 #include "netif/etharp.h"
 #include "netif/ppp_oe.h"
 
-#if LWIP_DHCP
-#include <lwip/dhcp.h>
-#endif
-
 #define PERIODIC_TIMER_ID       1
 #define FRAME_RECEIVED_ID       2
 
-/*
- * Suspension point for initialization procedure.
- */
-thread_reference_t lwip_trp = NULL;
-
-/*
+/**
  * Stack area for the LWIP-MAC thread.
  */
-static THD_WORKING_AREA(wa_lwip_thread, LWIP_THREAD_STACK_SIZE);
+WORKING_AREA(wa_lwip_thread, LWIP_THREAD_STACK_SIZE);
 
 /*
  * Initialization.
@@ -114,7 +106,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p) {
   MACTransmitDescriptor td;
 
   (void)netif;
-  if (macWaitTransmitDescriptor(&ETHD1, &td, MS2ST(LWIP_SEND_TIMEOUT)) != MSG_OK)
+  if (macWaitTransmitDescriptor(&ETHD1, &td, MS2ST(LWIP_SEND_TIMEOUT)) != RDY_OK)
     return ERR_TIMEOUT;
 
 #if ETH_PAD_SIZE
@@ -144,7 +136,7 @@ static struct pbuf *low_level_input(struct netif *netif) {
   u16_t len;
 
   (void)netif;
-  if (macWaitReceiveDescriptor(&ETHD1, &rd, TIME_IMMEDIATE) == MSG_OK) {
+  if (macWaitReceiveDescriptor(&ETHD1, &rd, TIME_IMMEDIATE) == RDY_OK) {
     len = (u16_t)rd.size;
 
 #if ETH_PAD_SIZE
@@ -219,9 +211,9 @@ static err_t ethernetif_init(struct netif *netif) {
  * @param[in] p pointer to a @p lwipthread_opts structure or @p NULL
  * @return The function does not return.
  */
-static THD_FUNCTION(lwip_thread, p) {
-  event_timer_t evt;
-  event_listener_t el0, el1;
+msg_t lwip_thread(void *p) {
+  EvTimer evt;
+  EventListener el0, el1;
   struct ip_addr ip, gateway, netmask;
   static struct netif thisif;
   static const MACConfig mac_config = {thisif.hwaddr};
@@ -260,35 +252,26 @@ static THD_FUNCTION(lwip_thread, p) {
   netif_set_up(&thisif);
 
   /* Setup event sources.*/
-  evtObjectInit(&evt, LWIP_LINK_POLL_INTERVAL);
+  evtInit(&evt, LWIP_LINK_POLL_INTERVAL);
   evtStart(&evt);
   chEvtRegisterMask(&evt.et_es, &el0, PERIODIC_TIMER_ID);
   chEvtRegisterMask(macGetReceiveEventSource(&ETHD1), &el1, FRAME_RECEIVED_ID);
   chEvtAddEvents(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID);
 
-  /* Resumes the caller and goes to the final priority.*/
-  chThdResume(&lwip_trp, MSG_OK);
+  /* Goes to the final priority after initialization.*/
   chThdSetPriority(LWIP_THREAD_PRIORITY);
 
-  while (true) {
+  while (TRUE) {
     eventmask_t mask = chEvtWaitAny(ALL_EVENTS);
     if (mask & PERIODIC_TIMER_ID) {
-      bool current_link_status = macPollLinkStatus(&ETHD1);
+      bool_t current_link_status = macPollLinkStatus(&ETHD1);
       if (current_link_status != netif_is_link_up(&thisif)) {
-        if (current_link_status) {
+        if (current_link_status)
           tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
                                      &thisif, 0);
-#if LWIP_DHCP
-          dhcp_start(&thisif);
-#endif
-        }
-        else {
+        else
           tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_down,
                                      &thisif, 0);
-#if LWIP_DHCP
-          dhcp_stop(&thisif);
-#endif
-        }
       }
     }
     if (mask & FRAME_RECEIVED_ID) {
@@ -314,27 +297,7 @@ static THD_FUNCTION(lwip_thread, p) {
       }
     }
   }
-}
-
-/**
- * @brief   Initializes the lwIP subsystem.
- * @note    The function exits after the initialization is finished.
- *
- * @param[in] opts      pointer to the configuration structure, if @p NULL
- *                      then the static configuration is used.
- */
-void lwipInit(const lwipthread_opts_t *opts) {
-
-  /* Creating the lwIP thread (it changes priority internally).*/
-  chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE,
-                    chThdGetPriorityX() - 1, lwip_thread, (void *)opts);
-
-  /* Waiting for the lwIP thread complete initialization. Note,
-     this thread reaches the thread reference object first because
-     the relative priorities.*/
-  chSysLock();
-  chThdSuspendS(&lwip_trp);
-  chSysUnlock();
+  return 0;
 }
 
 /** @} */
