@@ -73,6 +73,22 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
+*** 3.0.4 ***
+- HAL: Fixed STM32 ICU driver uses chSysLock and chSysUnlock (bug #681).
+- HAL: Fixed wrong DMA priority assigned to STM32F3 ADC3&4 (bug #680).
+- HAL: Fixed invalid DMA settings in STM32 DACv1 driver in dual mode
+      (bug #677).
+- HAL: Fixed usbStop() hangs in STM32 OTGv1 driver (bug #674).
+- HAL: Fixed STM32 I2Cv2 driver fails on transfers greater than 255 bytes
+       (bug #673).
+- HAL: Fixed STM32 I2Cv2 DMA conflict (bug #671).
+- HAL: Fixed invalid macro in STM32F0xx registry (bug #668).
+- HAL: Fixed I2S clock selection not working in STM32F4xx HAL (bug #667).
+- HAL: Fixed STM32 USBv1 broken isochronous endpoints (bug #662).
+- HAL: Fixed STM32 USBv1 wrong multiplier when calculating descriptor address
+       in BTABLE (bug #661).
+- HAL: Fixed STM32 USBv1 does not make use of BTABLE_ADDR define(bug #660).
+
 *** 3.0.3 ***
 - HAL: Fixed differences in STM32F3 ADC macro definitions (bug #665).
 - HAL: Fixed RTC module loses day of week when converting (bug #664).
