@@ -72,6 +72,52 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
+*** 16.1.5 ***
+- NEW: Added support for more Nucleo and Discovery boards.
+- HAL: Board files regenerated using the latest version of the generator
+       plugin.
+- HAL: Fixed wrong PWR configurations in STM32L4xx\hal_lld (bug #761).
+- HAL: Fixed wrong comment in STM32L4xx\hal_lld (bug #760).
+- HAL: Fixed wrong MSIRANGE management for STM32L4xx in function 
+       stm32_clock_init() (bug #759).
+- HAL: Fixed problem in USB driver when changing configuration (bug #757).
+- HAL: Fixed bug in function usbDisableEndpointsI() (bug #756).
+- HAL: Fixed wrong info in readme of LWIP related demos (bug #755).
+- HAL: Fixed misconfiguration in STM32L4 Discovery board files 
+       (bug #754).
+- HAL: Fixed errors in documentation related to OTG peripheral switches 
+       (bug #753).
+- HAL: Fixed CMSIS function osThreadGetPriority() does not return correct
+       priority (bug #752).
+- HAL: Fixed wrong conditional branches in _adc_isr_error_code (bug #751).
+- HAL: Fixed bug in STM32/ADCv3 (bug #750).
+- HAL: Fixed OPT settings and added board folder in STM32F4xx-USB_CDC demo
+       (bug #749).
+- HAL: Fixed wrong comments in STM32F4xx GPT demo (bug #748).
+- HAL: Fixed wrong comments and indents in STM32F7xx-GPT-ADC and 
+       STM32L4-GPT-ADC demos (bug #747).
+- HAL: Fixed wrong comments and indent in STM32F4xx and STM32F7xx 
+       hal_lld.h (bug #746).
+- HAL: Removed wrong SAI masks in STM32F4xx hal_lld.h (bug #745).
+- HAL: Fixed wrong mask placement in STM32F4xx hal_lld.h (bug #744).
+- HAL: Fixed wrong indent in STM32F4xx hal_lld.h (bug #743).
+- HAL: Removed unused macros in STM32F7xx and STM32F4xx hal_lld.h (bug #742).
+- HAL: Fixed Doxygen related macros in STM32F7xx, STM32L0xx and STM32L4xx
+       lld files (bug #741).
+- HAL: Fixed bug in VREF enable/disable functions in ADCv3 driver 
+       (bug #740).
+- HAL: Fixed DAC driver not enabled for STM32F4x7 and STM32F4x9 devices
+       (bug #739).
+- HAL: Fixed bug in interrupt handlers in STM32F4xx EXT driver (bug #738).
+- HAL: Fixed clock enabling in STM32 ADCv3 (bug #737).
+- HAL: Fixed missing SDC initialization in RT-STM32F103-OLIMEX_STM32_P103 demo
+       (bug #735).
+- HAL: Fixed STM32 dac bug when using only channel 2 in direct mode (bug #734).
+- HAL: Fixed PAL lines support not working for STM32 GPIOv1 (bug #730).
+- RT:  Fixed bug in chSchPreemption() function (bug #728).
+- HAL: Fixed prescaler not initialized in STM32 ADCv1 (bug #725).
+- HAL: Fixed missing DAC section in STM32F072 mcuconf.h files (bug #724).
+
 *** 16.1.4 ***
 - ALL: Startup files relicensed under Apache 2.0.
 - RT:  Added RT-STM32L476-DISCOVERY demo.
