@@ -72,6 +72,26 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
+*** 16.1.8 ***
+- HAL: Fixed invalid constant in STM32F4 PLLSAI initialization code (bug #834).
+- HAL: Fixed STM32 OTGv1 number of endpoints (bug #833).
+- HAL: Fixed transaction end problem with STM32 OTGv1 driver (bug #832).
+- HAL: Fixed wrong comment in STM32F7 mcuconf (bug #830).
+- RT:  Fixed race condition in chBMReset() (bug #828).
+- HAL: Fixed wrong number of EXTI lines for STM32F303x8 (bug #827).
+- HAL: Fixed invalid SDC OCR initialization value (bug #826).
+- HAL: Fixed osThreadSetPriority() returns old priority instead of a status
+       code (bug #823)).
+- HAL: Fixed problem in rtcSTM32SetPeriodicWakeup() (bug #821).
+- HAL: Fixed STM32 RTCv1 synchronization problem (bug #820).
+- HAL: Fixed wrong clock source definition for LPTIM on STM32L0xx (bug #819).
+- HAL: Fixed STM32L432 bringup issues (bug #818).
+- HAL: Fixed DAC driver problem with API signature (bug #817).
+- HAL: Fixed STM32 OTGv1 driver not serving interrupts for endpoints > 5
+       (bug #816).
+- HAL: Fixed STM32 MAC driver needs __DSB() for STM32F7 when operating in
+       SRAM1/2 (bug #815).
+
 *** 16.1.7 ***
 - VAR: Fixed BYTE_ORDER redefined in lwip_bindings/arch/cc.h (bug #814).
 - HAL: Fixed setting alternate mode in STM32 GPIOv3 and GPIOv3 drivers can fail
