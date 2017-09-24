@@ -67,7 +67,7 @@
 /* DMA attributes.*/
 #define STM32_ADVANCED_DMA                  TRUE
 #define STM32_DMA_SUPPORTS_CSELR            TRUE
-#define STM32_DMA1_NUM_CHANNELS             7
+#define STM32_DMA1_NUM_CHANNELS             5
 #define STM32_DMA2_NUM_CHANNELS             0
 #define STM32_DMA1_CH1_HANDLER              Vector64
 #define STM32_DMA1_CH23_HANDLER             Vector68
@@ -170,6 +170,8 @@
 #define STM32_HAS_SPI6                      FALSE
 
 /* TIM attributes.*/
+#define STM32_TIM_MAX_CHANNELS              4
+
 #define STM32_HAS_TIM2                      TRUE
 #define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
@@ -383,6 +385,8 @@
 #define STM32_HAS_SPI6                      FALSE
 
 /* TIM attributes.*/
+#define STM32_TIM_MAX_CHANNELS              4
+
 #define STM32_HAS_TIM2                      TRUE
 #define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4
@@ -619,6 +623,8 @@
 #define STM32_HAS_SPI6                      FALSE
 
 /* TIM attributes.*/
+#define STM32_TIM_MAX_CHANNELS              4
+
 #define STM32_HAS_TIM2                      TRUE
 #define STM32_TIM2_IS_32BITS                FALSE
 #define STM32_TIM2_CHANNELS                 4

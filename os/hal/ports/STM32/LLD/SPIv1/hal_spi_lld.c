@@ -422,7 +422,7 @@ void spi_lld_start(SPIDriver *spip) {
                       STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD;
   }
   /* SPI setup and enable.*/
-  spip->spi->CR1  = 0;
+  spip->spi->CR1 &= ~SPI_CR1_SPE;
   spip->spi->CR1  = spip->config->cr1 | SPI_CR1_MSTR | SPI_CR1_SSM |
                     SPI_CR1_SSI;
   spip->spi->CR2  = spip->config->cr2 | SPI_CR2_SSOE | SPI_CR2_RXDMAEN |
@@ -443,8 +443,9 @@ void spi_lld_stop(SPIDriver *spip) {
   if (spip->state == SPI_READY) {
 
     /* SPI disable.*/
-    spip->spi->CR1 = 0;
-    spip->spi->CR2 = 0;
+    spip->spi->CR1 &= ~SPI_CR1_SPE;
+    spip->spi->CR1  = 0;
+    spip->spi->CR2  = 0;
     dmaStreamRelease(spip->dmarx);
     dmaStreamRelease(spip->dmatx);
 

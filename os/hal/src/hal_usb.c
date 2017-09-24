@@ -125,6 +125,7 @@ static bool default_handler(USBDriver *usbp) {
 #endif
     return true;
   case (uint32_t)USB_RTYPE_RECIPIENT_DEVICE | ((uint32_t)USB_REQ_GET_DESCRIPTOR << 8):
+  case (uint32_t)USB_RTYPE_RECIPIENT_INTERFACE | ((uint32_t)USB_REQ_GET_DESCRIPTOR << 8):
     /* Handling descriptor requests from the host.*/
     dp = usbp->config->get_descriptor_cb(usbp, usbp->setup[3],
                                          usbp->setup[2],
@@ -631,6 +632,23 @@ bool usbStallTransmitI(USBDriver *usbp, usbep_t ep) {
 }
 
 /**
+ * @brief   Host wake-up procedure.
+ * @note    It is silently ignored if the USB device is not in the
+ *          @p USB_SUSPENDED state.
+ *
+ * @param[in] usbp      pointer to the @p USBDriver object
+ *
+ * @api
+ */
+void usbWakeupHost(USBDriver *usbp) {
+
+  if (usbp->state == USB_SUSPENDED) {
+    /* Starting host wakeup procedure.*/
+    usb_lld_wakeup_host(usbp);
+  }
+}
+
+/**
  * @brief   USB reset routine.
  * @details This function must be invoked when an USB bus reset condition is
  *          detected.
@@ -671,7 +689,7 @@ void _usb_reset(USBDriver *usbp) {
   }
 
   /* EP0 state machine initialization.*/
-  usbp->ep0state = USB_EP0_WAITING_SETUP;
+  usbp->ep0state = USB_EP0_STP_WAITING;
 
   /* Low level reset.*/
   usb_lld_reset(usbp);
@@ -751,7 +769,17 @@ void _usb_wakeup(USBDriver *usbp) {
 void _usb_ep0setup(USBDriver *usbp, usbep_t ep) {
   size_t max;
 
-  usbp->ep0state = USB_EP0_WAITING_SETUP;
+  /* Is the EP0 state machine in the correct state for handling setup
+     packets?*/
+  if (usbp->ep0state != USB_EP0_STP_WAITING) {
+    /* This is unexpected could require handling with a warning event.*/
+    /* TODO: handling here.*/
+
+    /* Resetting the EP0 state machine and going ahead.*/
+    usbp->ep0state = USB_EP0_STP_WAITING;
+  }
+
+  /* Reading the setup data into the driver buffer.*/
   usbReadSetup(usbp, ep, usbp->setup);
 
   /* First verify if the application has an handler installed for this
@@ -794,7 +822,7 @@ void _usb_ep0setup(USBDriver *usbp, usbep_t ep) {
     /* IN phase.*/
     if (usbp->ep0n != 0U) {
       /* Starts the transmit phase.*/
-      usbp->ep0state = USB_EP0_TX;
+      usbp->ep0state = USB_EP0_IN_TX;
       osalSysLockFromISR();
       usbStartTransmitI(usbp, 0, usbp->ep0next, usbp->ep0n);
       osalSysUnlockFromISR();
@@ -802,7 +830,7 @@ void _usb_ep0setup(USBDriver *usbp, usbep_t ep) {
     else {
       /* No transmission phase, directly receiving the zero sized status
          packet.*/
-      usbp->ep0state = USB_EP0_WAITING_STS;
+      usbp->ep0state = USB_EP0_OUT_WAITING_STS;
 #if (USB_EP0_STATUS_STAGE == USB_EP0_STATUS_STAGE_SW)
       osalSysLockFromISR();
       usbStartReceiveI(usbp, 0, NULL, 0);
@@ -816,7 +844,7 @@ void _usb_ep0setup(USBDriver *usbp, usbep_t ep) {
     /* OUT phase.*/
     if (usbp->ep0n != 0U) {
       /* Starts the receive phase.*/
-      usbp->ep0state = USB_EP0_RX;
+      usbp->ep0state = USB_EP0_OUT_RX;
       osalSysLockFromISR();
       usbStartReceiveI(usbp, 0, usbp->ep0next, usbp->ep0n);
       osalSysUnlockFromISR();
@@ -824,7 +852,7 @@ void _usb_ep0setup(USBDriver *usbp, usbep_t ep) {
     else {
       /* No receive phase, directly sending the zero sized status
          packet.*/
-      usbp->ep0state = USB_EP0_SENDING_STS;
+      usbp->ep0state = USB_EP0_IN_SENDING_STS;
 #if (USB_EP0_STATUS_STAGE == USB_EP0_STATUS_STAGE_SW)
       osalSysLockFromISR();
       usbStartTransmitI(usbp, 0, NULL, 0);
@@ -851,7 +879,7 @@ void _usb_ep0in(USBDriver *usbp, usbep_t ep) {
 
   (void)ep;
   switch (usbp->ep0state) {
-  case USB_EP0_TX:
+  case USB_EP0_IN_TX:
     max = (size_t)get_hword(&usbp->setup[6]);
     /* If the transmitted size is less than the requested size and it is a
        multiple of the maximum packet size then a zero size packet must be
@@ -861,13 +889,13 @@ void _usb_ep0in(USBDriver *usbp, usbep_t ep) {
       osalSysLockFromISR();
       usbStartTransmitI(usbp, 0, NULL, 0);
       osalSysUnlockFromISR();
-      usbp->ep0state = USB_EP0_WAITING_TX0;
+      usbp->ep0state = USB_EP0_IN_WAITING_TX0;
       return;
     }
     /* Falls into, it is intentional.*/
-  case USB_EP0_WAITING_TX0:
+  case USB_EP0_IN_WAITING_TX0:
     /* Transmit phase over, receiving the zero sized status packet.*/
-    usbp->ep0state = USB_EP0_WAITING_STS;
+    usbp->ep0state = USB_EP0_OUT_WAITING_STS;
 #if (USB_EP0_STATUS_STAGE == USB_EP0_STATUS_STAGE_SW)
     osalSysLockFromISR();
     usbStartReceiveI(usbp, 0, NULL, 0);
@@ -876,16 +904,16 @@ void _usb_ep0in(USBDriver *usbp, usbep_t ep) {
     usb_lld_end_setup(usbp, ep);
 #endif
     return;
-  case USB_EP0_SENDING_STS:
+  case USB_EP0_IN_SENDING_STS:
     /* Status packet sent, invoking the callback if defined.*/
     if (usbp->ep0endcb != NULL) {
       usbp->ep0endcb(usbp);
     }
-    usbp->ep0state = USB_EP0_WAITING_SETUP;
+    usbp->ep0state = USB_EP0_STP_WAITING;
     return;
-  case USB_EP0_WAITING_SETUP:
-  case USB_EP0_WAITING_STS:
-  case USB_EP0_RX:
+  case USB_EP0_STP_WAITING:
+  case USB_EP0_OUT_WAITING_STS:
+  case USB_EP0_OUT_RX:
     /* All the above are invalid states in the IN phase.*/
     osalDbgAssert(false, "EP0 state machine error");
     /* Falling through is intentional.*/
@@ -917,9 +945,9 @@ void _usb_ep0out(USBDriver *usbp, usbep_t ep) {
 
   (void)ep;
   switch (usbp->ep0state) {
-  case USB_EP0_RX:
+  case USB_EP0_OUT_RX:
     /* Receive phase over, sending the zero sized status packet.*/
-    usbp->ep0state = USB_EP0_SENDING_STS;
+    usbp->ep0state = USB_EP0_IN_SENDING_STS;
 #if (USB_EP0_STATUS_STAGE == USB_EP0_STATUS_STAGE_SW)
     osalSysLockFromISR();
     usbStartTransmitI(usbp, 0, NULL, 0);
@@ -928,7 +956,7 @@ void _usb_ep0out(USBDriver *usbp, usbep_t ep) {
     usb_lld_end_setup(usbp, ep);
 #endif
     return;
-  case USB_EP0_WAITING_STS:
+  case USB_EP0_OUT_WAITING_STS:
     /* Status packet received, it must be zero sized, invoking the callback
        if defined.*/
 #if (USB_EP0_STATUS_STAGE == USB_EP0_STATUS_STAGE_SW)
@@ -939,12 +967,12 @@ void _usb_ep0out(USBDriver *usbp, usbep_t ep) {
     if (usbp->ep0endcb != NULL) {
       usbp->ep0endcb(usbp);
     }
-    usbp->ep0state = USB_EP0_WAITING_SETUP;
+    usbp->ep0state = USB_EP0_STP_WAITING;
     return;
-  case USB_EP0_WAITING_SETUP:
-  case USB_EP0_TX:
-  case USB_EP0_WAITING_TX0:
-  case USB_EP0_SENDING_STS:
+  case USB_EP0_STP_WAITING:
+  case USB_EP0_IN_TX:
+  case USB_EP0_IN_WAITING_TX0:
+  case USB_EP0_IN_SENDING_STS:
     /* All the above are invalid states in the IN phase.*/
     osalDbgAssert(false, "EP0 state machine error");
     /* Falling through is intentional.*/

@@ -98,7 +98,7 @@
  */
 #define STM32_HSI16CLK          16000000    /**< 16MHz internal clock.      */
 #define STM32_HSI48CLK          48000000    /**< 48MHz internal clock.      */
-#define STM32_LSICLK            38000       /**< Low speed internal clock.  */
+#define STM32_LSICLK            37000       /**< Low speed internal clock.  */
 /** @} */
 
 /**
@@ -125,11 +125,11 @@
  * @name    RCC_CR register bits definitions
  * @{
  */
-#define STM32_RTCPRE_MASK       (3 << 29)   /**< RTCPRE mask.               */
-#define STM32_RTCPRE_DIV2       (0 << 29)   /**< HSE divided by 2.          */
-#define STM32_RTCPRE_DIV4       (1 << 29)   /**< HSE divided by 4.          */
-#define STM32_RTCPRE_DIV8       (2 << 29)   /**< HSE divided by 2.          */
-#define STM32_RTCPRE_DIV16      (3 << 29)   /**< HSE divided by 16.         */
+#define STM32_RTCPRE_MASK       (3 << 20)   /**< RTCPRE mask.               */
+#define STM32_RTCPRE_DIV2       (0 << 20)   /**< HSE divided by 2.          */
+#define STM32_RTCPRE_DIV4       (1 << 20)   /**< HSE divided by 4.          */
+#define STM32_RTCPRE_DIV8       (2 << 20)   /**< HSE divided by 2.          */
+#define STM32_RTCPRE_DIV16      (3 << 20)   /**< HSE divided by 16.         */
 /** @} */
 
 /**
@@ -160,12 +160,12 @@
 #define STM32_PPRE1_DIV8        (6 << 8)    /**< HCLK divided by 8.         */
 #define STM32_PPRE1_DIV16       (7 << 8)    /**< HCLK divided by 16.        */
 
-#define STM32_PPRE2_MASK        (7 << 12)   /**< PPRE2 field mask.          */
-#define STM32_PPRE2_DIV1        (0 << 12)   /**< HCLK divided by 1.         */
-#define STM32_PPRE2_DIV2        (4 << 12)   /**< HCLK divided by 2.         */
-#define STM32_PPRE2_DIV4        (5 << 12)   /**< HCLK divided by 4.         */
-#define STM32_PPRE2_DIV8        (6 << 12)   /**< HCLK divided by 8.         */
-#define STM32_PPRE2_DIV16       (7 << 12)   /**< HCLK divided by 16.        */
+#define STM32_PPRE2_MASK        (7 << 11)   /**< PPRE2 field mask.          */
+#define STM32_PPRE2_DIV1        (0 << 11)   /**< HCLK divided by 1.         */
+#define STM32_PPRE2_DIV2        (4 << 11)   /**< HCLK divided by 2.         */
+#define STM32_PPRE2_DIV4        (5 << 11)   /**< HCLK divided by 4.         */
+#define STM32_PPRE2_DIV8        (6 << 11)   /**< HCLK divided by 8.         */
+#define STM32_PPRE2_DIV16       (7 << 11)   /**< HCLK divided by 16.        */
 
 #define STM32_STOPWUCK_MASK     (1 << 15)   /**< PLLDIV field mask.         */
 #define STM32_STOPWUCK_MSI      (0 << 15)   /**< MSI is wakeup clock.       */
@@ -276,6 +276,13 @@
 #define STM32_HSI48SEL_MASK     (1 << 26)   /**< HSI48SEL clock source mask.*/
 #define STM32_HSI48SEL_USBPLL   (0 << 26)   /**< USB48 clock is PLL/2.      */
 #define STM32_HSI48SEL_HSI48    (1 << 26)   /**< USB48 clock is HSI48.      */
+/** @} */
+
+/**
+ * @name    SYSCFG_CFGR3_ register bits definitions
+ * @{
+ */
+#define STM32_VREFINT_EN        (1 << 0)    /**< VREFINT enable switch.     */
 /** @} */
 
 /*===========================================================================*/
@@ -505,7 +512,7 @@
  * @bief    USB/RNG clock source.
  */
 #if !defined(STM32_HSI48SEL) || defined(__DOXYGEN__)
-#define STM32_HSI48SEL                      STM32_HSI48SEL_HSI48
+#define STM32_HSI48SEL                      STM32_HSI48SEL_USBPLL
 #endif
 /** @} */
 
@@ -758,9 +765,8 @@
 #endif /* !STM32_LSE_ENABLED */
 
 /* PLL related checks.*/
-#if STM32_USB_CLOCK_ENABLED ||                                              \
-    (STM32_SW == STM32_SW_PLL) ||                                           \
-    (STM32_MCOSEL == STM32_MCOSEL_PLL) ||                                   \
+#if (STM32_SW == STM32_SW_PLL) || (STM32_MCOSEL == STM32_MCOSEL_PLL) ||       \
+    (STM32_USB_CLOCK_ENABLED && (STM32_HSI48SEL == STM32_HSI48SEL_USBPLL)) || \
     defined(__DOXYGEN__)
 /**
  * @brief   PLL activation flag.
@@ -768,6 +774,17 @@
 #define STM32_ACTIVATE_PLL          TRUE
 #else
 #define STM32_ACTIVATE_PLL          FALSE
+#endif
+
+/* HSI48 related checks.*/
+#if (STM32_USB_CLOCK_ENABLED && (STM32_HSI48SEL == STM32_HSI48SEL_HSI48)) ||  \
+    defined(__DOXYGEN__)
+/**
+ * @brief   HSI48 activation flag.
+ */
+#define STM32_ACTIVATE_HSI48        TRUE
+#else
+#define STM32_ACTIVATE_HSI48        FALSE
 #endif
 
 /**
@@ -874,7 +891,7 @@
 #elif (STM32_SW == STM32_SW_MSI)
 #define STM32_SYSCLK                STM32_MSICLK
 #elif (STM32_SW == STM32_SW_HSI16)
-#define STM32_SYSCLK                STM32_HSI16CLK
+#define STM32_SYSCLK                STM32_HSI16DIVCLK
 #elif (STM32_SW == STM32_SW_HSE)
 #define STM32_SYSCLK                STM32_HSECLK
 #elif (STM32_SW == STM32_SW_PLL)

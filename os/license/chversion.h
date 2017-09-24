@@ -18,29 +18,59 @@
 */
 
 /**
- * @file    chcustomer.h
- * @brief   Customer-related info.
+ * @file    chversion.h
+ * @brief   Version Module macros and structures.
  *
- * @addtogroup customer
+ * @addtogroup version
  * @{
  */
 
-#ifndef CHCUSTOMER_H
-#define CHCUSTOMER_H
+#ifndef CHVERSION_H
+#define CHVERSION_H
 
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
 
 /**
- * @brief   Customer readable identifier.
+ * @brief   ChibiOS product identification macro.
  */
-#define CH_CUSTOMER_ID_STRING               "Santa, North Pole"
+#define _CHIBIOS_
 
 /**
- * @brief   Customer code.
+ * @brief   Stable release flag.
  */
-#define CH_CUSTOMER_ID_CODE                 "xxxx-yyyy"
+#define CH_VERSION_STABLE       1
+
+/**
+ * @name    ChibiOS version identification
+ * @{
+ */
+/**
+ * @brief   ChibiOS version string.
+ */
+#define CH_VERSION              "17.6.1"
+
+/**
+ * @brief   ChibiOS version release year.
+ */
+#define CH_VERSION_YEAR         17
+
+/**
+ * @brief   ChibiOS version release month.
+ */
+#define CH_VERSION_MONTH        6
+
+/**
+ * @brief   ChibiOS version patch number.
+ */
+#define CH_VERSION_PATCH        1
+
+/**
+ * @brief   ChibiOS version nickname.
+ */
+#define CH_VERSION_NICKNAME     "Andante"
+/** @} */
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -66,6 +96,6 @@
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-#endif /* CHCUSTOMER_H */
+#endif /* CHVERSION_H */
 
 /** @} */
