@@ -88,7 +88,21 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
-*** 14.6.2 ***
+*** 17.6.3 ***
+- NIL: Fixed core and Heap allocators not functional in NIL (bug #902).
+- HAL: Fixed function uartSendFullTimeout() failing on STM32 USARTv1 and
+       v2 drivers (bug #901).
+- HAL: Fixed broken I2C fallback driver (bug #900).
+- LIB: Fixed heap buffer alignment not enforced (bug #899).
+- LIB: Fixed call protocol violation in chCoreAlloc() (bug #896).
+- RT:  Fixed trace Buffer activation bits state reversed in chconf.h
+       (bug #895).
+- BLD: Fixed USE_OPT not passed to assembler in rules.mk (bug #892).
+- HAL: Fixed IRQ sharing issue in STM32 DMAv1 driver (bug #891).
+- HAL: Fixed CHPRINTF_USE_FLOAT defaulted to TRUE (bug #890).
+- HAL: Fixed various STM32 registry problems (more instances)(bug #889).
+
+*** 17.6.2 ***
 - HAL: Fixed various STM32 registry problems (bug #889).
 - LIB: Fixed heap allocator returning unaligned blocks (bug #888).
 
