@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 #include "ch.hpp"
 #include "hal.h"
-#include "ch_test.h"
+#include "rt_test_root.h"
+#include "oslib_test_root.h"
 
 using namespace chibios_rt;
 
@@ -94,7 +95,7 @@ protected:
     while (true) {
       switch(curr->action) {
       case SLEEP:
-        sleep(MS2ST(curr->value));
+        sleep(TIME_MS2I(curr->value));
         break;
       case GOTO:
         curr = &base[curr->value];
@@ -129,7 +130,8 @@ protected:
 
     setName("tester");
 
-    test_execute((BaseSequentialStream *)&SD2);
+    test_execute((BaseSequentialStream *)&SD2, &rt_test_suite);
+    test_execute((BaseSequentialStream *)&SD2, &oslib_test_suite);
     exit(test_global_fail);
   }
 
@@ -185,7 +187,7 @@ int main(void) {
       tester.start(NORMALPRIO);
       tester.wait();
     };
-    BaseThread::sleep(MS2ST(500));
+    BaseThread::sleep(TIME_MS2I(500));
   }
 
   return 0;

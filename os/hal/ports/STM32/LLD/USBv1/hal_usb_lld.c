@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -478,7 +478,7 @@ void usb_lld_start(USBDriver *usbp) {
 #if STM32_USB_USE_USB1
     if (&USBD1 == usbp) {
       /* USB clock enabled.*/
-      rccEnableUSB(FALSE);
+      rccEnableUSB(true);
       /* Powers up the transceiver while holding the USB in reset state.*/
       STM32_USB->CNTR = CNTR_FRES;
       /* Enabling the USB IRQ vectors, this also gives enough time to allow
@@ -514,7 +514,7 @@ void usb_lld_stop(USBDriver *usbp) {
 #endif
       nvicDisableVector(STM32_USB1_LP_NUMBER);
       STM32_USB->CNTR = CNTR_PDWN | CNTR_FRES;
-      rccDisableUSB(FALSE);
+      rccDisableUSB();
     }
 #endif
   }
@@ -588,6 +588,7 @@ void usb_lld_init_endpoint(USBDriver *usbp, usbep_t ep) {
 #else
     osalDbgAssert(false, "isochronous support disabled");
 #endif
+    /* Falls through.*/
   case USB_EP_MODE_TYPE_BULK:
     epr = EPR_EP_TYPE_BULK;
     break;

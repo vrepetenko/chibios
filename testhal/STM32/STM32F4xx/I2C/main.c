@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ static const I2CConfig i2cfg2 = {
  */
 int main(void) {
   msg_t status = MSG_OK;
-  systime_t tmo = MS2ST(4);
+  sysinterval_t tmo = TIME_MS2I(4);
 
   /*
    * System initializations.

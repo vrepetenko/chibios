@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -42,11 +42,11 @@ static const I2CConfig i2ccfg = {
 static const LPS25HConfig lps25hcfg = {
   &I2CD1,
   &i2ccfg,
-  NULL,                        /* Use default sensitivity.*/
-  NULL,                        /* Use default bias.*/
-  LPS25H_SAD_VCC,              /* SA0 connected to VCC */
-  LPS25H_ODR_7HZ,              /* Output data rate 7 Hz.*/
-#if LPS25H_USE_ADVANCED || defined(__DOXYGEN__)
+  NULL,
+  NULL,
+  LPS25H_SAD_VCC,
+  LPS25H_ODR_7HZ,
+#if LPS25H_USE_ADVANCED
   LPS25H_BDU_CONTINUOUS,
   LPS25H_AVGP_512,
   LPS25H_AVGT_512

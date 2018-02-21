@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@
 /* HTS221 Driver: This object represent an HTS221 instance */
 static  HTS221Driver HTS221D1;
 
-static int32_t rawdata[HTS221_HYGRO_NUMBER_OF_AXES + 
+static int32_t rawdata[HTS221_HYGRO_NUMBER_OF_AXES +
                        HTS221_THERMO_NUMBER_OF_AXES];
-static float cookeddata[HTS221_HYGRO_NUMBER_OF_AXES + 
+static float cookeddata[HTS221_HYGRO_NUMBER_OF_AXES +
                         HTS221_THERMO_NUMBER_OF_AXES];
 
 static const I2CConfig i2ccfg = {
@@ -44,9 +44,9 @@ static const I2CConfig i2ccfg = {
 static const HTS221Config hts221cfg = {
   &I2CD1,
   &i2ccfg,
-  NULL,                        /* Use default sensitivity.*/
-  NULL,                        /* Use default bias.*/
-  HTS221_ODR_7HZ,              /* Output data rate 7 Hz.*/
+  NULL,
+  NULL,
+  HTS221_ODR_7HZ,
 #if HTS221_USE_ADVANCED || defined(__DOXYGEN__)
   HTS221_BDU_CONTINUOUS,
   HTS221_AVGH_256,
