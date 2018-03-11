@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -535,29 +535,29 @@ void adc_lld_init(void) {
 #if defined(STM32F3XX)
 #if STM32_HAS_ADC1 && STM32_HAS_ADC2
 #if STM32_ADC_USE_ADC1 || STM32_ADC_USE_ADC2
-  rccEnableADC12(true);
+  rccEnableADC12(FALSE);
   rccResetADC12();
   ADC1_2_COMMON->CCR = STM32_ADC_ADC12_CLOCK_MODE | ADC_DMA_MDMA;
-  rccDisableADC12();
+  rccDisableADC12(FALSE);
 #endif
 #else
 #if STM32_ADC_USE_ADC1
-  rccEnableADC12(true);
+  rccEnableADC12(FALSE);
   rccResetADC12();
   ADC1_COMMON->CCR = STM32_ADC_ADC12_CLOCK_MODE | ADC_DMA_MDMA;
-  rccDisableADC12();
+  rccDisableADC12(FALSE);
 #endif
 #endif
 #if STM32_ADC_USE_ADC3 || STM32_ADC_USE_ADC4
-  rccEnableADC34(true);
+  rccEnableADC34(FALSE);
   rccResetADC34();
   ADC3_4_COMMON->CCR = STM32_ADC_ADC34_CLOCK_MODE | ADC_DMA_MDMA;
-  rccDisableADC34();
+  rccDisableADC34(FALSE);
 #endif
 #endif
 
 #if defined(STM32L4XX)
-  rccEnableADC123(true);
+  rccEnableADC123(FALSE);
   rccResetADC123();
 
 #if defined(ADC1_2_COMMON)
@@ -568,7 +568,7 @@ void adc_lld_init(void) {
   ADC1_COMMON->CCR = STM32_ADC_ADC123_CLOCK_MODE | ADC_DMA_MDMA;
 #endif
 
-  rccDisableADC123();
+  rccDisableADC123(FALSE);
 #endif
 }
 
@@ -599,10 +599,10 @@ void adc_lld_start(ADCDriver *adcp) {
 
       clkmask |= (1 << 0);
 #if defined(STM32F3XX)
-      rccEnableADC12(true);
+      rccEnableADC12(FALSE);
 #endif
 #if defined(STM32L4XX)
-      rccEnableADC123(true);
+      rccEnableADC123(FALSE);
 #endif
     }
 #endif /* STM32_ADC_USE_ADC1 */
@@ -618,10 +618,10 @@ void adc_lld_start(ADCDriver *adcp) {
 
       clkmask |= (1 << 1);
 #if defined(STM32F3XX)
-      rccEnableADC12(true);
+      rccEnableADC12(FALSE);
 #endif
 #if defined(STM32L4XX)
-      rccEnableADC123(true);
+      rccEnableADC123(FALSE);
 #endif
     }
 #endif /* STM32_ADC_USE_ADC2 */
@@ -637,10 +637,10 @@ void adc_lld_start(ADCDriver *adcp) {
 
       clkmask |= (1 << 2);
 #if defined(STM32F3XX)
-      rccEnableADC34(true);
+      rccEnableADC34(FALSE);
 #endif
 #if defined(STM32L4XX)
-      rccEnableADC123(true);
+      rccEnableADC123(FALSE);
 #endif
     }
 #endif /* STM32_ADC_USE_ADC3 */
@@ -656,10 +656,10 @@ void adc_lld_start(ADCDriver *adcp) {
 
       clkmask |= (1 << 3);
 #if defined(STM32F3XX)
-      rccEnableADC34(true);
+      rccEnableADC34(FALSE);
 #endif
 #if defined(STM32L4XX)
-      rccEnableADC123(true);
+      rccEnableADC123(FALSE);
 #endif
     }
 #endif /* STM32_ADC_USE_ADC4 */
@@ -758,20 +758,20 @@ void adc_lld_stop(ADCDriver *adcp) {
 #if defined(STM32F3XX)
 #if STM32_HAS_ADC1 || STM32_HAS_ADC2
     if ((clkmask & 0x3) == 0) {
-      rccDisableADC12();
+      rccDisableADC12(FALSE);
     }
 #endif
 
 #if STM32_HAS_ADC3 || STM32_HAS_ADC4
     if ((clkmask & 0xC) == 0) {
-      rccDisableADC34();
+      rccDisableADC34(FALSE);
     }
 #endif
 #endif
 
 #if defined(STM32L4XX)
     if ((clkmask & 0x7) == 0) {
-      rccDisableADC123();
+      rccDisableADC123(FALSE);
     }
 #endif
   }

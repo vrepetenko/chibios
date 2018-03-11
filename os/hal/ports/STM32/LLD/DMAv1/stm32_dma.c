@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -493,11 +493,11 @@ bool dmaStreamAllocate(const stm32_dma_stream_t *dmastp,
 
   /* Enabling DMA clocks required by the current streams set.*/
   if ((dma.streams_mask & STM32_DMA1_STREAMS_MASK) == 0U) {
-    rccEnableDMA1(true);
+    rccEnableDMA1(false);
   }
 #if STM32_DMA2_NUM_CHANNELS > 0
   if ((dma.streams_mask & STM32_DMA2_STREAMS_MASK) == 0U) {
-    rccEnableDMA2(true);
+    rccEnableDMA2(false);
   }
 #endif
 
@@ -556,11 +556,11 @@ void dmaStreamRelease(const stm32_dma_stream_t *dmastp) {
 
   /* Shutting down clocks that are no more required, if any.*/
   if ((dma.streams_mask & STM32_DMA1_STREAMS_MASK) == 0U) {
-    rccDisableDMA1();
+    rccDisableDMA1(false);
   }
 #if STM32_DMA2_NUM_CHANNELS > 0
   if ((dma.streams_mask & STM32_DMA2_STREAMS_MASK) == 0U) {
-    rccDisableDMA2();
+    rccDisableDMA2(false);
   }
 #endif
 }

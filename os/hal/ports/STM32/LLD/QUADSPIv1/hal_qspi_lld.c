@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ void qspi_lld_start(QSPIDriver *qspip) {
                                  (stm32_dmaisr_t)qspi_lld_serve_dma_interrupt,
                                  (void *)qspip);
       osalDbgAssert(!b, "stream already allocated");
-      rccEnableQUADSPI1(true);
+      rccEnableQUADSPI1(false);
     }
 #endif
 
@@ -194,7 +194,7 @@ void qspi_lld_stop(QSPIDriver *qspip) {
     /* Stopping involved clocks.*/
 #if STM32_QSPI_USE_QUADSPI1
     if (&QSPID1 == qspip) {
-      rccDisableQUADSPI1();
+      rccDisableQUADSPI1(FALSE);
     }
 #endif
   }

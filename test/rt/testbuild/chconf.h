@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@
 #define CHCONF_H
 
 #define _CHIBIOS_RT_CONF_
-#define _CHIBIOS_RT_CONF_VER_5_0_
 
 /*===========================================================================*/
 /**
@@ -53,22 +52,6 @@
  */
 #if !defined(CH_CFG_ST_FREQUENCY) || defined(__DOXYGEN__)
 #define CH_CFG_ST_FREQUENCY                 1000
-#endif
-
-/**
- * @brief   Time intervals data size.
- * @note    Allowed values are 16, 32 or 64 bits.
- */
-#if !defined(CH_CFG_INTERVALS_SIZE) || defined(__DOXYGEN__)
-#define CH_CFG_INTERVALS_SIZE               32
-#endif
-
-/**
- * @brief   Time types data size.
- * @note    Allowed values are 16 or 32 bits.
- */
-#if !defined(CH_CFG_TIME_TYPES_SIZE) || defined(__DOXYGEN__)
-#define CH_CFG_TIME_TYPES_SIZE              32
 #endif
 
 /**
@@ -360,17 +343,6 @@
 #endif
 
 /**
- * @brief  Objects FIFOs APIs.
- * @details If enabled then the objects FIFOs APIs are included
- *          in the kernel.
- *
- * @note    The default is @p TRUE.
- */
-#if !defined(CH_CFG_USE_OBJ_FIFOS) || defined(__DOXYGEN__)
-#define CH_CFG_USE_OBJ_FIFOS                TRUE
-#endif
-
-/**
  * @brief   Dynamic Threads APIs.
  * @details If enabled then the dynamic threads creation APIs are included
  *          in the kernel.
@@ -382,58 +354,6 @@
 #if !defined(CH_CFG_USE_DYNAMIC) || defined(__DOXYGEN__)
 #define CH_CFG_USE_DYNAMIC                  TRUE
 #endif
-
-/** @} */
-
-/*===========================================================================*/
-/**
- * @name Objects factory options
- * @{
- */
-/*===========================================================================*/
-
-/**
- * @brief   Objects Factory APIs.
- * @details If enabled then the objects factory APIs are included in the
- *          kernel.
- *
- * @note    The default is @p FALSE.
- */
-#if !defined(CH_CFG_USE_FACTORY) || defined(__DOXYGEN__)
-#define CH_CFG_USE_FACTORY                  TRUE
-#endif
-
-/**
- * @brief   Maximum length for object names.
- * @details If the specified length is zero then the name is stored by
- *          pointer but this could have unintended side effects.
- */
-#define CH_CFG_FACTORY_MAX_NAMES_LENGTH     8
-
-/**
- * @brief   Enables the registry of generic objects.
- */
-#define CH_CFG_FACTORY_OBJECTS_REGISTRY     TRUE
-
-/**
- * @brief   Enables factory for generic buffers.
- */
-#define CH_CFG_FACTORY_GENERIC_BUFFERS      TRUE
-
-/**
- * @brief   Enables factory for semaphores.
- */
-#define CH_CFG_FACTORY_SEMAPHORES           TRUE
-
-/**
- * @brief   Enables factory for mailboxes.
- */
-#define CH_CFG_FACTORY_MAILBOXES            TRUE
-
-/**
- * @brief   Enables factory for objects FIFOs.
- */
-#define CH_CFG_FACTORY_OBJ_FIFOS            TRUE
 
 /** @} */
 
@@ -555,29 +475,6 @@
 /*===========================================================================*/
 
 /**
- * @brief   System structure extension.
- * @details User fields added to the end of the @p ch_system_t structure.
- */
-#define CH_CFG_SYSTEM_EXTRA_FIELDS                                          \
-  /* Add threads custom fields here.*/
-
-/**
- * @brief   System initialization hook.
- * @details User initialization code added to the @p chSysInit() function
- *          just before interrupts are enabled globally.
- */
-#define CH_CFG_SYSTEM_INIT_HOOK(tp) {                                       \
-  /* Add threads initialization code here.*/                                \
-}
-
-/**
- * @brief   System structure extension.
- * @details User fields added to the end of the @p ch_system_t structure.
- */
-#define CH_CFG_SYSTEM_EXTRA_FIELDS                                          \
-  /* Add threads custom fields here.*/
-
-/**
  * @brief   Threads descriptor structure extension.
  * @details User fields added to the end of the @p thread_t structure.
  */
@@ -586,9 +483,9 @@
 
 /**
  * @brief   Threads initialization hook.
- * @details User initialization code added to the @p _thread_init() function.
+ * @details User initialization code added to the @p chThdInit() API.
  *
- * @note    It is invoked from within @p _thread_init() and implicitly from all
+ * @note    It is invoked from within @p chThdInit() and implicitly from all
  *          the threads creation APIs.
  */
 #define CH_CFG_THREAD_INIT_HOOK(tp) {                                       \

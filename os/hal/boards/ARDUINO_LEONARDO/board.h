@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2015 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define _BOARD_H_
 
 /*
- * Setup for the Arduino Leonardo board.
+ * Setup for the PJRC Teensy2++ board.
  */
 
 /*
@@ -27,92 +27,51 @@
 #define BOARD_ARDUINO_LEONARDO
 #define BOARD_NAME "Arduino Leonardo"
 
-/*
- * IO pins assignments.
- */
-#define BOARD_LED1  7
-
-/*
- * IO lines assignments.
- */
-#define LINE_LED1   PAL_LINE(IOPORT3, 7U)
-
-/*
- * Port A setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRA  0x00
 #define VAL_PORTA 0xFF
 
-/*
- * Port B setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRB  0x00
 #define VAL_PORTB 0xFF
 
-/*
- * Port C setup.
- * All inputs except PC7 which has a LED connected.
- */
+/* All inputs except PC7 which has a LED connected */
 #define VAL_DDRC  0x80
 #define VAL_PORTC 0xFF
 
-/*
- * Port D setup.
- * All inputs with pull-ups except PD5, TXLED.
- */
+/* All inputs with pull-ups except PD5, TXLED  */
 #define VAL_DDRD  0x10
 #define VAL_PORTD 0xFF
 
-/*
- * Port E setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRE  0x00
 #define VAL_PORTE 0xFF
 
-/*
- * Port F setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRF  0x00
 #define VAL_PORTF 0xFF
 
-/*
- * Port G setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRG  0x00
 #define VAL_PORTG 0xFF
 
-/*
- * Port H setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRH  0x00
 #define VAL_PORTH 0xFF
 
-/*
- * Port J setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRJ  0x00
 #define VAL_PORTJ 0xFF
 
-/*
- * Port K setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRK  0x00
 #define VAL_PORTK 0xFF
 
-/*
- * Port L setup.
- * All inputs with pull-ups.
- */
+/* All inputs with pull-ups */
 #define VAL_DDRL  0x00
 #define VAL_PORTL 0xFF
+
+#define BOARD_LED1        7
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

@@ -1,13 +1,7 @@
 # List of all the ChibiOS/HAL files, there is no need to remove the files
 # from this list, you can disable parts of the HAL by editing halconf.h.
 ifeq ($(USE_SMART_BUILD),yes)
-
-# Configuration files directory
-ifeq ($(CONFDIR),)
-  CONFDIR = .
-endif
-
-HALCONF := $(strip $(shell cat $(CONFDIR)/halconf.h | egrep -e "\#define"))
+HALCONF := $(strip $(shell cat halconf.h | egrep -e "\#define"))
 
 HALSRC := $(CHIBIOS)/os/hal/src/hal.c \
           $(CHIBIOS)/os/hal/src/hal_st.c \
@@ -19,9 +13,6 @@ HALSRC += $(CHIBIOS)/os/hal/src/hal_adc.c
 endif
 ifneq ($(findstring HAL_USE_CAN TRUE,$(HALCONF)),)
 HALSRC += $(CHIBIOS)/os/hal/src/hal_can.c
-endif
-ifneq ($(findstring HAL_USE_CRY TRUE,$(HALCONF)),)
-HALSRC += $(CHIBIOS)/os/hal/src/hal_crypto.c
 endif
 ifneq ($(findstring HAL_USE_DAC TRUE,$(HALCONF)),)
 HALSRC += $(CHIBIOS)/os/hal/src/hal_dac.c
@@ -111,7 +102,3 @@ endif
 
 # Required include directories
 HALINC = $(CHIBIOS)/os/hal/include
-
-# Shared variables
-ALLCSRC += $(HALSRC)
-ALLINC  += $(HALINC)

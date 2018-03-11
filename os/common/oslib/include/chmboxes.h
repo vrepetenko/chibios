@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -27,10 +27,6 @@
 
 #ifndef CHMBOXES_H
 #define CHMBOXES_H
-
-#if !defined(CH_CFG_USE_MAILBOXES)
-#define CH_CFG_USE_MAILBOXES                FALSE
-#endif
 
 #if (CH_CFG_USE_MAILBOXES == TRUE) || defined(__DOXYGEN__)
 
@@ -60,7 +56,7 @@ typedef struct {
                                                     after the buffer.       */
   msg_t                 *wrptr;         /**< @brief Write pointer.          */
   msg_t                 *rdptr;         /**< @brief Read pointer.           */
-  size_t                cnt;            /**< @brief Messages in queue.      */
+  cnt_t                 cnt;            /**< @brief Messages in queue.      */
   bool                  reset;          /**< @brief True in reset state.    */
   threads_queue_t       qw;             /**< @brief Queued writers.         */
   threads_queue_t       qr;             /**< @brief Queued readers.         */
@@ -84,7 +80,7 @@ typedef struct {
   (msg_t *)(buffer) + size,                                                 \
   (msg_t *)(buffer),                                                        \
   (msg_t *)(buffer),                                                        \
-  (size_t)0,                                                                \
+  (cnt_t)0,                                                                 \
   false,                                                                    \
   _THREADS_QUEUE_DATA(name.qw),                                             \
   _THREADS_QUEUE_DATA(name.qr),                                             \
@@ -109,17 +105,17 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chMBObjectInit(mailbox_t *mbp, msg_t *buf, size_t n);
+  void chMBObjectInit(mailbox_t *mbp, msg_t *buf, cnt_t n);
   void chMBReset(mailbox_t *mbp);
   void chMBResetI(mailbox_t *mbp);
-  msg_t chMBPostTimeout(mailbox_t *mbp, msg_t msg, sysinterval_t timeout);
-  msg_t chMBPostTimeoutS(mailbox_t *mbp, msg_t msg, sysinterval_t timeout);
+  msg_t chMBPost(mailbox_t *mbp, msg_t msg, systime_t timeout);
+  msg_t chMBPostS(mailbox_t *mbp, msg_t msg, systime_t timeout);
   msg_t chMBPostI(mailbox_t *mbp, msg_t msg);
-  msg_t chMBPostAheadTimeout(mailbox_t *mbp, msg_t msg, sysinterval_t timeout);
-  msg_t chMBPostAheadTimeoutS(mailbox_t *mbp, msg_t msg, sysinterval_t timeout);
+  msg_t chMBPostAhead(mailbox_t *mbp, msg_t msg, systime_t timeout);
+  msg_t chMBPostAheadS(mailbox_t *mbp, msg_t msg, systime_t timeout);
   msg_t chMBPostAheadI(mailbox_t *mbp, msg_t msg);
-  msg_t chMBFetchTimeout(mailbox_t *mbp, msg_t *msgp, sysinterval_t timeout);
-  msg_t chMBFetchTimeoutS(mailbox_t *mbp, msg_t *msgp, sysinterval_t timeout);
+  msg_t chMBFetch(mailbox_t *mbp, msg_t *msgp, systime_t timeout);
+  msg_t chMBFetchS(mailbox_t *mbp, msg_t *msgp, systime_t timeout);
   msg_t chMBFetchI(mailbox_t *mbp, msg_t *msgp);
 #ifdef __cplusplus
 }
@@ -137,11 +133,11 @@ extern "C" {
  *
  * @iclass
  */
-static inline size_t chMBGetSizeI(const mailbox_t *mbp) {
+static inline cnt_t chMBGetSizeI(const mailbox_t *mbp) {
 
   /*lint -save -e9033 [10.8] Perfectly safe pointers
     arithmetic.*/
-  return (size_t)(mbp->top - mbp->buffer);
+  return (cnt_t)(mbp->top - mbp->buffer);
   /*lint -restore*/
 }
 
@@ -154,7 +150,7 @@ static inline size_t chMBGetSizeI(const mailbox_t *mbp) {
  *
  * @iclass
  */
-static inline size_t chMBGetUsedCountI(const mailbox_t *mbp) {
+static inline cnt_t chMBGetUsedCountI(const mailbox_t *mbp) {
 
   chDbgCheckClassI();
 
@@ -169,7 +165,7 @@ static inline size_t chMBGetUsedCountI(const mailbox_t *mbp) {
  *
  * @iclass
  */
-static inline size_t chMBGetFreeCountI(const mailbox_t *mbp) {
+static inline cnt_t chMBGetFreeCountI(const mailbox_t *mbp) {
 
   chDbgCheckClassI();
 

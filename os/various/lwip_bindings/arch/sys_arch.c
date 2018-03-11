@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -48,9 +48,7 @@
  *
  */
 
-/*
- * See http://lwip.wikia.com/wiki/Porting_for_an_OS for instructions.
- */
+// see http://lwip.wikia.com/wiki/Porting_for_an_OS for instructions
 
 #include "hal.h"
 
@@ -101,19 +99,18 @@ void sys_sem_signal_S(sys_sem_t *sem) {
 }
 
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout) {
-  systime_t start;
-  sysinterval_t tmo, remaining;
+  systime_t tmo, start, remaining;
 
   osalSysLock();
-  tmo = timeout > 0 ? TIME_MS2I((time_msecs_t)timeout) : TIME_INFINITE;
+  tmo = timeout > 0 ? MS2ST((systime_t)timeout) : TIME_INFINITE;
   start = osalOsGetSystemTimeX();
   if (chSemWaitTimeoutS(*sem, tmo) != MSG_OK) {
     osalSysUnlock();
     return SYS_ARCH_TIMEOUT;
   }
-  remaining = chTimeDiffX(start, osalOsGetSystemTimeX());
+  remaining = osalOsGetSystemTimeX() - start;
   osalSysUnlock();
-  return (u32_t)TIME_I2MS(remaining);
+  return (u32_t)ST2MS(remaining);
 }
 
 int sys_sem_valid(sys_sem_t *sem) {
@@ -161,12 +158,12 @@ void sys_mbox_free(sys_mbox_t *mbox) {
 
 void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
 
-  chMBPostTimeout(*mbox, (msg_t)msg, TIME_INFINITE);
+  chMBPost(*mbox, (msg_t)msg, TIME_INFINITE);
 }
 
 err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
 
-  if (chMBPostTimeout(*mbox, (msg_t)msg, TIME_IMMEDIATE) == MSG_TIMEOUT) {
+  if (chMBPost(*mbox, (msg_t)msg, TIME_IMMEDIATE) == MSG_TIMEOUT) {
     SYS_STATS_INC(mbox.err);
     return ERR_MEM;
   }
@@ -174,24 +171,23 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
 }
 
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
-  systime_t start;
-  sysinterval_t tmo, remaining;
+  systime_t tmo, start, remaining;
 
   osalSysLock();
-  tmo = timeout > 0 ? TIME_MS2I((time_msecs_t)timeout) : TIME_INFINITE;
+  tmo = timeout > 0 ? MS2ST((systime_t)timeout) : TIME_INFINITE;
   start = osalOsGetSystemTimeX();
-  if (chMBFetchTimeoutS(*mbox, (msg_t *)msg, tmo) != MSG_OK) {
+  if (chMBFetchS(*mbox, (msg_t *)msg, tmo) != MSG_OK) {
     osalSysUnlock();
     return SYS_ARCH_TIMEOUT;
   }
-  remaining = chTimeDiffX(start, osalOsGetSystemTimeX());
+  remaining = osalOsGetSystemTimeX() - start;
   osalSysUnlock();
-  return (u32_t)TIME_I2MS(remaining);
+  return (u32_t)ST2MS(remaining);
 }
 
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
 
-  if (chMBFetchTimeout(*mbox, (msg_t *)msg, TIME_IMMEDIATE) == MSG_TIMEOUT)
+  if (chMBFetch(*mbox, (msg_t *)msg, TIME_IMMEDIATE) == MSG_TIMEOUT)
     return SYS_MBOX_EMPTY;
   return 0;
 }

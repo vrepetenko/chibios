@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -48,11 +48,7 @@
  * @note    This number does not include the 16 system vectors and must be
  *          rounded to a multiple of 8.
  */
-#if defined(STM32L496xx) || defined(STM32L4A6xx)
-#define CORTEX_NUM_VECTORS      96
-#else
 #define CORTEX_NUM_VECTORS      88
-#endif
 
 /* The following code is not processed when the file is included from an
    asm module.*/
@@ -63,8 +59,7 @@
    definition compatible with the vendor include file.*/
 #if !defined(STM32L471xx) && !defined(STM32L475xx) &&                       \
     !defined(STM32L476xx) && !defined(STM32L485xx) &&                       \
-    !defined(STM32L486xx) && !defined(STM32L496xx) &&                       \
-    !defined(STM32L4A6xx)
+    !defined (STM32L486xx)
 #include "board.h"
 #endif
 

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -334,11 +334,12 @@ static void serve_interrupt(SerialDriver *sdp) {
   }
 
   /* Physical transmission end.*/
-  if (isr & USART_ISR_TC) {
+  if ((cr1 & USART_CR1_TCIE) && (isr & USART_ISR_TC)) {
     osalSysLockFromISR();
-    if (oqIsEmptyI(&sdp->oqueue))
+    if (oqIsEmptyI(&sdp->oqueue)) {
       chnAddFlagsI(sdp, CHN_TRANSMISSION_END);
-    u->CR1 = cr1 & ~USART_CR1_TCIE;
+      u->CR1 = cr1 & ~USART_CR1_TCIE;
+    }
     osalSysUnlockFromISR();
   }
 }
@@ -767,47 +768,47 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
   if (sdp->state == SD_STOP) {
 #if STM32_SERIAL_USE_USART1
     if (&SD1 == sdp) {
-      rccEnableUSART1(true);
+      rccEnableUSART1(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_USART2
     if (&SD2 == sdp) {
-      rccEnableUSART2(true);
+      rccEnableUSART2(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_USART3
     if (&SD3 == sdp) {
-      rccEnableUSART3(true);
+      rccEnableUSART3(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_UART4
     if (&SD4 == sdp) {
-      rccEnableUART4(true);
+      rccEnableUART4(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_UART5
     if (&SD5 == sdp) {
-      rccEnableUART5(true);
+      rccEnableUART5(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_USART6
     if (&SD6 == sdp) {
-      rccEnableUSART6(true);
+      rccEnableUSART6(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_UART7
     if (&SD7 == sdp) {
-      rccEnableUART7(true);
+      rccEnableUART7(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_UART8
     if (&SD8 == sdp) {
-      rccEnableUART8(true);
+      rccEnableUART8(FALSE);
     }
 #endif
 #if STM32_SERIAL_USE_LPUART1
     if (&LPSD1 == sdp) {
-      rccEnableLPUART1(true);
+      rccEnableLPUART1(FALSE);
     }
 #endif
   }
@@ -831,55 +832,55 @@ void sd_lld_stop(SerialDriver *sdp) {
 
 #if STM32_SERIAL_USE_USART1
     if (&SD1 == sdp) {
-      rccDisableUSART1();
+      rccDisableUSART1(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_USART2
     if (&SD2 == sdp) {
-      rccDisableUSART2();
+      rccDisableUSART2(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_USART3
     if (&SD3 == sdp) {
-      rccDisableUSART3();
+      rccDisableUSART3(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_UART4
     if (&SD4 == sdp) {
-      rccDisableUART4();
+      rccDisableUART4(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_UART5
     if (&SD5 == sdp) {
-      rccDisableUART5();
+      rccDisableUART5(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_USART6
     if (&SD6 == sdp) {
-      rccDisableUSART6();
+      rccDisableUSART6(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_UART7
     if (&SD7 == sdp) {
-      rccDisableUART7();
+      rccDisableUART7(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_UART8
     if (&SD8 == sdp) {
-      rccDisableUART8();
+      rccDisableUART8(FALSE);
       return;
     }
 #endif
 #if STM32_SERIAL_USE_LPUART1
     if (&LPSD1 == sdp) {
-      rccDisableLPUART1();
+      rccDisableLPUART1(FALSE);
       return;
     }
 #endif

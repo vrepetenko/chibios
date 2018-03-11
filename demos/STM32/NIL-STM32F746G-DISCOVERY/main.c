@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 #include "hal.h"
 #include "ch.h"
-#include "nil_test_root.h"
-#include "oslib_test_root.h"
+#include "ch_test.h"
 
 /*
  * Blinker thread #1.
@@ -44,7 +43,7 @@ static THD_FUNCTION(Thread1, arg) {
 /*
  * Tester thread.
  */
-THD_WORKING_AREA(waThread2, 256);
+THD_WORKING_AREA(waThread2, 128);
 THD_FUNCTION(Thread2, arg) {
 
   (void)arg;
@@ -59,10 +58,8 @@ THD_FUNCTION(Thread2, arg) {
 
   /* Waiting for button push and activation of the test suite.*/
   while (true) {
-    if (palReadLine(LINE_BUTTON_USER)) {
-      test_execute((BaseSequentialStream *)&SD1, &nil_test_suite);
-      test_execute((BaseSequentialStream *)&SD1, &oslib_test_suite);
-    }
+    if (palReadLine(LINE_BUTTON_USER))
+      test_execute((BaseSequentialStream *)&SD1);
     chThdSleepMilliseconds(500);
   }
 }

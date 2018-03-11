@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -38,23 +38,22 @@ static char axisID[LIS302DL_NUMBER_OF_AXES] = {'X', 'Y', 'Z'};
 static uint32_t i;
 
 static const SPIConfig spicfg = {
-  FALSE,
   NULL,
-  GPIOE,
-  GPIOE_CS_SPI,
-  SPI_CR1_BR_0 | SPI_CR1_CPOL | SPI_CR1_CPHA,
-  0
+  GPIOE,                                     /* port of LIS302DL CS.*/
+  GPIOE_CS_SPI,                              /* pin of LIS302DL CS.*/
+  SPI_CR1_BR_0 | SPI_CR1_CPOL | SPI_CR1_CPHA,/* CR1 register.*/
+  0                                          /* CR2 register.*/
 };
 
 static LIS302DLConfig l3gd20cfg = {
-  &SPID1,
-  &spicfg,
-  NULL,
-  NULL,
-  LIS302DL_FS_2G,
-  LIS302DL_ODR_100HZ,
+  &SPID1,                                    /* Pointer to SPI Driver.*/
+  &spicfg,                                   /* Pointer to SPI Configuration.*/
+  NULL,                                      /* Use default sensitivity.*/
+  NULL,                                      /* Use default bias.*/
+  LIS302DL_FS_2G,                            /* Full scale value.*/
+  LIS302DL_ODR_100HZ,                        /* Output data rate.*/
 #if LIS302DL_USE_ADVANCED || defined(__DOXYGEN__)
-  LIS302DL_HP_DISABLED,
+  LIS302DL_HP_DISABLED,                      /* HP filter disabled.*/
 #endif
 };
 

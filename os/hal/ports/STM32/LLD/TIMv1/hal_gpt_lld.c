@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -492,7 +492,7 @@ void gpt_lld_start(GPTDriver *gptp) {
     /* Clock activation.*/
 #if STM32_GPT_USE_TIM1
     if (&GPTD1 == gptp) {
-      rccEnableTIM1(true);
+      rccEnableTIM1(FALSE);
       rccResetTIM1();
 #if !defined(STM32_TIM1_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM1_UP_NUMBER, STM32_GPT_TIM1_IRQ_PRIORITY);
@@ -507,7 +507,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM2
     if (&GPTD2 == gptp) {
-      rccEnableTIM2(true);
+      rccEnableTIM2(FALSE);
       rccResetTIM2();
 #if !defined(STM32_TIM2_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM2_NUMBER, STM32_GPT_TIM2_IRQ_PRIORITY);
@@ -522,7 +522,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM3
     if (&GPTD3 == gptp) {
-      rccEnableTIM3(true);
+      rccEnableTIM3(FALSE);
       rccResetTIM3();
 #if !defined(STM32_TIM3_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM3_NUMBER, STM32_GPT_TIM3_IRQ_PRIORITY);
@@ -537,7 +537,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM4
     if (&GPTD4 == gptp) {
-      rccEnableTIM4(true);
+      rccEnableTIM4(FALSE);
       rccResetTIM4();
 #if !defined(STM32_TIM4_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM4_NUMBER, STM32_GPT_TIM4_IRQ_PRIORITY);
@@ -552,7 +552,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM5
     if (&GPTD5 == gptp) {
-      rccEnableTIM5(true);
+      rccEnableTIM5(FALSE);
       rccResetTIM5();
 #if !defined(STM32_TIM5_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM5_NUMBER, STM32_GPT_TIM5_IRQ_PRIORITY);
@@ -567,7 +567,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM6
     if (&GPTD6 == gptp) {
-      rccEnableTIM6(true);
+      rccEnableTIM6(FALSE);
       rccResetTIM6();
 #if !defined(STM32_TIM6_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM6_NUMBER, STM32_GPT_TIM6_IRQ_PRIORITY);
@@ -582,7 +582,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM7
     if (&GPTD7 == gptp) {
-      rccEnableTIM7(true);
+      rccEnableTIM7(FALSE);
       rccResetTIM7();
 #if !defined(STM32_TIM7_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM7_NUMBER, STM32_GPT_TIM7_IRQ_PRIORITY);
@@ -597,7 +597,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM8
     if (&GPTD8 == gptp) {
-      rccEnableTIM8(true);
+      rccEnableTIM8(FALSE);
       rccResetTIM8();
 #if !defined(STM32_TIM8_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM8_UP_NUMBER, STM32_GPT_TIM8_IRQ_PRIORITY);
@@ -612,7 +612,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM9
     if (&GPTD9 == gptp) {
-      rccEnableTIM9(true);
+      rccEnableTIM9(FALSE);
       rccResetTIM9();
 #if !defined(STM32_TIM9_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM9_NUMBER, STM32_GPT_TIM9_IRQ_PRIORITY);
@@ -627,7 +627,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM11
     if (&GPTD11 == gptp) {
-      rccEnableTIM11(true);
+      rccEnableTIM11(FALSE);
       rccResetTIM11();
 #if !defined(STM32_TIM11_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM11_NUMBER, STM32_GPT_TIM11_IRQ_PRIORITY);
@@ -642,7 +642,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM12
     if (&GPTD12 == gptp) {
-      rccEnableTIM12(true);
+      rccEnableTIM12(FALSE);
       rccResetTIM12();
 #if !defined(STM32_TIM12_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM12_NUMBER, STM32_GPT_TIM12_IRQ_PRIORITY);
@@ -657,7 +657,7 @@ void gpt_lld_start(GPTDriver *gptp) {
 
 #if STM32_GPT_USE_TIM14
     if (&GPTD14 == gptp) {
-      rccEnableTIM14(true);
+      rccEnableTIM14(FALSE);
       rccResetTIM14();
 #if !defined(STM32_TIM14_SUPPRESS_ISR)
       nvicEnableVector(STM32_TIM14_NUMBER, STM32_GPT_TIM14_IRQ_PRIORITY);
@@ -704,7 +704,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM1_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM1_UP_NUMBER);
 #endif
-      rccDisableTIM1();
+      rccDisableTIM1(FALSE);
     }
 #endif
 
@@ -713,7 +713,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM2_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM2_NUMBER);
 #endif
-      rccDisableTIM2();
+      rccDisableTIM2(FALSE);
     }
 #endif
 
@@ -722,7 +722,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM3_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM3_NUMBER);
 #endif
-      rccDisableTIM3();
+      rccDisableTIM3(FALSE);
     }
 #endif
 
@@ -731,7 +731,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM4_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM4_NUMBER);
 #endif
-      rccDisableTIM4();
+      rccDisableTIM4(FALSE);
     }
 #endif
 
@@ -740,7 +740,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM5_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM5_NUMBER);
 #endif
-      rccDisableTIM5();
+      rccDisableTIM5(FALSE);
     }
 #endif
 
@@ -749,7 +749,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM6_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM6_NUMBER);
 #endif
-      rccDisableTIM6();
+      rccDisableTIM6(FALSE);
     }
 #endif
 
@@ -758,7 +758,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM7_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM7_NUMBER);
 #endif
-      rccDisableTIM7();
+      rccDisableTIM7(FALSE);
     }
 #endif
 
@@ -767,7 +767,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM8_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM8_UP_NUMBER);
 #endif
-      rccDisableTIM8();
+      rccDisableTIM8(FALSE);
     }
 #endif
 
@@ -776,7 +776,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM9_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM9_NUMBER);
 #endif
-      rccDisableTIM9();
+      rccDisableTIM9(FALSE);
     }
 #endif
 
@@ -785,7 +785,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM11_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM11_NUMBER);
 #endif
-      rccDisableTIM11();
+      rccDisableTIM11(FALSE);
     }
 #endif
 
@@ -794,7 +794,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM12_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM12_NUMBER);
 #endif
-      rccDisableTIM12();
+      rccDisableTIM12(FALSE);
     }
 #endif
 
@@ -803,7 +803,7 @@ void gpt_lld_stop(GPTDriver *gptp) {
 #if !defined(STM32_TIM14_SUPPRESS_ISR)
       nvicDisableVector(STM32_TIM14_NUMBER);
 #endif
-      rccDisableTIM14();
+      rccDisableTIM14(FALSE);
     }
 #endif
   }
@@ -863,7 +863,7 @@ void gpt_lld_polled_delay(GPTDriver *gptp, gptcnt_t interval) {
 
   gptp->tim->ARR = (uint32_t)interval;          /* Time constant.           */
   gptp->tim->EGR = STM32_TIM_EGR_UG;            /* Update event.            */
-  gptp->tim->SR = 0;                            /* Clear pending IRQs.      */
+  gptp->tim->SR  = 0;                           /* Clear pending IRQs.      */
   gptp->tim->CR1 = STM32_TIM_CR1_OPM | STM32_TIM_CR1_URS | STM32_TIM_CR1_CEN;
   while (!(gptp->tim->SR & STM32_TIM_SR_UIF))
     ;

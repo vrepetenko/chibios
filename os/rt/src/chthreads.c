@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -91,7 +91,7 @@ thread_t *_thread_init(thread_t *tp, const char *name, tprio_t prio) {
   tp->state     = CH_STATE_WTSTART;
   tp->flags     = CH_FLAG_MODE_STATIC;
 #if CH_CFG_TIME_QUANTUM > 0
-  tp->ticks     = (tslices_t)CH_CFG_TIME_QUANTUM;
+  tp->preempt   = (tslices_t)CH_CFG_TIME_QUANTUM;
 #endif
 #if CH_CFG_USE_MUTEXES == TRUE
   tp->realprio  = prio;
@@ -216,7 +216,8 @@ thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp) {
 thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp) {
   thread_t *tp;
 
-#if CH_CFG_USE_REGISTRY == TRUE
+#if (CH_CFG_USE_REGISTRY == TRUE) &&                                        \
+    (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
   chDbgAssert(chRegFindThreadByWorkingArea(tdp->wbase) == NULL,
               "working area in use");
 #endif
@@ -281,7 +282,7 @@ thread_t *chThdCreate(const thread_descriptor_t *tdp) {
   thread_t *tp;
 
 #if (CH_CFG_USE_REGISTRY == TRUE) &&                                        \
-    ((CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE))
+    (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
   chDbgAssert(chRegFindThreadByWorkingArea(tdp->wbase) == NULL,
               "working area in use");
 #endif
@@ -330,8 +331,7 @@ thread_t *chThdCreateStatic(void *wsp, size_t size,
              MEM_IS_ALIGNED(size, PORT_STACK_ALIGN) &&
              (prio <= HIGHPRIO) && (pf != NULL));
 
-#if (CH_CFG_USE_REGISTRY == TRUE) &&                                        \
-    ((CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE))
+#if CH_CFG_USE_REGISTRY == TRUE
   chDbgAssert(chRegFindThreadByWorkingArea(wsp) == NULL,
               "working area in use");
 #endif
@@ -648,7 +648,7 @@ void chThdTerminate(thread_t *tp) {
  *
  * @api
  */
-void chThdSleep(sysinterval_t time) {
+void chThdSleep(systime_t time) {
 
   chSysLock();
   chThdSleepS(time);
@@ -669,12 +669,11 @@ void chThdSleep(sysinterval_t time) {
  * @api
  */
 void chThdSleepUntil(systime_t time) {
-  sysinterval_t interval;
 
   chSysLock();
-  interval = chTimeDiffX(chVTGetSystemTimeX(), time);
-  if (interval > (sysinterval_t)0) {
-    chThdSleepS(interval);
+  time -= chVTGetSystemTimeX();
+  if (time > (systime_t)0) {
+    chThdSleepS(time);
   }
   chSysUnlock();
 }
@@ -698,8 +697,8 @@ systime_t chThdSleepUntilWindowed(systime_t prev, systime_t next) {
 
   chSysLock();
   time = chVTGetSystemTimeX();
-  if (chTimeIsInRangeX(time, prev, next)) {
-    chThdSleepS(chTimeDiffX(time, next));
+  if (chVTIsTimeWithinX(time, prev, next)) {
+    chThdSleepS(next - time);
   }
   chSysUnlock();
 
@@ -761,7 +760,7 @@ msg_t chThdSuspendS(thread_reference_t *trp) {
  *
  * @sclass
  */
-msg_t chThdSuspendTimeoutS(thread_reference_t *trp, sysinterval_t timeout) {
+msg_t chThdSuspendTimeoutS(thread_reference_t *trp, systime_t timeout) {
   thread_t *tp = chThdGetSelfX();
 
   chDbgAssert(*trp == NULL, "not NULL");
@@ -861,7 +860,7 @@ void chThdResume(thread_reference_t *trp, msg_t msg) {
  *
  * @sclass
  */
-msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, sysinterval_t timeout) {
+msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, systime_t timeout) {
 
   if (TIME_IMMEDIATE == timeout) {
     return MSG_TIMEOUT;

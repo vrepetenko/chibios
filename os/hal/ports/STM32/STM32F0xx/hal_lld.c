@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -226,26 +226,20 @@ OSAL_IRQ_HANDLER(STM32_DMA12_CH4567_CH345_HANDLER) {
  */
 void hal_lld_init(void) {
 
-  /* Reset of all peripherals.
-     Note, GPIOs are not reset because initialized before this point in
-     board files.*/
-  rccResetAHB(~STM32_GPIO_EN_MASK);
+  /* Reset of all peripherals.*/
+  rccResetAHB(0xFFFFFFFF);
   rccResetAPB1(0xFFFFFFFF);
   rccResetAPB2(~RCC_APB2RSTR_DBGMCURST);
 
   /* PWR clock enabled.*/
-  rccEnablePWRInterface(true);
+  rccEnablePWRInterface(FALSE);
 
   /* Initializes the backup domain.*/
   hal_lld_backup_domain_init();
 
-  /* DMA subsystems initialization.*/
 #if defined(STM32_DMA_REQUIRED)
   dmaInit();
 #endif
-
-  /* IRQ subsystem initialization.*/
-  irqInit();
 
   /* Programmable voltage detector enable.*/
 #if STM32_PVD_ENABLE
@@ -347,7 +341,7 @@ void stm32_clock_init(void) {
 
   /* SYSCFG clock enabled here because it is a multi-functional unit shared
      among multiple drivers.*/
-  rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, true);
+  rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, TRUE);
 #endif /* !STM32_NO_INIT */
 }
 

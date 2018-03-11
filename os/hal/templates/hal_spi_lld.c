@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -222,20 +222,6 @@ void spi_lld_receive(SPIDriver *spip, size_t n, void *rxbuf) {
 
 }
 
-#if (SPI_SUPPORTS_CIRCULAR == TRUE) || defined(__DOXYGEN__)
-/**
- * @brief   Aborts the ongoing SPI operation, if any.
- *
- * @param[in] spip      pointer to the @p SPIDriver object
- *
- * @notapi
- */
-void spi_lld_abort(SPIDriver *spip) {
-
-  (void)spip;
-}
-#endif /* SPI_SUPPORTS_CIRCULAR == TRUE */
-
 /**
  * @brief   Exchanges one frame using a polled wait.
  * @details This synchronous function exchanges one frame using a polled
@@ -247,8 +233,6 @@ void spi_lld_abort(SPIDriver *spip) {
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] frame     the data frame to send over the SPI bus
  * @return              The received data frame from the SPI bus.
- *
- * @notapi
  */
 uint16_t spi_lld_polled_exchange(SPIDriver *spip, uint16_t frame) {
 

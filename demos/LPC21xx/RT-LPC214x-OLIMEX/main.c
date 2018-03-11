@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "rt_test_root.h"
-#include "oslib_test_root.h"
+#include "ch_test.h"
 
 #define BOTH_BUTTONS (PAL_PORT_BIT(PA_BUTTON1) | PAL_PORT_BIT(PA_BUTTON2))
 
@@ -90,10 +89,8 @@ int main(void) {
   while (true) {
     if (!palReadPad(IOPORT1, PA_BUTTON1))
       sdWrite(&SD1, (uint8_t *)"Hello World!\r\n", 14);
-    if (!palReadPad(IOPORT1, PA_BUTTON2)) {
-      test_execute((BaseSequentialStream *)&SD1, &rt_test_suite);
-      test_execute((BaseSequentialStream *)&SD1, &oslib_test_suite);
-    }
+    if (!palReadPad(IOPORT1, PA_BUTTON2))
+      test_execute((BaseSequentialStream *)&SD1);
     chThdSleepMilliseconds(500);
   }
   return 0;

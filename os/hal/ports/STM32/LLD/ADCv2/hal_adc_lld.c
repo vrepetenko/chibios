@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -243,7 +243,7 @@ void adc_lld_start(ADCDriver *adcp) {
                             (void *)adcp);
       osalDbgAssert(!b, "stream already allocated");
       dmaStreamSetPeripheral(adcp->dmastp, &ADC1->DR);
-      rccEnableADC1(true);
+      rccEnableADC1(FALSE);
     }
 #endif /* STM32_ADC_USE_ADC1 */
 
@@ -256,7 +256,7 @@ void adc_lld_start(ADCDriver *adcp) {
                             (void *)adcp);
       osalDbgAssert(!b, "stream already allocated");
       dmaStreamSetPeripheral(adcp->dmastp, &ADC2->DR);
-      rccEnableADC2(true);
+      rccEnableADC2(FALSE);
     }
 #endif /* STM32_ADC_USE_ADC2 */
 
@@ -269,7 +269,7 @@ void adc_lld_start(ADCDriver *adcp) {
                             (void *)adcp);
       osalDbgAssert(!b, "stream already allocated");
       dmaStreamSetPeripheral(adcp->dmastp, &ADC3->DR);
-      rccEnableADC3(true);
+      rccEnableADC3(FALSE);
     }
 #endif /* STM32_ADC_USE_ADC3 */
 
@@ -303,17 +303,17 @@ void adc_lld_stop(ADCDriver *adcp) {
 
 #if STM32_ADC_USE_ADC1
     if (&ADCD1 == adcp)
-      rccDisableADC1();
+      rccDisableADC1(FALSE);
 #endif
 
 #if STM32_ADC_USE_ADC2
     if (&ADCD2 == adcp)
-      rccDisableADC2();
+      rccDisableADC2(FALSE);
 #endif
 
 #if STM32_ADC_USE_ADC3
     if (&ADCD3 == adcp)
-      rccDisableADC3();
+      rccDisableADC3(FALSE);
 #endif
   }
 }
@@ -384,8 +384,7 @@ void adc_lld_stop_conversion(ADCDriver *adcp) {
 
   dmaStreamDisable(adcp->dmastp);
   adcp->adc->CR1 = 0;
-  /* Because ticket #822, preserving injected conversions.*/
-  adcp->adc->CR2 &= ~(ADC_CR2_SWSTART);
+  adcp->adc->CR2 = 0;
   adcp->adc->CR2 = ADC_CR2_ADON;
 }
 

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -25,10 +25,6 @@
 #ifndef HAL_QUEUES_H
 #define HAL_QUEUES_H
 
-/*===========================================================================*/
-/* Driver constants.                                                         */
-/*===========================================================================*/
-
 /**
  * @name    Queue functions returned status value
  * @{
@@ -39,18 +35,6 @@
 #define Q_EMPTY         MSG_TIMEOUT /**< @brief Queue empty.                */
 #define Q_FULL          MSG_TIMEOUT /**< @brief Queue full,                 */
 /** @} */
-
-/*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Derived constants and error checks.                                       */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Driver data structures and types.                                         */
-/*===========================================================================*/
 
 /**
  * @brief   Type of a generic I/O queue structure.
@@ -83,34 +67,6 @@ struct io_queue {
   qnotify_t             q_notify;   /**< @brief Data notification callback. */
   void                  *q_link;    /**< @brief Application defined field.  */
 };
-
-/**
- * @extends io_queue_t
- *
- * @brief   Type of an input queue structure.
- * @details This structure represents a generic asymmetrical input queue.
- *          Writing to the queue is non-blocking and can be performed from
- *          interrupt handlers or from within a kernel lock zone.
- *          Reading the queue can be a blocking operation and is supposed to
- *          be performed by a system thread.
- */
-typedef io_queue_t input_queue_t;
-
-/**
- * @extends io_queue_t
- *
- * @brief   Type of an output queue structure.
- * @details This structure represents a generic asymmetrical output queue.
- *          Reading from the queue is non-blocking and can be performed from
- *          interrupt handlers or from within a kernel lock zone.
- *          Writing the queue can be a blocking operation and is supposed to
- *          be performed by a system thread.
- */
-typedef io_queue_t output_queue_t;
-
-/*===========================================================================*/
-/* Driver macros.                                                            */
-/*===========================================================================*/
 
 /**
  * @name    Macro Functions
@@ -151,7 +107,24 @@ typedef io_queue_t output_queue_t;
  * @special
  */
 #define qGetLink(qp) ((qp)->q_link)
+/** @} */
 
+/**
+ * @extends io_queue_t
+ *
+ * @brief   Type of an input queue structure.
+ * @details This structure represents a generic asymmetrical input queue.
+ *          Writing to the queue is non-blocking and can be performed from
+ *          interrupt handlers or from within a kernel lock zone.
+ *          Reading the queue can be a blocking operation and is supposed to
+ *          be performed by a system thread.
+ */
+typedef io_queue_t input_queue_t;
+
+/**
+ * @name    Macro Functions
+ * @{
+ */
 /**
  * @brief   Returns the filled space into an input queue.
  *
@@ -214,7 +187,24 @@ typedef io_queue_t output_queue_t;
  * @api
  */
 #define iqGet(iqp) iqGetTimeout(iqp, TIME_INFINITE)
+/** @} */
 
+/**
+ * @extends io_queue_t
+ *
+ * @brief   Type of an output queue structure.
+ * @details This structure represents a generic asymmetrical output queue.
+ *          Reading from the queue is non-blocking and can be performed from
+ *          interrupt handlers or from within a kernel lock zone.
+ *          Writing the queue can be a blocking operation and is supposed to
+ *          be performed by a system thread.
+ */
+typedef io_queue_t output_queue_t;
+
+/**
+ * @name    Macro Functions
+ * @{
+ */
 /**
  * @brief   Returns the filled space into an output queue.
  *
@@ -279,11 +269,6 @@ typedef io_queue_t output_queue_t;
  * @api
  */
 #define oqPut(oqp, b) oqPutTimeout(oqp, b, TIME_INFINITE)
-/** @} */
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
  /** @} */
 
 #ifdef __cplusplus
@@ -293,21 +278,17 @@ extern "C" {
                     qnotify_t infy, void *link);
   void iqResetI(input_queue_t *iqp);
   msg_t iqPutI(input_queue_t *iqp, uint8_t b);
-  msg_t iqGetI(input_queue_t *iqp);
-  msg_t iqGetTimeout(input_queue_t *iqp, sysinterval_t timeout);
-  size_t iqReadI(input_queue_t *iqp, uint8_t *bp, size_t n);
+  msg_t iqGetTimeout(input_queue_t *iqp, systime_t timeout);
   size_t iqReadTimeout(input_queue_t *iqp, uint8_t *bp,
-                       size_t n, sysinterval_t timeout);
+                       size_t n, systime_t timeout);
 
   void oqObjectInit(output_queue_t *oqp, uint8_t *bp, size_t size,
                     qnotify_t onfy, void *link);
   void oqResetI(output_queue_t *oqp);
-  msg_t oqPutI(output_queue_t *oqp, uint8_t b);
-  msg_t oqPutTimeout(output_queue_t *oqp, uint8_t b, sysinterval_t timeout);
+  msg_t oqPutTimeout(output_queue_t *oqp, uint8_t b, systime_t timeout);
   msg_t oqGetI(output_queue_t *oqp);
-  size_t oqWriteI(output_queue_t *oqp, const uint8_t *bp, size_t n);
   size_t oqWriteTimeout(output_queue_t *oqp, const uint8_t *bp,
-                        size_t n, sysinterval_t timeout);
+                        size_t n, systime_t timeout);
 #ifdef __cplusplus
 }
 #endif

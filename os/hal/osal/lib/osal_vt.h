@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,6 +28,14 @@
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
+
+/**
+ * @name    Special time constants
+ * @{
+ */
+#define TIME_IMMEDIATE                      ((systime_t)0)
+#define TIME_INFINITE                       ((systime_t)-1)
+/** @} */
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -65,7 +73,7 @@ typedef struct {
                                                 list.                       */
   virtual_timer_t       *vt_prev;   /**< @brief Last timer in the timers
                                                 list.                       */
-  sysinterval_t         vt_delta;   /**< @brief Must be initialized to -1.  */
+  systime_t             vt_time;    /**< @brief Must be initialized to -1.  */
   volatile systime_t    vt_systime; /**< @brief System Time counter.        */
 } virtual_timers_list_t;
 
@@ -82,7 +90,7 @@ struct virtual_timer {
                                                 list.                       */
   virtual_timer_t       *vt_prev;   /**< @brief Previous timer in the timers
                                                 list.                       */
-  sysinterval_t         vt_delta;   /**< @brief Time delta before timeout.  */
+  systime_t             vt_time;    /**< @brief Time delta before timeout.  */
   vtfunc_t              vt_func;    /**< @brief Timer callback function
                                                 pointer.                    */
   void                  *vt_par;    /**< @brief Timer callback function
@@ -107,7 +115,7 @@ extern "C" {
   void vtInit(void);
   bool vtIsArmedI(virtual_timer_t *vtp);
   void vtDoTickI(void);
-  void vtSetI(virtual_timer_t *vtp, sysinterval_t timeout,
+  void vtSetI(virtual_timer_t *vtp, systime_t time,
               vtfunc_t vtfunc, void *par);
   void vtResetI(virtual_timer_t *vtp);
 #ifdef __cplusplus

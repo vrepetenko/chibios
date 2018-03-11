@@ -5,8 +5,3 @@ PORTASM =
 
 PORTINC = ${CHIBIOS}/os/common/ports/AVR \
           ${CHIBIOS}/os/common/ports/AVR/compilers/GCC
-
-# Shared variables
-ALLXASMSRC += $(PORTASM)
-ALLCSRC    += $(PORTSRC)
-ALLINC     += $(PORTINC)

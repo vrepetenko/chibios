@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -136,19 +136,15 @@ void hal_lld_init(void) {
   rccResetAPB2(0xFFFFFFFF);
 
   /* PWR and BD clocks enabled.*/
-  rccEnablePWRInterface(true);
-  rccEnableBKPInterface(true);
+  rccEnablePWRInterface(FALSE);
+  rccEnableBKPInterface(FALSE);
 
   /* Initializes the backup domain.*/
   hal_lld_backup_domain_init();
 
-  /* DMA subsystems initialization.*/
 #if defined(STM32_DMA_REQUIRED)
   dmaInit();
 #endif
-
-  /* IRQ subsystem initialization.*/
-  irqInit();
 
   /* Programmable voltage detector enable.*/
 #if STM32_PVD_ENABLE

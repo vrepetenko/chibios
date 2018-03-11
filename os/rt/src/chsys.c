@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -116,9 +116,6 @@ void chSysInit(void) {
 #if CH_CFG_USE_HEAP == TRUE
   _heap_init();
 #endif
-#if CH_CFG_USE_FACTORY == TRUE
-  _factory_init();
-#endif
 #if CH_DBG_STATISTICS == TRUE
   _stats_init();
 #endif
@@ -157,9 +154,6 @@ void chSysInit(void) {
   /* Starting measurement for this thread.*/
   chTMStartMeasurementX(&currp->stats);
 #endif
-
-  /* Initialization hook.*/
-  CH_CFG_SYSTEM_INIT_HOOK();
 
   /* It is alive now.*/
   chSysEnable();
@@ -344,9 +338,9 @@ void chSysTimerHandlerI(void) {
 
 #if CH_CFG_TIME_QUANTUM > 0
   /* Running thread has not used up quantum yet? */
-  if (currp->ticks > (tslices_t)0) {
+  if (currp->preempt > (tslices_t)0) {
     /* Decrement remaining quantum.*/
-    currp->ticks--;
+    currp->preempt--;
   }
 #endif
 #if CH_DBG_THREADS_PROFILING == TRUE

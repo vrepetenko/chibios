@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -398,7 +398,7 @@ void adc_lld_start(ADCDriver *adcp) {
                                  (void *)adcp);
       osalDbgAssert(!b, "stream already allocated");
       dmaStreamSetPeripheral(adcp->dmastp, &ADC1->DR);
-      rccEnableADC1(true);
+      rccEnableADC1(FALSE);
     }
 #endif /* STM32_ADC_USE_ADC1 */
 
@@ -410,7 +410,7 @@ void adc_lld_start(ADCDriver *adcp) {
                                  (void *)adcp);
       osalDbgAssert(!b, "stream already allocated");
       dmaStreamSetPeripheral(adcp->dmastp, &SDADC1->JDATAR);
-      rccEnableSDADC1(true);
+      rccEnableSDADC1(FALSE);
       PWR->CR |= PWR_CR_SDADC1EN;
       adcp->sdadc->CR2 = 0;
       adcp->sdadc->CR1 = (adcp->config->cr1 | SDADC_ENFORCED_CR1_FLAGS) &
@@ -427,7 +427,7 @@ void adc_lld_start(ADCDriver *adcp) {
                                  (void *)adcp);
       osalDbgAssert(!b, "stream already allocated");
       dmaStreamSetPeripheral(adcp->dmastp, &SDADC2->JDATAR);
-      rccEnableSDADC2(true);
+      rccEnableSDADC2(FALSE);
       PWR->CR |= PWR_CR_SDADC2EN;
       adcp->sdadc->CR2 = 0;
       adcp->sdadc->CR1 = (adcp->config->cr1 | SDADC_ENFORCED_CR1_FLAGS) &
@@ -444,7 +444,7 @@ void adc_lld_start(ADCDriver *adcp) {
                                  (void *)adcp);
       osalDbgAssert(!b, "stream already allocated");
       dmaStreamSetPeripheral(adcp->dmastp, &SDADC3->JDATAR);
-      rccEnableSDADC3(true);
+      rccEnableSDADC3(FALSE);
       PWR->CR |= PWR_CR_SDADC3EN;
       adcp->sdadc->CR2 = 0;
       adcp->sdadc->CR1 = (adcp->config->cr1 | SDADC_ENFORCED_CR1_FLAGS) &
@@ -474,7 +474,7 @@ void adc_lld_stop(ADCDriver *adcp) {
     if (&ADCD1 == adcp) {
       adcp->adc->CR1 = 0;
       adcp->adc->CR2 = 0;
-      rccDisableADC1();
+      rccDisableADC1(FALSE);
     }
 #endif
 
@@ -482,7 +482,7 @@ void adc_lld_stop(ADCDriver *adcp) {
     if (&SDADCD1 == adcp) {
       adcp->sdadc->CR1 = 0;
       adcp->sdadc->CR2 = 0;
-      rccDisableSDADC1();
+      rccDisableSDADC1(FALSE);
       PWR->CR &= ~PWR_CR_SDADC1EN;
     }
 #endif
@@ -491,7 +491,7 @@ void adc_lld_stop(ADCDriver *adcp) {
     if (&SDADCD2 == adcp) {
       adcp->sdadc->CR1 = 0;
       adcp->sdadc->CR2 = 0;
-      rccDisableSDADC2();
+      rccDisableSDADC2(FALSE);
       PWR->CR &= ~PWR_CR_SDADC2EN;
     }
 #endif
@@ -500,7 +500,7 @@ void adc_lld_stop(ADCDriver *adcp) {
     if (&SDADCD3 == adcp) {
       adcp->sdadc->CR1 = 0;
       adcp->sdadc->CR2 = 0;
-      rccDisableSDADC3();
+      rccDisableSDADC3(FALSE);
       PWR->CR &= ~PWR_CR_SDADC3EN;
     }
 #endif

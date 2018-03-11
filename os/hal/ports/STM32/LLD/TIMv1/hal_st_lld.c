@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@
 #if OSAL_ST_MODE == OSAL_ST_MODE_FREERUNNING
 
 #if (OSAL_ST_RESOLUTION == 32)
-#define ST_ARR_INIT                         0xFFFFFFFFU
+#define ST_ARR_INIT                         0xFFFFFFFF
 #else
-#define ST_ARR_INIT                         0x0000FFFFU
+#define ST_ARR_INIT                         0x0000FFFF
 #endif
 
 #if STM32_ST_USE_TIMER == 2
@@ -52,13 +52,11 @@
 #define ST_HANDLER                          STM32_TIM2_HANDLER
 #define ST_NUMBER                           STM32_TIM2_NUMBER
 #define ST_CLOCK_SRC                        STM32_TIMCLK1
-#define ST_ENABLE_CLOCK()                   rccEnableTIM2(true)
+#define ST_ENABLE_CLOCK()                   rccEnableTIM2(FALSE)
 #if defined(STM32F1XX)
 #define ST_ENABLE_STOP()                    DBGMCU->CR |= DBGMCU_CR_DBG_TIM2_STOP
 #elif defined(STM32L4XX)
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZR1 |= DBGMCU_APB1FZR1_DBG_TIM2_STOP
-#elif defined(STM32H7XX)
-#define ST_ENABLE_STOP()                    DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM2
 #else
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM2_STOP
 #endif
@@ -77,13 +75,11 @@
 #define ST_HANDLER                          STM32_TIM3_HANDLER
 #define ST_NUMBER                           STM32_TIM3_NUMBER
 #define ST_CLOCK_SRC                        STM32_TIMCLK1
-#define ST_ENABLE_CLOCK()                   rccEnableTIM3(true)
+#define ST_ENABLE_CLOCK()                   rccEnableTIM3(FALSE)
 #if defined(STM32F1XX)
 #define ST_ENABLE_STOP()                    DBGMCU->CR |= DBGMCU_CR_DBG_TIM3_STOP
 #elif defined(STM32L4XX)
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZR1 |= DBGMCU_APB1FZR1_DBG_TIM3_STOP
-#elif defined(STM32H7XX)
-#define ST_ENABLE_STOP()                    DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM3
 #else
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM3_STOP
 #endif
@@ -102,13 +98,11 @@
 #define ST_HANDLER                          STM32_TIM4_HANDLER
 #define ST_NUMBER                           STM32_TIM4_NUMBER
 #define ST_CLOCK_SRC                        STM32_TIMCLK1
-#define ST_ENABLE_CLOCK()                   rccEnableTIM4(true)
+#define ST_ENABLE_CLOCK()                   rccEnableTIM4(FALSE)
 #if defined(STM32F1XX)
 #define ST_ENABLE_STOP()                    DBGMCU->CR |= DBGMCU_CR_DBG_TIM4_STOP
 #elif defined(STM32L4XX)
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZR1 |= DBGMCU_APB1FZR1_DBG_TIM4_STOP
-#elif defined(STM32H7XX)
-#define ST_ENABLE_STOP()                    DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM4
 #else
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM4_STOP
 #endif
@@ -127,13 +121,11 @@
 #define ST_HANDLER                          STM32_TIM5_HANDLER
 #define ST_NUMBER                           STM32_TIM5_NUMBER
 #define ST_CLOCK_SRC                        STM32_TIMCLK1
-#define ST_ENABLE_CLOCK()                   rccEnableTIM5(true)
+#define ST_ENABLE_CLOCK()                   rccEnableTIM5(FALSE)
 #if defined(STM32F1XX)
 #define ST_ENABLE_STOP()                    DBGMCU->CR |= DBGMCU_CR_DBG_TIM5_STOP
 #elif defined(STM32L4XX)
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZR1 |= DBGMCU_APB1FZR1_DBG_TIM5_STOP
-#elif defined(STM32H7XX)
-#define ST_ENABLE_STOP()                    DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM5
 #else
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM5_STOP
 #endif
@@ -152,7 +144,7 @@
 #define ST_HANDLER                          STM32_TIM21_HANDLER
 #define ST_NUMBER                           STM32_TIM21_NUMBER
 #define ST_CLOCK_SRC                        STM32_TIMCLK2
-#define ST_ENABLE_CLOCK()                   rccEnableTIM21(true)
+#define ST_ENABLE_CLOCK()                   rccEnableTIM21(FALSE)
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZ |= DBGMCU_APB2_FZ_DBG_TIM21_STOP
 
 #elif STM32_ST_USE_TIMER == 22
@@ -169,7 +161,7 @@
 #define ST_HANDLER                          STM32_TIM22_HANDLER
 #define ST_NUMBER                           STM32_TIM22_NUMBER
 #define ST_CLOCK_SRC                        STM32_TIMCLK2
-#define ST_ENABLE_CLOCK()                   rccEnableTIM22(true)
+#define ST_ENABLE_CLOCK()                   rccEnableTIM22(FALSE)
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZ |= DBGMCU_APB2_FZ_DBG_TIM21_STOP
 
 #else
@@ -188,17 +180,11 @@
 
 #if OSAL_ST_MODE == OSAL_ST_MODE_PERIODIC
 
-#if defined(STM32_CORE_CK)
-#define SYSTICK_CK                          STM32_CORE_CK
-#else
-#define SYSTICK_CK                          STM32_HCLK
-#endif
-
-#if SYSTICK_CK % OSAL_ST_FREQUENCY != 0
+#if STM32_HCLK % OSAL_ST_FREQUENCY != 0
 #error "the selected ST frequency is not obtainable because integer rounding"
 #endif
 
-#if (SYSTICK_CK / OSAL_ST_FREQUENCY) - 1 > 0xFFFFFF
+#if (STM32_HCLK / OSAL_ST_FREQUENCY) - 1 > 0xFFFFFF
 #error "the selected ST frequency is not obtainable because SysTick timer counter limits"
 #endif
 
@@ -306,7 +292,7 @@ void st_lld_init(void) {
 #if OSAL_ST_MODE == OSAL_ST_MODE_PERIODIC
   /* Periodic systick mode, the Cortex-Mx internal systick timer is used
      in this mode.*/
-  SysTick->LOAD = (SYSTICK_CK / OSAL_ST_FREQUENCY) - 1;
+  SysTick->LOAD = (STM32_HCLK / OSAL_ST_FREQUENCY) - 1;
   SysTick->VAL = 0;
   SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
                   SysTick_CTRL_ENABLE_Msk |

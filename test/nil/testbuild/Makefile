@@ -98,9 +98,7 @@ include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.m
 include $(CHIBIOS)/os/nil/nil.mk
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
-#include $(CHIBIOS)/test/lib/test.mk
-#include $(CHIBIOS)/test/nil/nil_test.mk
-#include $(CHIBIOS)/test/oslib/oslib_test.mk
+#include $(CHIBIOS)/test/nil/test.mk
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32F303xC.ld
@@ -198,7 +196,7 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DSTM32F303xC -D__ARM_ARCH_7EM__=1
+UDEFS = -DSTM32F303xC
 
 # Define ASM defines here
 UADEFS =

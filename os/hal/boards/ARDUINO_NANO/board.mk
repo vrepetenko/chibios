@@ -3,7 +3,3 @@ BOARDSRC = ${CHIBIOS}/os/hal/boards/ARDUINO_NANO/board.c
 
 # Required include directories
 BOARDINC = ${CHIBIOS}/os/hal/boards/ARDUINO_NANO
-
-# Shared variables
-ALLCSRC += $(BOARDSRC)
-ALLINC  += $(BOARDINC)

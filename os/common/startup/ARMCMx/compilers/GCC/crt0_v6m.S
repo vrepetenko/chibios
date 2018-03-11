@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -142,12 +142,12 @@
                 .text
 
 /*
- * CRT0 entry point.
+ * Reset handler.
  */
                 .align  2
                 .thumb_func
-                .global _crt0_entry
-_crt0_entry:
+                .global Reset_Handler
+Reset_Handler:
                 /* Interrupts are globally masked initially.*/
                 cpsid   i
 

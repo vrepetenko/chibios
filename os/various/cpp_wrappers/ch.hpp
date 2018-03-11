@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -1655,7 +1655,7 @@ namespace chibios_rt {
      */
     msg_t post(T msg, systime_t time) {
 
-      return chMBPostTimeout(&mb, reinterpret_cast<msg_t>(msg), time);
+      return chMBPost(&mb, reinterpret_cast<msg_t>(msg), time);
     }
 
     /**
@@ -1678,7 +1678,7 @@ namespace chibios_rt {
      */
     msg_t postS(T msg, systime_t time) {
 
-      return chMBPostTimeoutS(&mb, reinterpret_cast<msg_t>(msg), time);
+      return chMBPostS(&mb, reinterpret_cast<msg_t>(msg), time);
     }
 
     /**
@@ -1719,7 +1719,7 @@ namespace chibios_rt {
      */
     msg_t postAhead(T msg, systime_t time) {
 
-      return chMBPostAheadTimeout(&mb, reinterpret_cast<msg_t>(msg), time);
+      return chMBPostAhead(&mb, reinterpret_cast<msg_t>(msg), time);
     }
 
     /**
@@ -1742,7 +1742,7 @@ namespace chibios_rt {
      */
     msg_t postAheadS(T msg, systime_t time) {
 
-      return chMBPostAheadTimeoutS(&mb, reinterpret_cast<msg_t>(msg), time);
+      return chMBPostAheadS(&mb, reinterpret_cast<msg_t>(msg), time);
     }
 
     /**
@@ -1783,7 +1783,7 @@ namespace chibios_rt {
      */
     msg_t fetch(T *msgp, systime_t time) {
 
-      return chMBFetchTimeout(&mb, reinterpret_cast<msg_t*>(msgp), time);
+      return chMBFetch(&mb, reinterpret_cast<msg_t*>(msgp), time);
     }
 
     /**
@@ -1806,7 +1806,7 @@ namespace chibios_rt {
      */
     msg_t fetchS(T *msgp, systime_t time) {
 
-      return chMBFetchTimeoutS(&mb, reinterpret_cast<msg_t*>(msgp), time);
+      return chMBFetchS(&mb, reinterpret_cast<msg_t*>(msgp), time);
     }
 
     /**

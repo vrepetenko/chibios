@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 #include "hal.h"
 #include "ch_test.h"
+#include "test_root.h"
 
 /*===========================================================================*/
 /* Module local definitions.                                                 */
@@ -94,14 +95,6 @@ static void print_line(void) {
   streamWrite(test_chp, (const uint8_t *)"\r\n", 2);
 }
 
-static void print_fat_line(void) {
-  unsigned i;
-
-  for (i = 0; i < 76; i++)
-    streamPut(test_chp, '=');
-  streamWrite(test_chp, (const uint8_t *)"\r\n", 2);
-}
-
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
@@ -141,7 +134,7 @@ bool _test_assert_time_window(systime_t start,
                               systime_t end,
                               const char *msg) {
 
-  return _test_assert(osalTimeIsInRangeX(osalOsGetSystemTimeX(), start, end),
+  return _test_assert(osalOsIsTimeWithinX(osalOsGetSystemTimeX(), start, end),
                       msg);
 }
 
@@ -225,25 +218,22 @@ void test_emit_token_i(char token) {
  *
  * @param[in] stream    pointer to a @p BaseSequentialStream object for test
  *                      output
- * @param[in] tsp       test suite to execute
  * @return              A failure boolean value casted to @p msg_t.
  * @retval false        if no errors occurred.
  * @retval true         if one or more tests failed.
  *
  * @api
  */
-msg_t test_execute(BaseSequentialStream *stream, const testsuite_t *tsp) {
-  int tseq, tcase;
+msg_t test_execute(BaseSequentialStream *stream) {
+  int i, j;
 
   test_chp = stream;
   test_println("");
-  if (tsp->name != NULL) {
-    test_print("*** ");
-    test_println(tsp->name);
-  }
-  else {
-    test_println("*** Test Suite");
-  }
+#if defined(TEST_SUITE_NAME)
+  test_println("*** " TEST_SUITE_NAME);
+#else
+  test_println("*** ChibiOS test suite");
+#endif
   test_println("***");
   test_print("*** Compiled:     ");
   test_println(__DATE__ " - " __TIME__);
@@ -261,30 +251,22 @@ msg_t test_execute(BaseSequentialStream *stream, const testsuite_t *tsp) {
   test_println("");
 
   test_global_fail = false;
-  tseq = 0;
-  while (tsp->sequences[tseq] != NULL) {
-#if TEST_SHOW_SEQUENCES == TRUE
-    print_fat_line();
-    test_print("=== Test Sequence ");
-    test_printn(tseq + 1);
-    test_print(" (");
-    test_print(tsp->sequences[tseq]->name);
-    test_println(")");
-#endif
-    tcase = 0;
-    while (tsp->sequences[tseq]->cases[tcase] != NULL) {
+  i = 0;
+  while (test_suite[i]) {
+    j = 0;
+    while (test_suite[i][j]) {
       print_line();
       test_print("--- Test Case ");
-      test_printn(tseq + 1);
+      test_printn(i + 1);
       test_print(".");
-      test_printn(tcase + 1);
+      test_printn(j + 1);
       test_print(" (");
-      test_print(tsp->sequences[tseq]->cases[tcase]->name);
+      test_print(test_suite[i][j]->name);
       test_println(")");
 #if TEST_DELAY_BETWEEN_TESTS > 0
       osalThreadSleepMilliseconds(TEST_DELAY_BETWEEN_TESTS);
 #endif
-      execute_test(tsp->sequences[tseq]->cases[tcase]);
+      execute_test(test_suite[i][j]);
       if (test_local_fail) {
         test_print("--- Result: FAILURE (#");
         test_printn(test_step);
@@ -294,12 +276,11 @@ msg_t test_execute(BaseSequentialStream *stream, const testsuite_t *tsp) {
         test_print(test_failure_message);
         test_println("\")");
       }
-      else {
+      else
         test_println("--- Result: SUCCESS");
-      }
-      tcase++;
+      j++;
     }
-    tseq++;
+    i++;
   }
   print_line();
   test_println("");
