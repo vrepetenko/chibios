@@ -73,6 +73,56 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
+*** 19.1.4 ***
+- NEW: Updated debug tools to be independent from the toolchain position:
+       they now rely on the environment variable CHIBISTUDIO.
+- NEW: Added support for .cc files extensions in makefiles.
+- NEW: Made bus acquire/release functions in SNOR driver public.
+- FIX: Fixed STM32H7xx ADC problem in dual mode (bug #1089).
+- FIX: Fixed invalid CHSEL DMA setting in STM32 UART drivers (bug #1088).
+- FIX: Fixed undefined TEST_CFG_SIZE_REPORT warning (bug #1087).
+- FIX: Fixed wrong arguments for the cacheBufferInvalidate in the STM32 SPI 
+       demo (bug #1086).
+- FIX: Fixed race condition in HAL MAC driver (bug #1083).
+- FIX: Fixed problem in chMtxUnlockAllS() (bug #1076).
+- FIX: Fixed state check in CMSIS osKernelInitialize() wrapper (bug #1075).
+- FIX: Fixed duplicated code in TIMv1/hal_gpt_lld.c (bug #1074).
+- FIX: Fixed missing IRQ disabling in ADCv1 and ADCv3 STM32 drivers (bug #1073).
+- FIX: Fixed missing parenthesis in ADC _adc_isr_error_code macro (bug #1072).
+- FIX: Fixed invalid macro check in test library (bug #1071).
+- FIX: Fixed non-standard declaration in STM32 ADCv3 driver (bug #1070).
+- FIX: Fixed problem in the I2C fallback driver (bug #1069).
+- FIX: Fixed TIM8 missing on STM32H7xx (bug #1068).
+- FIX: Fixed Sharing issues with GPT TIMv1 driver (bug #1067).
+- FIX: Fixed wrong check on STM32_DAC_DUAL_MODE in DACv1 STM32 driver
+       (bug #1065).
+- FIX: Fixed I2Cv1 extra interrupts (bug #1064).
+- FIX: Fixed I2C4 broken on STM32H7xx (bug #1063).
+- FIX: Fixed I2C fallback driver broken (bug #1061).
+- FIX: Fixed STM32 ADC1 sample time macros (bug #1059).
+- FIX: Fixed STM32 ADCv1 error callback disabled on some devices (bug #1058).
+- FIX: Fixed error in uartSendFullTimeout() HAL function (bug #1057).
+- FIX: Fixed OS-less Cortex-M OSAL problem with critical zones (bug #1056).
+- FIX: Fixed missing RTCv1 definitions in STM32F37x registry (bug #1054).
+- FIX: Fixed assertion triggered in STM32 OTGv1 driver (bug #1053).
+- FIX: Fixed STM32 CANv1 compile fails if CAN3 is used alone (bug #1052).
+- FIX: Fixed palIsLineEventEnabledX() compile fail on STM32L4 (bug #1051).
+- FIX: Fixed wrong clock disable check in STM32 DACv1 driver (bug #1050).
+- FIX: Fixed clock tree differences in STM32F4 family (bug #1049).
+- FIX: Fixed wrong debug check in STM32 I2Cv1 driver (bug #1048).
+- FIX: Fixed warning in simulator PAL driver (bug #1047).
+- FIX: Fixed board initialization failure on STM32F030x6 (bug #1046).
+- FIX: Fixed STM32 I2Cv1 BTF event not cleared (bug #1045).
+- FIX: Fixed serial NOR driver wrong macro definition (bug #1044).
+- FIX: Fixed STM32F7 I2C registry dma channel (bug #1043).
+- FIX: Fixed missing dummy cycles in memory map mode on STM32 QSPI driver
+       (bug #1042).
+- FIX: Fixed missing DMA definitions for STM32F412 I2C3 (bug #1041).
+- FIX: Fixed misplaced parenthesis in hal_files.h (bug #1040).
+- FIX: Fixed GCC scatter files alignment problem (bug #1033).
+- FIX: Fixed incorrect pointer type in lwipthread.c low_level_input causes
+       panic on packet reception (bug #1009).
+
 *** 19.1.3 ***
 - NEW: Added a "library generator" project for RT, it allows to
        generate a library with a pre-configured RT. It also includes
