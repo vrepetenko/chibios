@@ -145,6 +145,16 @@
 #endif
 
 /**
+ * @brief   Enables an alternative timer implementation.
+ * @details Usually the port uses a timer interface defined in the file
+ *          @p chcore_timer.h, if this option is enabled then the file
+ *          @p chcore_timer_alt.h is included instead.
+ */
+#if !defined(PORT_USE_ALT_TIMER) || defined(__DOXYGEN__)
+#define PORT_USE_ALT_TIMER              FALSE
+#endif
+
+/**
  * @brief   Use VLE instruction set.
  * @note    This parameter is usually set in the Makefile.
  */
@@ -698,7 +708,11 @@ static inline rtcnt_t port_rt_get_counter_value(void) {
 #if !defined(_FROM_ASM_)
 
 #if CH_CFG_ST_TIMEDELTA > 0
+#if !PORT_USE_ALT_TIMER
 #include "chcore_timer.h"
+#else /* PORT_USE_ALT_TIMER */
+#include "chcore_timer_alt.h"
+#endif /* PORT_USE_ALT_TIMER */
 #endif /* CH_CFG_ST_TIMEDELTA > 0 */
 
 #endif /* !defined(_FROM_ASM_) */

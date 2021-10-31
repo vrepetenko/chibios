@@ -60,7 +60,7 @@
  */
 #define osFeature_MainThread        1       
 #define osFeature_Pool              1
-#define osFeature_MailQ             1
+#define osFeature_MailQ             0
 #define osFeature_MessageQ          1
 #define osFeature_Signals           24
 #define osFeature_Semaphore         ((1U << 31) - 1U)
@@ -121,10 +121,6 @@
 
 #if !CH_CFG_USE_SEMAPHORES
 #error "CMSIS RTOS requires CH_CFG_USE_SEMAPHORES"
-#endif
-
-#if !CH_CFG_USE_OBJ_FIFOS
-#error "CMSIS RTOS requires CH_CFG_USE_OBJ_FIFOS"
 #endif
 
 #if !CH_CFG_USE_DYNAMIC
@@ -222,12 +218,7 @@ typedef memory_pool_t *osPoolId;
 /**
  * @brief   Type of pointer to message queue control block.
  */
-typedef mailbox_t *osMessageQId;
-
-/**
- * @brief   Type of pointer to mail queue control block.
- */
-typedef objects_fifo_t *osMailQId;
+typedef struct mailbox *osMessageQId;
 
 /**
  * @brief   Type of an event.
@@ -240,7 +231,7 @@ typedef struct {
     int32_t                 signals;
   } value;
   union {
-    osMailQId               mail_id;
+/*    osMailQId               mail_id;*/
     osMessageQId            message_id;
   } def;
 } osEvent;
@@ -295,17 +286,6 @@ typedef struct os_messageQ_def {
   mailbox_t                 *mailbox;
   void                      *items;
 } osMessageQDef_t;
-
-/**
- * @brief   Type of a mail queue definition block.
- */
-typedef struct os_mailQ_def {
-  uint32_t                  queue_sz;
-  uint32_t                  item_sz;
-  objects_fifo_t            *fifo;
-  msg_t                     *msgbuf;
-  void                      *objbuf;
-} osMailQDef_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
@@ -423,7 +403,7 @@ static mailbox_t os_messageQ_obj_##name;                                    \
 const osMessageQDef_t os_messageQ_def_##name = {                            \
   (queue_sz),                                                               \
   sizeof (type),                                                            \
-  (mailbox_t*)&os_messageQ_obj_##name,                                      \
+  (void *)&os_messageQ_obj_##name,                                          \
   (void *)&os_messageQ_buf_##name[0]                                        \
 }
 #endif
@@ -432,31 +412,6 @@ const osMessageQDef_t os_messageQ_def_##name = {                            \
  * @brief   Access a Message Queue definition.
  */
 #define osMessageQ(name) &os_messageQ_def_##name
-
-/**
- * @brief   Define a Mail Queue.
- */
-#if defined(osObjectsExternal)
-#define osMailQDef(name, queue_sz, type)                \
-  extern const osMailQDef_t os_mailQ_def_##name         
-#else
-#define osMailQDef(name, queue_sz, type)                \
-  static msg_t os_mailQ_mb_buf_##name[queue_sz];        \
-  static type os_mailQ_pool_buf_##name[queue_sz];       \
-  static objects_fifo_t os_mailQ_fifo_##name;           \
-  const osMailQDef_t os_mailQ_def_##name = {            \
-    (queue_sz),                                         \
-    sizeof (type),                                      \
-    &os_mailQ_fifo_##name,                              \
-    (msg_t*)&os_mailQ_mb_buf_##name[0],                 \
-    (void *)&os_mailQ_pool_buf_##name[0]                \
-  }
-#endif
-
-/**
- * @brief   Access a Mail Queue definition.
- */
-#define osMailQ(name) &os_mailQ_def_##name
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -502,13 +457,6 @@ extern "C" {
                         uint32_t millisec);
   osEvent osMessageGet(osMessageQId queue_id,
                        uint32_t millisec);
-  osMailQId osMailCreate(const osMailQDef_t *mail_def,
-                         osThreadId thread_id);
-  void *osMailAlloc(osMailQId queue_id, uint32_t millisec);
-  void *osMailCAlloc(osMailQId queue_id, uint32_t millisec);
-  osStatus osMailPut(osMailQId queue_id, void *mail);
-  osEvent osMailGet(osMailQId queue_id, uint32_t millisec);
-  osStatus osMailFree(osMailQId queue_id, void *mail);
 #ifdef __cplusplus
 }
 #endif

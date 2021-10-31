@@ -450,7 +450,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD1);
   PWMD1.channels = STM32_TIM1_CHANNELS;
   PWMD1.tim = STM32_TIM1;
-  PWMD1.has_bdtr = true;
 #endif
 
 #if STM32_PWM_USE_TIM2
@@ -458,7 +457,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD2);
   PWMD2.channels = STM32_TIM2_CHANNELS;
   PWMD2.tim = STM32_TIM2;
-  PWMD2.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM3
@@ -466,7 +464,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD3);
   PWMD3.channels = STM32_TIM3_CHANNELS;
   PWMD3.tim = STM32_TIM3;
-  PWMD3.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM4
@@ -474,7 +471,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD4);
   PWMD4.channels = STM32_TIM4_CHANNELS;
   PWMD4.tim = STM32_TIM4;
-  PWMD4.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM5
@@ -482,7 +478,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD5);
   PWMD5.channels = STM32_TIM5_CHANNELS;
   PWMD5.tim = STM32_TIM5;
-  PWMD5.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM8
@@ -490,7 +485,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD8);
   PWMD8.channels = STM32_TIM8_CHANNELS;
   PWMD8.tim = STM32_TIM8;
-  PWMD8.has_bdtr = true;
 #endif
 
 #if STM32_PWM_USE_TIM9
@@ -498,7 +492,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD9);
   PWMD9.channels = STM32_TIM9_CHANNELS;
   PWMD9.tim = STM32_TIM9;
-  PWMD9.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM10
@@ -506,7 +499,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD10);
   PWMD10.channels = STM32_TIM10_CHANNELS;
   PWMD10.tim = STM32_TIM10;
-  PWMD10.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM11
@@ -514,7 +506,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD11);
   PWMD11.channels = STM32_TIM11_CHANNELS;
   PWMD11.tim = STM32_TIM11;
-  PWMD11.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM12
@@ -522,7 +513,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD12);
   PWMD12.channels = STM32_TIM12_CHANNELS;
   PWMD12.tim = STM32_TIM12;
-  PWMD12.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM13
@@ -530,7 +520,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD13);
   PWMD13.channels = STM32_TIM13_CHANNELS;
   PWMD13.tim = STM32_TIM13;
-  PWMD13.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM14
@@ -538,7 +527,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD14);
   PWMD14.channels = STM32_TIM14_CHANNELS;
   PWMD14.tim = STM32_TIM14;
-  PWMD14.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM15
@@ -546,7 +534,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD15);
   PWMD15.channels = STM32_TIM15_CHANNELS;
   PWMD15.tim = STM32_TIM15;
-  PWMD15.has_bdtr = true;
 #endif
 
 #if STM32_PWM_USE_TIM16
@@ -554,7 +541,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD16);
   PWMD16.channels = STM32_TIM16_CHANNELS;
   PWMD16.tim = STM32_TIM16;
-  PWMD16.has_bdtr = true;
 #endif
 
 #if STM32_PWM_USE_TIM17
@@ -562,7 +548,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD17);
   PWMD17.channels = STM32_TIM17_CHANNELS;
   PWMD17.tim = STM32_TIM17;
-  PWMD17.has_bdtr = true;
 #endif
 
 #if STM32_PWM_USE_TIM20
@@ -570,7 +555,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD20);
   PWMD20.channels = STM32_TIM20_CHANNELS;
   PWMD20.tim = STM32_TIM20;
-  PWMD20.has_bdtr = true;
 #endif
 
 #if STM32_PWM_USE_TIM21
@@ -578,7 +562,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD21);
   PWMD21.channels = STM32_TIM21_CHANNELS;
   PWMD21.tim = STM32_TIM21;
-  PWMD21.has_bdtr = false;
 #endif
 
 #if STM32_PWM_USE_TIM22
@@ -586,7 +569,6 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD22);
   PWMD22.channels = STM32_TIM22_CHANNELS;
   PWMD22.tim = STM32_TIM22;
-  PWMD22.has_bdtr = false;
 #endif
 }
 
@@ -919,7 +901,28 @@ void pwm_lld_start(PWMDriver *pwmp) {
   default:
     ;
   }
-  if (pwmp->has_bdtr) {
+#if STM32_PWM_USE_ADVANCED
+#if STM32_PWM_USE_TIM1 && !STM32_PWM_USE_TIM8 && !STM32_PWM_USE_TIM20
+  if (&PWMD1 == pwmp) {
+#endif
+#if !STM32_PWM_USE_TIM1 && STM32_PWM_USE_TIM8 && !STM32_PWM_USE_TIM20
+  if (&PWMD8 == pwmp) {
+#endif
+#if STM32_PWM_USE_TIM1 && STM32_PWM_USE_TIM8 && !STM32_PWM_USE_TIM20
+  if ((&PWMD1 == pwmp) || (&PWMD8 == pwmp)) {
+#endif
+#if !STM32_PWM_USE_TIM1 && !STM32_PWM_USE_TIM8 && STM32_PWM_USE_TIM20
+  if (&PWMD20 == pwmp) {
+#endif
+#if STM32_PWM_USE_TIM1 && !STM32_PWM_USE_TIM8 && STM32_PWM_USE_TIM20
+  if ((&PWMD1 == pwmp) || (&PWMD20 == pwmp)) {
+#endif
+#if !STM32_PWM_USE_TIM1 && STM32_PWM_USE_TIM8 && STM32_PWM_USE_TIM20
+  if ((&PWMD8 == pwmp) || (&PWMD20 == pwmp)) {
+#endif
+#if STM32_PWM_USE_TIM1 && STM32_PWM_USE_TIM8 && STM32_PWM_USE_TIM20
+  if ((&PWMD1 == pwmp) || (&PWMD8 == pwmp) || (&PWMD20 == pwmp)) {
+#endif
     switch (pwmp->config->channels[0].mode & PWM_COMPLEMENTARY_OUTPUT_MASK) {
     case PWM_COMPLEMENTARY_OUTPUT_ACTIVE_LOW:
       ccer |= STM32_TIM_CCER_CC1NP;
@@ -961,15 +964,20 @@ void pwm_lld_start(PWMDriver *pwmp) {
       ;
     }
   }
+#endif /* STM32_PWM_USE_ADVANCED*/
 
   pwmp->tim->CCER  = ccer;
   pwmp->tim->EGR   = STM32_TIM_EGR_UG;      /* Update event.                */
   pwmp->tim->SR    = 0;                     /* Clear pending IRQs.          */
   pwmp->tim->DIER  = pwmp->config->dier &   /* DMA-related DIER settings.   */
                      ~STM32_TIM_DIER_IRQ_MASK;
-  if (pwmp->has_bdtr) {
-    pwmp->tim->BDTR  = pwmp->config->bdtr | STM32_TIM_BDTR_MOE;
-  }
+#if STM32_PWM_USE_TIM1 || STM32_PWM_USE_TIM8 || STM32_PWM_USE_TIM20
+#if STM32_PWM_USE_ADVANCED
+  pwmp->tim->BDTR  = pwmp->config->bdtr | STM32_TIM_BDTR_MOE;
+#else
+  pwmp->tim->BDTR  = STM32_TIM_BDTR_MOE;
+#endif
+#endif
   /* Timer configured and started.*/
   pwmp->tim->CR1   = STM32_TIM_CR1_ARPE | STM32_TIM_CR1_URS |
                      STM32_TIM_CR1_CEN;
@@ -989,9 +997,9 @@ void pwm_lld_stop(PWMDriver *pwmp) {
     pwmp->tim->CR1  = 0;                    /* Timer disabled.              */
     pwmp->tim->DIER = 0;                    /* All IRQs disabled.           */
     pwmp->tim->SR   = 0;                    /* Clear eventual pending IRQs. */
-    if (pwmp->has_bdtr) {
-      pwmp->tim->BDTR  = 0;
-    }
+#if STM32_PWM_USE_TIM1 || STM32_PWM_USE_TIM8 || STM32_PWM_USE_TIM20
+    pwmp->tim->BDTR  = 0;
+#endif
 
 #if STM32_PWM_USE_TIM1
     if (&PWMD1 == pwmp) {

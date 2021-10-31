@@ -89,7 +89,6 @@ static void nasa_osal_test_002_001_execute(void) {
                          0);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(1);
 
   /* [2.1.2] OS_QueueCreate() is invoked with task_name set to NULL, an
      error is expected.*/
@@ -105,7 +104,6 @@ static void nasa_osal_test_002_001_execute(void) {
                          0);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(2);
 
   /* [2.1.3] OS_QueueCreate() is invoked with a very long task name, an
      error is expected.*/
@@ -121,7 +119,6 @@ static void nasa_osal_test_002_001_execute(void) {
                          0);
     test_assert(err == OS_ERR_NAME_TOO_LONG, "name limit not detected");
   }
-  test_end_step(3);
 
   /* [2.1.4] OS_QueueDelete() is invoked with queue_id set to -1, an
      error is expected.*/
@@ -132,7 +129,6 @@ static void nasa_osal_test_002_001_execute(void) {
     err = OS_QueueDelete((uint32)-1);
     test_assert(err == OS_ERR_INVALID_ID, "wrong queue id not detected");
   }
-  test_end_step(4);
 
   /* [2.1.5] OS_QueueCreate() is invoked twice with duplicated name, an
      error is expected, then the queue is deleted using
@@ -151,7 +147,6 @@ static void nasa_osal_test_002_001_execute(void) {
     err = OS_QueueDelete(qid1);
     test_assert(err == OS_SUCCESS, "queue deletion failed");
   }
-  test_end_step(5);
 }
 
 static const testcase_t nasa_osal_test_002_001 = {
@@ -188,7 +183,6 @@ static void nasa_osal_test_002_002_execute(void) {
     err = OS_QueueGetIdByName(NULL, "queue");
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(1);
 
   /* [2.2.2] OS_QueueGetIdByName() is invoked with queue_name set to
      NULL, an error is expected.*/
@@ -199,7 +193,6 @@ static void nasa_osal_test_002_002_execute(void) {
     err = OS_QueueGetIdByName(&qid, NULL);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(2);
 
   /* [2.2.3] OS_QueueGetIdByName() is invoked with a very long task
      name, an error is expected.*/
@@ -210,7 +203,6 @@ static void nasa_osal_test_002_002_execute(void) {
     err = OS_QueueGetIdByName(&qid, "very very long queue name");
     test_assert(err == OS_ERR_NAME_TOO_LONG, "name limit not detected");
   }
-  test_end_step(3);
 }
 
 static const testcase_t nasa_osal_test_002_002 = {
@@ -262,7 +254,6 @@ static void nasa_osal_test_002_003_execute(void) {
     err = OS_QueueCreate(&qid, "test queue", 4, MESSAGE_SIZE, 0);
     test_assert(err == OS_SUCCESS, "queue creation failed");
   }
-  test_end_step(1);
 
   /* [2.3.2] Creating the writer task.*/
   test_set_step(2);
@@ -278,7 +269,6 @@ static void nasa_osal_test_002_003_execute(void) {
                         0);
     test_assert(err == OS_SUCCESS, "writer task creation failed");
   }
-  test_end_step(2);
 
   /* [2.3.3] Reading messages from the writer task.*/
   test_set_step(3);
@@ -294,7 +284,6 @@ static void nasa_osal_test_002_003_execute(void) {
                   "wrong message");
     }
   }
-  test_end_step(3);
 
   /* [2.3.4] Waiting for task termination then checking for errors.*/
   test_set_step(4);
@@ -303,7 +292,6 @@ static void nasa_osal_test_002_003_execute(void) {
     tid = 0;
     test_assert_sequence("", "queue write errors occurred");
   }
-  test_end_step(4);
 }
 
 static const testcase_t nasa_osal_test_002_003 = {
@@ -351,7 +339,6 @@ static void nasa_osal_test_002_004_execute(void) {
     err = OS_QueueGetIdByName(&local_qid, "test queue");
     test_assert(err == OS_SUCCESS, "queue not found");
   }
-  test_end_step(1);
 
   /* [2.4.2] Get operation with a one second timeout, an error is
      expected.*/
@@ -362,7 +349,6 @@ static void nasa_osal_test_002_004_execute(void) {
     err = OS_QueueGet(qid, data, MESSAGE_SIZE, &copied, OS_Milli2Ticks(1000));
     test_assert(err == OS_QUEUE_TIMEOUT, "unexpected error code");
   }
-  test_end_step(2);
 
   /* [2.4.3] Get operation in non-blocking mode, an error is
      expected.*/
@@ -373,7 +359,6 @@ static void nasa_osal_test_002_004_execute(void) {
     err = OS_QueueGet(qid, data, MESSAGE_SIZE, &copied, OS_CHECK);
     test_assert(err == OS_QUEUE_EMPTY, "unexpected error code");
   }
-  test_end_step(3);
 }
 
 static const testcase_t nasa_osal_test_002_004 = {

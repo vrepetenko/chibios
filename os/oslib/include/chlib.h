@@ -38,12 +38,12 @@
 /**
  * @brief   ChibiOS/LIB identification macro.
  */
-#define __CHIBIOS_OSLIB__
+#define _CHIBIOS_OSLIB_
 
 /**
  * @brief   Stable release flag.
  */
-#define CH_OSLIB_STABLE         0
+#define CH_OSLIB_STABLE         1
 
 /**
  * @name    ChibiOS/LIB version identification
@@ -52,7 +52,7 @@
 /**
  * @brief   OS Library version string.
  */
-#define CH_OSLIB_VERSION        "1.3.0"
+#define CH_OSLIB_VERSION        "1.2.1"
 
 /**
  * @brief   OS Library version major number.
@@ -62,12 +62,12 @@
 /**
  * @brief   OS Library version minor number.
  */
-#define CH_OSLIB_MINOR          3
+#define CH_OSLIB_MINOR          2
 
 /**
  * @brief   OS Library version patch number.
  */
-#define CH_OSLIB_PATCH          0
+#define CH_OSLIB_PATCH          1
 /** @} */
 
 /*===========================================================================*/
@@ -79,7 +79,7 @@
 /*===========================================================================*/
 
 /* Host OS checks.*/
-#if !defined(__CHIBIOS_RT__) && !defined(__CHIBIOS_NIL__)
+#if !defined(_CHIBIOS_RT_) && !defined(_CHIBIOS_NIL_)
 #error "OS check failed, must be included after ch.h"
 #endif
 
@@ -246,16 +246,16 @@
  *
  * @notapi
  */
-static inline void __oslib_init(void) {
+static inline void _oslib_init(void) {
 
 #if CH_CFG_USE_MEMCORE == TRUE
-  __core_init();
+  _core_init();
 #endif
 #if CH_CFG_USE_HEAP == TRUE
-  __heap_init();
+  _heap_init();
 #endif
 #if CH_CFG_USE_FACTORY == TRUE
-  __factory_init();
+  _factory_init();
 #endif
 }
 

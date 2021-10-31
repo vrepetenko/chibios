@@ -22,9 +22,7 @@
 /**
  * DMA operation timeout failure handler.
  */
-static void tmo(virtual_timer_t *vtp, void *p) {
-
-  (void)vtp;
+static void tmo(void *p) {
 
   chSysHalt((const char *)p);
 }

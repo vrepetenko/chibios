@@ -3,8 +3,7 @@ PORTSRC = ${CHIBIOS}/os/common/ports/SIMIA32/chcore.c
 
 PORTASM = 
 
-PORTINC = $(CHIBIOS)/os/common/portability/GCC \
-          ${CHIBIOS}/os/common/ports/SIMIA32/compilers/GCC \
+PORTINC = ${CHIBIOS}/os/common/ports/SIMIA32/compilers/GCC \
           ${CHIBIOS}/os/common/ports/SIMIA32
 
 # Shared variables

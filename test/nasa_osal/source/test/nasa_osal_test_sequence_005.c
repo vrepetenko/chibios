@@ -75,7 +75,6 @@ static void nasa_osal_test_005_001_execute(void) {
                             0);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(1);
 
   /* [5.1.2] OS_CountSemCreate() is invoked with sem_name set to NULL,
      an error is expected.*/
@@ -89,7 +88,6 @@ static void nasa_osal_test_005_001_execute(void) {
                             0);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(2);
 
   /* [5.1.3] OS_CountSemCreate() is invoked with an invalid
      sem_initial_value, an error is expected.*/
@@ -103,7 +101,6 @@ static void nasa_osal_test_005_001_execute(void) {
                             0);
     test_assert(err == OS_INVALID_INT_NUM, "counter error not detected");
   }
-  test_end_step(3);
 
   /* [5.1.4] OS_CountSemCreate() is invoked with a very long timer
      name, an error is expected.*/
@@ -119,7 +116,6 @@ static void nasa_osal_test_005_001_execute(void) {
     test_assert(err == OS_ERR_NAME_TOO_LONG, "name limit not detected");
 #endif
   }
-  test_end_step(4);
 
   /* [5.1.5] OS_CountSemDelete() is invoked with timer_id set to -1, an
      error is expected.*/
@@ -130,7 +126,6 @@ static void nasa_osal_test_005_001_execute(void) {
     err = OS_CountSemDelete((uint32)-1);
     test_assert(err == OS_ERR_INVALID_ID, "wrong semaphore id not detected");
   }
-  test_end_step(5);
 
   /* [5.1.6] OS_CountSemCreate() is invoked twice with duplicated name,
      an error is expected, then the queue is deleted using
@@ -151,7 +146,6 @@ static void nasa_osal_test_005_001_execute(void) {
     err = OS_CountSemDelete(csid1);
     test_assert(err == OS_SUCCESS, "semaphore deletion failed");
   }
-  test_end_step(6);
 }
 
 static const testcase_t nasa_osal_test_005_001 = {
@@ -184,7 +178,6 @@ static void nasa_osal_test_005_002_execute(void) {
     err = OS_CountSemGive((uint32)-1);
     test_assert(err == OS_ERR_INVALID_ID, "invalid sem_id not detected");
   }
-  test_end_step(1);
 }
 
 static const testcase_t nasa_osal_test_005_002 = {
@@ -217,7 +210,6 @@ static void nasa_osal_test_005_003_execute(void) {
     err = OS_CountSemTake((uint32)-1);
     test_assert(err == OS_ERR_INVALID_ID, "invalid sem_id not detected");
   }
-  test_end_step(1);
 }
 
 static const testcase_t nasa_osal_test_005_003 = {
@@ -263,7 +255,6 @@ static void nasa_osal_test_005_004_execute(void) {
     err = OS_CountSemTimedWait((uint32)-1, 1000);
     test_assert(err == OS_ERR_INVALID_ID, "invalid sem_id not detected");
   }
-  test_end_step(1);
 
   /* [5.4.2] OS_CountSemTimedWait() is invoked with msecs set to 0, an
      error is expected.*/
@@ -274,7 +265,6 @@ static void nasa_osal_test_005_004_execute(void) {
     err = OS_CountSemTimedWait(csid, 0);
     test_assert(err == OS_INVALID_INT_NUM, "invalid msec not detected");
   }
-  test_end_step(2);
 }
 
 static const testcase_t nasa_osal_test_005_004 = {
@@ -311,7 +301,6 @@ static void nasa_osal_test_005_005_execute(void) {
     err = OS_CountSemGetIdByName(NULL, "semaphore");
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(1);
 
   /* [5.5.2] OS_CountSemGetIdByName() is invoked with semaphore name
      set to NULL, an error is expected.*/
@@ -322,7 +311,6 @@ static void nasa_osal_test_005_005_execute(void) {
     err = OS_CountSemGetIdByName(&csid, NULL);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(2);
 
   /* [5.5.3] OS_CountSemGetIdByName() is invoked with a very long task
      name, an error is expected.*/
@@ -333,7 +321,6 @@ static void nasa_osal_test_005_005_execute(void) {
     err = OS_CountSemGetIdByName(&csid, "very very long semaphore name");
     test_assert(err == OS_ERR_NAME_TOO_LONG, "name limit not detected");
   }
-  test_end_step(3);
 }
 
 static const testcase_t nasa_osal_test_005_005 = {
@@ -377,7 +364,6 @@ static void nasa_osal_test_005_006_execute(void) {
     err = OS_CountSemTimedWait(csid, 1000);
     test_assert(err == OS_SEM_TIMEOUT, "unexpected error code");
   }
-  test_end_step(1);
 }
 
 static const testcase_t nasa_osal_test_005_006 = {

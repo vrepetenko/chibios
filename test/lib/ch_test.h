@@ -48,7 +48,7 @@
 #endif
 
 /**
- * @brief   Shows a sequence header if enabled.
+ * @brief   Delay inserted between test cases.
  */
 #if !defined(TEST_CFG_SHOW_SEQUENCES) || defined(__DOXYGEN__)
 #define TEST_CFG_SHOW_SEQUENCES             TRUE

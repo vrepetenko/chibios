@@ -35,12 +35,12 @@
 /**
  * @brief   ChibiOS/SB identification macro.
  */
-#define __CHIBIOS_SB__
+#define _CHIBIOS_SB_
 
 /**
  * @brief   Stable release flag.
  */
-#define CH_SB_STABLE            0
+#define CH_SB_STABLE            1
 
 /**
  * @name    ChibiOS/SE version identification
@@ -49,7 +49,7 @@
 /**
  * @brief   Safety Extensions version string.
  */
-#define CH_SB_VERSION           "1.1.0"
+#define CH_SB_VERSION           "1.0.0"
 
 /**
  * @brief   Safety Extensions version major number.
@@ -59,7 +59,7 @@
 /**
  * @brief   Safety Extensions version minor number.
  */
-#define CH_SB_MINOR             1
+#define CH_SB_MINOR             0
 
 /**
  * @brief   Safety Extensions version patch number.

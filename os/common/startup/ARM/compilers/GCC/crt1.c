@@ -34,7 +34,7 @@
 __attribute__((weak))
 #endif
 /*lint -save -e9075 [8.4] All symbols are invoked from asm context.*/
-void __cpu_init(void) {}
+void __core_init(void) {}
 
 /**
  * @brief   Early initialization.

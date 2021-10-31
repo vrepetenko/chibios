@@ -19,9 +19,8 @@
 
 static virtual_timer_t vt1, vt2;
 
-static void restart(virtual_timer_t *vtp, void *p) {
+static void restart(void *p) {
 
-  (void)vtp;
   (void)p;
 
   chSysLockFromISR();
@@ -29,11 +28,9 @@ static void restart(virtual_timer_t *vtp, void *p) {
   chSysUnlockFromISR();
 }
 
-static void ledoff(virtual_timer_t *vtp, void *p) {
+static void ledoff(void *p) {
 
-  (void)vtp;
   (void)p;
-
   palSetPad(GPIOC, GPIOC_LED1);
 }
 

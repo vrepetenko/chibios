@@ -59,7 +59,7 @@ static event_source_t inserted_event, removed_event;
  *
  * @notapi
  */
-static void tmrfunc(virtual_timer_t *vtp, void *p) {
+static void tmrfunc(void *p) {
   BaseBlockDevice *bbdp = p;
 
   chSysLockFromISR();
@@ -78,7 +78,7 @@ static void tmrfunc(virtual_timer_t *vtp, void *p) {
       chEvtBroadcastI(&removed_event);
     }
   }
-  chVTSetI(vtp, TIME_MS2I(POLLING_DELAY), tmrfunc, bbdp);
+  chVTSetI(&tmr, TIME_MS2I(POLLING_DELAY), tmrfunc, bbdp);
   chSysUnlockFromISR();
 }
 

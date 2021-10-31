@@ -84,23 +84,6 @@
 #define STM32_HAS_CRYP1                     FALSE
 #endif
 
-/* RCC attributes (common).*/
-#define STM32_RCC_HAS_HSI16                 TRUE
-#define STM32_RCC_HAS_HSI48                 FALSE
-#define STM32_RCC_HAS_MSI                   FALSE
-#define STM32_RCC_HAS_LSI                   TRUE
-#define STM32_RCC_HAS_LSI_PRESCALER         FALSE
-#define STM32_RCC_HAS_LSE                   TRUE
-#define STM32_RCC_HAS_HSE                   TRUE
-
-#define STM32_RCC_HAS_PLL                   TRUE
-#define STM32_RCC_PLL_HAS_P                 TRUE
-/*#define STM32_RCC_PLL_HAS_Q                 TRUE*/ /* Varies, see below.*/
-#define STM32_RCC_PLL_HAS_R                 TRUE
-
-#define STM32_RCC_HAS_PLLSAI1               FALSE
-#define STM32_RCC_HAS_PLLSAI2               FALSE
-
 /*===========================================================================*/
 /* STM32G070xx.                                                              */
 /*===========================================================================*/
@@ -174,9 +157,6 @@
 
 /* QUADSPI attributes.*/
 #define STM32_HAS_QUADSPI1                  FALSE
-
-/* RCC attributes.*/
-#define STM32_RCC_PLL_HAS_Q                 FALSE
 
 /* SDMMC attributes.*/
 #define STM32_HAS_SDMMC1                    FALSE
@@ -355,9 +335,6 @@
 
 /* QUADSPI attributes.*/
 #define STM32_HAS_QUADSPI1                  FALSE
-
-/* RCC attributes.*/
-#define STM32_RCC_PLL_HAS_Q                 TRUE
 
 /* SDMMC attributes.*/
 #define STM32_HAS_SDMMC1                    FALSE

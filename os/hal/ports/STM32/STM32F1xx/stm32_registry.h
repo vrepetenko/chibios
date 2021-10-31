@@ -245,8 +245,6 @@
 #define STM32_HAS_USART6                    FALSE
 #define STM32_HAS_UART7                     FALSE
 #define STM32_HAS_UART8                     FALSE
-#define STM32_HAS_UART9                     FALSE
-#define STM32_HAS_UART10                    FALSE
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
@@ -432,8 +430,6 @@
 #define STM32_HAS_USART6                    FALSE
 #define STM32_HAS_UART7                     FALSE
 #define STM32_HAS_UART8                     FALSE
-#define STM32_HAS_UART9                     FALSE
-#define STM32_HAS_UART10                    FALSE
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
@@ -632,8 +628,6 @@
 #define STM32_HAS_USART6                    FALSE
 #define STM32_HAS_UART7                     FALSE
 #define STM32_HAS_UART8                     FALSE
-#define STM32_HAS_UART9                     FALSE
-#define STM32_HAS_UART10                    FALSE
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
@@ -874,8 +868,6 @@
 #define STM32_HAS_USART6                    FALSE
 #define STM32_HAS_UART7                     FALSE
 #define STM32_HAS_UART8                     FALSE
-#define STM32_HAS_UART9                     FALSE
-#define STM32_HAS_UART10                    FALSE
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
@@ -1134,8 +1126,6 @@
 #define STM32_HAS_USART6                    FALSE
 #define STM32_HAS_UART7                     FALSE
 #define STM32_HAS_UART8                     FALSE
-#define STM32_HAS_UART9                     FALSE
-#define STM32_HAS_UART10                    FALSE
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
@@ -1375,8 +1365,6 @@
 #define STM32_HAS_USART6                    FALSE
 #define STM32_HAS_UART7                     FALSE
 #define STM32_HAS_UART8                     FALSE
-#define STM32_HAS_UART9                     FALSE
-#define STM32_HAS_UART10                    FALSE
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/

@@ -247,7 +247,7 @@ _crt0_entry:
 
 #if CRT0_INIT_CORE == TRUE
                 /* Core initialization.*/
-                bl      __cpu_init
+                bl      __core_init
 #endif
 
                 /* Early initialization.*/

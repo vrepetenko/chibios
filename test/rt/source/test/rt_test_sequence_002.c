@@ -44,10 +44,9 @@
  ****************************************************************************/
 
 /* Timer callback for testing system functions in ISR context.*/
-static void vtcb(virtual_timer_t *vtp, void *p) {
+static void vtcb(void *p) {
   syssts_t sts;
 
-  (void)vtp;
   (void)p;
 
   /* Testing normal case.*/

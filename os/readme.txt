@@ -16,11 +16,6 @@
   |  |  +--templates/   - Nil kernel port template files.
   |  |  +--ports/       - Nil kernel port files.
   |  |  +--osal/        - Nil kernel OSAL module for HAL interface.
-  |  +--oslib/          - ChibiOS/LIB product.
-  |  |  +--include/     - OSLIB headers.
-  |  |  +--src/         - OSLIB sources.
-  |  +--sb/             - ChibiOS/SB product.
-  |  +--ex/             - ChibiOS/EX product.
   |  +--hal/            - ChibiOS/HAL product.
   |  |  +--include/     - HAL high level headers.
   |  |  +--src/         - HAL high level sources.
@@ -28,12 +23,7 @@
   |  |  +--ports/       - HAL port files (low level drivers implementations).
   |  |  +--boards/      - HAL board files.
   |  +--common/         - Files used by multiple ChibiOS products.
-  |  |  +--abstractions/- Emulation of other API.
-  |  |  +--ext/         - Vendor files used by ChibiOS products.
-  |  |  +--portability/ - Compilers abstraction support files.
-  |  |  +--ports        - RT/NIL port files for various architectures and
+  |  |  +--ports        - Common port files for various architectures and
   |  |                    compilers.
-  |  |  +--startup/     - Startup, linker and make support for various
-  |  |                    architectures and compilers.
   |  +--various/        - Various portable support files.
- 
+  |  +--ext/            - Vendor files used by ChibiOS products.

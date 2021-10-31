@@ -21,7 +21,7 @@
  * @file    ARM/compilers/GCC/chcoreasm.S
  * @brief   ARM architecture port low level code.
  *
- * @addtogroup ARM_GCC_CORE
+ * @addtogroup ARM_CORE
  * @{
  */
 
@@ -40,10 +40,8 @@
  */
 #if defined(_CHIBIOS_RT_CONF_)
 #define CONTEXT_OFFSET  12
-
 #elif defined(_CHIBIOS_NIL_CONF_)
 #define CONTEXT_OFFSET  0
-
 #else
 #error "invalid chconf.h"
 #endif
@@ -65,11 +63,11 @@
                 .balign 16
 
                 .code   32
-                .global __port_switch_arm
-__port_switch_arm:
+                .global _port_switch_arm
+_port_switch_arm:
                 stmfd   sp!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
-                str     sp, [r1, #CONTEXT_OFFSET]
-                ldr     sp, [r0, #CONTEXT_OFFSET]
+                str     sp, [r1, #12]
+                ldr     sp, [r0, #12]
                 ldmfd   sp!, {r4, r5, r6, r7, r8, r9, r10, r11, pc}
 
 /*
@@ -127,11 +125,11 @@ _irq_ret_arm:
 
                 // Context switch.
 #if CH_DBG_SYSTEM_STATE_CHECK
-                bl      __dbg_check_lock
+                bl      _dbg_check_lock
 #endif
-                bl      chSchDoPreemption
+                bl      chSchDoReschedule
 #if CH_DBG_SYSTEM_STATE_CHECK
-                bl      __dbg_check_unlock
+                bl      _dbg_check_unlock
 #endif
 
                 // Re-establish the IRQ conditions again.
@@ -151,10 +149,10 @@ _irq_ret_arm:
  */
                 .balign 16
                 .code   32
-                .globl  __port_thread_start
-__port_thread_start:
+                .globl  _port_thread_start
+_port_thread_start:
 #if CH_DBG_SYSTEM_STATE_CHECK
-                bl      __dbg_check_unlock
+                bl      _dbg_check_unlock
 #endif
                 msr     CPSR_c, #MODE_SYS
                 mov     r0, r5
@@ -162,7 +160,7 @@ __port_thread_start:
                 bx      r4
                 mov     r0, #0              /* MSG_OK */
                 bl      chThdExit
-.zombies:       b       .zombies
+_zombies:       b       _zombies
 
 #endif /* !defined(__DOXYGEN__) */
 

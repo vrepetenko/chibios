@@ -31,7 +31,7 @@
  * <h2>Conditions</h2>
  * This sequence is only executed if the following preprocessor condition
  * evaluates to true:
- * - CH_CFG_USE_EVENTS == TRUE
+ * - CH_CFG_USE_EVENTS
  * .
  *
  * <h2>Test Cases</h2>
@@ -45,7 +45,7 @@
  * .
  */
 
-#if (CH_CFG_USE_EVENTS == TRUE) || defined(__DOXYGEN__)
+#if (CH_CFG_USE_EVENTS) || defined(__DOXYGEN__)
 
 /****************************************************************************
  * Shared code.
@@ -629,4 +629,4 @@ const testsequence_t nil_test_sequence_006 = {
   nil_test_sequence_006_array
 };
 
-#endif /* CH_CFG_USE_EVENTS == TRUE */
+#endif /* CH_CFG_USE_EVENTS */

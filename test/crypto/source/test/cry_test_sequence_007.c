@@ -227,7 +227,6 @@ static void cry_test_007_001_execute(void) {
     }
 
   }
-  test_end_step(1);
 }
 
 static const testcase_t cry_test_007_001 = {
@@ -330,7 +329,6 @@ static void cry_test_007_002_execute(void) {
 
 
   }
-  test_end_step(1);
 }
 
 static const testcase_t cry_test_007_002 = {
@@ -432,7 +430,6 @@ static void cry_test_007_003_execute(void) {
     }
 
   }
-  test_end_step(1);
 }
 
 static const testcase_t cry_test_007_003 = {

@@ -75,30 +75,28 @@ typedef struct {
 /*===========================================================================*/
 
 /**
- * @brief   Access to the registry list header.
- */
-#if (CH_CFG_SMP_MODE == TRUE) || defined(__DOXYGEN__)
-#define REG_HEADER(oip) (&ch_system.reglist.queue)
-#else
-#define REG_HEADER(oip) (&(oip)->reglist.queue)
-#endif
-
-/**
  * @brief   Removes a thread from the registry list.
  * @note    This macro is not meant for use in application code.
  *
  * @param[in] tp        thread to remove from the registry
  */
-#define REG_REMOVE(tp) (void) ch_queue_dequeue(&(tp)->rqueue)
+#define REG_REMOVE(tp) {                                                    \
+  (tp)->older->newer = (tp)->newer;                                         \
+  (tp)->newer->older = (tp)->older;                                         \
+}
 
 /**
  * @brief   Adds a thread to the registry list.
  * @note    This macro is not meant for use in application code.
  *
- * @param[in] oip       pointer to the OS instance
  * @param[in] tp        thread to add to the registry
  */
-#define REG_INSERT(oip, tp) ch_queue_insert(REG_HEADER(oip), &(tp)->rqueue)
+#define REG_INSERT(tp) {                                                    \
+  (tp)->newer = (thread_t *)&ch.rlist;                                      \
+  (tp)->older = ch.rlist.older;                                             \
+  (tp)->older->newer = (tp);                                                \
+  ch.rlist.older = (tp);                                                    \
+}
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -124,19 +122,6 @@ extern "C" {
 /*===========================================================================*/
 
 /**
- * @brief   Initializes a registry.
- * @note    Internal use only.
- *
- * @param[out] rp       pointer to a @p registry_t structure
- *
- * @init
- */
-static inline void __reg_object_init(registry_t *rp) {
-
-  ch_queue_init(&rp->queue);
-}
-
-/**
  * @brief   Sets the current thread name.
  * @pre     This function only stores the pointer to the name if the option
  *          @p CH_CFG_USE_REGISTRY is enabled else no action is performed.
@@ -148,7 +133,7 @@ static inline void __reg_object_init(registry_t *rp) {
 static inline void chRegSetThreadName(const char *name) {
 
 #if CH_CFG_USE_REGISTRY == TRUE
-  __sch_get_currthread()->name = name;
+  ch.rlist.current->name = name;
 #else
   (void)name;
 #endif

@@ -160,10 +160,8 @@ static osal_t osal;
 /**
  * @brief   System time callback.
  */
-static void systime_update(virtual_timer_t *vtp, void *p) {
+static void systime_update(void *p) {
   sysinterval_t delay = (sysinterval_t)p;
-
-  (void)vtp;
 
   chSysLockFromISR();
   osal.localtime.microsecs += 1000;
@@ -178,10 +176,8 @@ static void systime_update(virtual_timer_t *vtp, void *p) {
 /**
  * @brief   Virtual timers callback.
  */
-static void timer_handler(virtual_timer_t *vtp, void *p) {
+static void timer_handler(void *p) {
   osal_timer_t *otp = (osal_timer_t *)p;
-
-  (void)vtp;
 
   /* Real callback.*/
   otp->callback_ptr((uint32)p);
@@ -2026,8 +2022,8 @@ int32 OS_TaskSetPriority(uint32 task_id, uint32 new_priority) {
   case CH_STATE_SNDMSGQ:
 #endif
     /* Re-enqueues tp with its new priority on the queue.*/
-    ch_sch_prio_insert((ch_queue_t *)tp->u.wtobjp,
-                       ch_queue_dequeue(&tp->hdr.queue));
+    ch_sch_prio_insert(ch_queue_dequeue(&tp->hdr.queue),
+                      (ch_queue_t *)tp->u.wtobjp);
     break;
   case CH_STATE_READY:
 #if CH_DBG_ENABLE_ASSERTS

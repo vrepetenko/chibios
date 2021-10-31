@@ -90,14 +90,19 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
     return NULL;
   }
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wsp,
-                                          (stkalign_t *)((uint8_t *)wsp + size),
-                                          prio, pf, arg);
+  thread_descriptor_t td = {
+    name,
+    wsp,
+    (stkalign_t *)((uint8_t *)wsp + size),
+    prio,
+    pf,
+    arg
+  };
 
 #if CH_DBG_FILL_THREADS == TRUE
-  __thd_memfill((uint8_t *)wsp,
-                (uint8_t *)wsp + size,
-                CH_DBG_STACK_FILL_VALUE);
+  _thread_memfill((uint8_t *)wsp,
+                  (uint8_t *)wsp + size,
+                  CH_DBG_STACK_FILL_VALUE);
 #endif
 
   chSysLock();
@@ -149,14 +154,19 @@ thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
     return NULL;
   }
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wsp,
-                                          (stkalign_t *)((uint8_t *)wsp + mp->object_size),
-                                          prio, pf, arg);
+  thread_descriptor_t td = {
+    name,
+    wsp,
+    (stkalign_t *)((uint8_t *)wsp + mp->object_size),
+    prio,
+    pf,
+    arg
+  };
 
 #if CH_DBG_FILL_THREADS == TRUE
-  __thd_memfill((uint8_t *)wsp,
-                (uint8_t *)wsp + mp->object_size,
-                CH_DBG_STACK_FILL_VALUE);
+  _thread_memfill((uint8_t *)wsp,
+                  (uint8_t *)wsp + mp->object_size,
+                  CH_DBG_STACK_FILL_VALUE);
 #endif
 
   chSysLock();

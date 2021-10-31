@@ -1,4 +1,4 @@
-# IA32 simulator common makefile scripts and rules.
+# e200z common makefile scripts and rules.
 
 ##############################################################################
 # Processing options coming from the upper Makefile.

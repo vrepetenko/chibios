@@ -78,8 +78,6 @@ Reset_Handler:
                 mov     sp, r0
 //                ldr     r1, =__sys_stack_size__
 //                sub     r0, r0, r1
-                /* Core initialization.*/
-                bl      __cpu_init
                 /*
                  * Early initialization.
                  */
@@ -111,6 +109,7 @@ bssloop:
                 /*
                  * Late initialization.
                  */
+                bl      __core_init
                 bl      __late_init
 
                 /*

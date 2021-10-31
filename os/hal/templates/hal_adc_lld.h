@@ -31,15 +31,6 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @name    Possible ADC errors mask bits.
- * @{
- */
-#define ADC_ERR_DMAFAILURE      1U  /**< DMA operations failure.            */
-#define ADC_ERR_OVERFLOW        2U  /**< ADC overflow condition.            */
-#define ADC_ERR_AWD             4U  /**< Watchdog triggered.                */
-/** @} */
-
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -77,9 +68,15 @@ typedef uint16_t adcsample_t;
 typedef uint16_t adc_channels_num_t;
 
 /**
- * @brief   Type of an ADC error mask.
+ * @brief   Possible ADC failure causes.
+ * @note    Error codes are architecture dependent and should not relied
+ *          upon.
  */
-typedef uint32_t adcerror_t;
+typedef enum {
+  ADC_ERR_DMAFAILURE = 0,                   /**< DMA operations failure.    */
+  ADC_ERR_OVERFLOW = 1,                     /**< ADC overflow condition.    */
+  ADC_ERR_AWD = 2                           /**< Analog watchdog triggered. */
+} adcerror_t;
 
 /*===========================================================================*/
 /* Driver macros.                                                            */

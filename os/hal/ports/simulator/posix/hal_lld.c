@@ -93,10 +93,10 @@ void _sim_check_for_interrupts(void) {
   }
 
   if (int_occurred) {
-    __dbg_check_lock();
+    _dbg_check_lock();
     if (chSchIsPreemptionRequired())
-      chSchDoPreemption();
-    __dbg_check_unlock();
+      chSchDoReschedule();
+    _dbg_check_unlock();
   }
 }
 

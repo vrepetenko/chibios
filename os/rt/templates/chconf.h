@@ -1,17 +1,20 @@
 /*
-    ChibiOS - Copyright (C) 2006..2020 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
+              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+    This file is part of ChibiOS.
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    ChibiOS is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation version 3 of the License.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    ChibiOS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -29,27 +32,7 @@
 #define CHCONF_H
 
 #define _CHIBIOS_RT_CONF_
-#define _CHIBIOS_RT_CONF_VER_7_0_
-
-/*===========================================================================*/
-/**
- * @name System settings
- * @{
- */
-/*===========================================================================*/
-
-/**
- * @brief   Handling of instances.
- * @note    If enabled then threads assigned to various instances can
- *          interact each other using the same synchronization objects.
- *          If disabled then each OS instance is a separate world, no
- *          direct interactions are handled by the OS.
- */
-#if !defined(CH_CFG_SMP_MODE)
-#define CH_CFG_SMP_MODE                     FALSE
-#endif
-
-/** @} */
+#define _CHIBIOS_RT_CONF_VER_6_1_
 
 /*===========================================================================*/
 /**
@@ -178,17 +161,6 @@
  */
 #if !defined(CH_CFG_USE_TM)
 #define CH_CFG_USE_TM                       TRUE
-#endif
-
-/**
- * @brief   Time Stamps APIs.
- * @details If enabled then the time time stamps APIs are included in
- *          the kernel.
- *
- * @note    The default is @p TRUE.
- */
-#if !defined(CH_CFG_USE_TIMESTAMP)
-#define CH_CFG_USE_TIMESTAMP                TRUE
 #endif
 
 /**
@@ -662,7 +634,7 @@
  * @details User fields added to the end of the @p ch_system_t structure.
  */
 #define CH_CFG_SYSTEM_EXTRA_FIELDS                                          \
-  /* Add system custom fields here.*/
+  /* Add threads custom fields here.*/
 
 /**
  * @brief   System initialization hook.
@@ -670,23 +642,7 @@
  *          just before interrupts are enabled globally.
  */
 #define CH_CFG_SYSTEM_INIT_HOOK() {                                         \
-  /* Add system initialization code here.*/                                 \
-}
-
-/**
- * @brief   OS instance structure extension.
- * @details User fields added to the end of the @p os_instance_t structure.
- */
-#define CH_CFG_OS_INSTANCE_EXTRA_FIELDS                                     \
-  /* Add OS instance custom fields here.*/
-
-/**
- * @brief   OS instance initialization hook.
- *
- * @param[in] oip       pointer to the @p os_instance_t structure
- */
-#define CH_CFG_OS_INSTANCE_INIT_HOOK(oip) {                                 \
-  /* Add OS instance initialization code here.*/                            \
+  /* Add threads initialization code here.*/                                \
 }
 
 /**
@@ -702,8 +658,6 @@
  *
  * @note    It is invoked from within @p _thread_init() and implicitly from all
  *          the threads creation APIs.
- *
- * @param[in] tp        pointer to the @p thread_t structure
  */
 #define CH_CFG_THREAD_INIT_HOOK(tp) {                                       \
   /* Add threads initialization code here.*/                                \
@@ -712,8 +666,6 @@
 /**
  * @brief   Threads finalization hook.
  * @details User finalization code added to the @p chThdExit() API.
- *
- * @param[in] tp        pointer to the @p thread_t structure
  */
 #define CH_CFG_THREAD_EXIT_HOOK(tp) {                                       \
   /* Add threads finalization code here.*/                                  \
@@ -722,9 +674,6 @@
 /**
  * @brief   Context switch hook.
  * @details This hook is invoked just before switching between threads.
- *
- * @param[in] ntp       thread being switched in
- * @param[in] otp       thread being switched out
  */
 #define CH_CFG_CONTEXT_SWITCH_HOOK(ntp, otp) {                              \
   /* Context switch code here.*/                                            \
@@ -797,14 +746,6 @@
  */
 #define CH_CFG_TRACE_HOOK(tep) {                                            \
   /* Trace code here.*/                                                     \
-}
-
-/**
- * @brief   Runtime Faults Collection Unit hook.
- * @details This hook is invoked each time new faults are collected and stored.
- */
-#define CH_CFG_RUNTIME_FAULTS_HOOK(mask) {                                  \
-  /* Faults handling code here.*/                                           \
 }
 
 /** @} */

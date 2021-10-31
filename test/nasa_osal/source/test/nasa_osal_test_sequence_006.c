@@ -70,7 +70,6 @@ static void nasa_osal_test_006_001_execute(void) {
                          0);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(1);
 
   /* [6.1.2] OS_MutSemCreate() is invoked with sem_name set to NULL, an
      error is expected.*/
@@ -83,7 +82,6 @@ static void nasa_osal_test_006_001_execute(void) {
                          0);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(2);
 
   /* [6.1.3] OS_MutSemCreate() is invoked with a very long timer name,
      an error is expected.*/
@@ -98,7 +96,6 @@ static void nasa_osal_test_006_001_execute(void) {
     test_assert(err == OS_ERR_NAME_TOO_LONG, "name limit not detected");
 #endif
   }
-  test_end_step(3);
 
   /* [6.1.4] OS_MutSemDelete() is invoked with timer_id set to -1, an
      error is expected.*/
@@ -109,7 +106,6 @@ static void nasa_osal_test_006_001_execute(void) {
     err = OS_MutSemDelete((uint32)-1);
     test_assert(err == OS_ERR_INVALID_ID, "wrong semaphore id not detected");
   }
-  test_end_step(4);
 
   /* [6.1.5] OS_MutSemCreate() is invoked twice with duplicated name,
      an error is expected, then the queue is deleted using
@@ -130,7 +126,6 @@ static void nasa_osal_test_006_001_execute(void) {
     err = OS_MutSemDelete(msid1);
     test_assert(err == OS_SUCCESS, "semaphore deletion failed");
   }
-  test_end_step(5);
 }
 
 static const testcase_t nasa_osal_test_006_001 = {
@@ -163,7 +158,6 @@ static void nasa_osal_test_006_002_execute(void) {
     err = OS_MutSemGive((uint32)-1);
     test_assert(err == OS_ERR_INVALID_ID, "invalid sem_id not detected");
   }
-  test_end_step(1);
 }
 
 static const testcase_t nasa_osal_test_006_002 = {
@@ -196,7 +190,6 @@ static void nasa_osal_test_006_003_execute(void) {
     err = OS_MutSemTake((uint32)-1);
     test_assert(err == OS_ERR_INVALID_ID, "invalid sem_id not detected");
   }
-  test_end_step(1);
 }
 
 static const testcase_t nasa_osal_test_006_003 = {
@@ -233,7 +226,6 @@ static void nasa_osal_test_006_004_execute(void) {
     err = OS_MutSemGetIdByName(NULL, "semaphore");
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(1);
 
   /* [6.4.2] OS_MutSemGetIdByName() is invoked with semaphore name set
      to NULL, an error is expected.*/
@@ -244,7 +236,6 @@ static void nasa_osal_test_006_004_execute(void) {
     err = OS_MutSemGetIdByName(&msid, NULL);
     test_assert(err == OS_INVALID_POINTER, "NULL not detected");
   }
-  test_end_step(2);
 
   /* [6.4.3] OS_MutSemGetIdByName() is invoked with a very long task
      name, an error is expected.*/
@@ -255,7 +246,6 @@ static void nasa_osal_test_006_004_execute(void) {
     err = OS_MutSemGetIdByName(&msid, "very very long semaphore name");
     test_assert(err == OS_ERR_NAME_TOO_LONG, "name limit not detected");
   }
-  test_end_step(3);
 }
 
 static const testcase_t nasa_osal_test_006_004 = {
