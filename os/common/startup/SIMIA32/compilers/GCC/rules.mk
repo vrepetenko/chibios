@@ -23,8 +23,12 @@ ifneq ($(USE_LDOPT),)
 endif
 
 # Link time optimizations
-ifeq ($(USE_LTO),yes)
-  OPT += -flto
+ifneq ($(USE_LTO),no)
+  ifeq ($(USE_LTO),yes)
+    OPT += -flto
+  else
+    OPT += -flto=$(USE_LTO)
+  endif
 endif
 
 # Output directory and files
@@ -46,7 +50,7 @@ endif
 OUTFILES = $(BUILDDIR)/$(PROJECT)
 
 # Source files groups and paths
-SRC       = $(CSRC)$(CPPSRC)
+SRC       = $(CSRC) $(CPPSRC)
 SRCPATHS  = $(sort $(dir $(ASMXSRC)) $(dir $(ASMSRC)) $(dir $(SRC)))
 
 # Various directories

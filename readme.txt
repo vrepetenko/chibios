@@ -73,6 +73,70 @@
 *** Releases and Change Log                                               ***
 *****************************************************************************
 
+*** 21.11.4 ***
+- NEW: STM32C0xx support.
+- NEW: STM32G0B0 support.
+- NEW: STM32H5xx support.
+- NEW: FDCAN support for STM32G4xx, STM32H5xx and STM32H7xx.
+- NEW: XSNOR serial flash memories framework.
+- NEW: I2C slave support in HAL and in ST low level drivers.
+- NEW: Support for LittleFS flash file system.
+- NEW: VFS subsystem.
+- NEW: OOP framework.
+- NEW: Added missing context switch hook in ARMv7-M-ALT port.
+- NEW: FDCANv1 and FDCANv2 filter enabled.
+- NEW: Recursive locks in RT and NIL made optional, only enabled if the
+       underlying port supports the capability.
+- NEW: Added STM32 FDCANv2 for STM32H7xx
+- NEW: Improved DAC driver, updated STM32 DACv1.
+- NEW: Removed oscillator stabilization delay on STM32 LSE and HSE when
+       bypass mode is enabled.
+- NEW: STM32 TIM1 and TIM8 support added to SYSTICKv1 driver.
+- NEW: STM32 RTCv2 and RTCv3 modified to not use shadow registers.
+- NEW: Enhanced STM32F7xx MPU configuration in mcuconf.h.
+- NEW: I2C slave support in HAL high level driver.
+- NEW: Added settings for STM32 OCTOSPIv1 and OCTOSPIv2 TCR bits SSHIFT and
+       DHQC.
+- NEW: Reworked STM32 SDMMCv1 and SDMMCv2 drivers, better timeout and clock
+       handling, improved speed for aligned buffers.
+- FIX: Set DAC_HAS_MCR FALSE in STM32F1xx registry.
+- FIX: Fixed ADCv4 common registers reset at start (bug 1296).
+- FIX: Fixed DMA2 not firing on STM32G431 (bug 1295).
+- FIX: Fixed wrong STM32 ADCv2 stop method (bug 1294).
+- FIX: Fixed STM32 OTGv1 driver does not re-enables endpoints on wakeup
+       (bug 1293).
+- FIX: Fixed missing assertion in OSLIB factory module (bug 1292).
+- FIX: Fixed problem in FDCANv1 driver for G4 (bug #1291).
+- FIX: Fixed problem in recursive locks functions (bug #1288).
+- FIX: Fixed ARMv8-M-ML port compile fail when FPU is enabled (bug #1281).
+- FIX: Fixed interrupts not enabled for STM32H735 TIM15, TIM16 and TIM17
+       (bug #1280).
+- FIX: Fixed wrong STM32 LSI activation check (bug #1279).
+- FIX: Fixed STM32 HAL UART ISR flaw (bug #1278).
+- FIX: Fixed race condition caused by chGuardedPoolAllocI() (bug #1277).
+- FIX: Fixed avoid shadowing with build-in pow10 function in chprintf.c
+       (bug #1274).
+- FIX: Fixed enabling PWM on TIM1, 3, 4 causes compile errors in
+       RT-STM32G0B1RE-NUCLEO64 (bug #1273).
+- FIX: Fixed unnecessary code in SNOR device drivers (bug #1265).
+- FIX: Fixed RP2040 HAL GPIO failed to compile (bug #1264).
+- FIX: Fixed channel 0 corruption on STM32 BDMAv1 (bug #1263).
+- FIX: Fixed wrong statistics in RT7 (bug #1262).
+- FIX: Fixed missing cache management during Cortex-M RAM initializations
+       (bug #1261).
+- FIX: Fixed RTC & TAMP interrupts not functional (bug #1260).
+- FIX: Fixed syntax errors in STM32H7xx/hal_lld_type2.h (bug #1259).
+- FIX: Fixed unwanted reset of cache on STM32H7xx (bug #1258).
+- FIX: Fixed invalid HSIDIV in STM32Ggxx clocks initialization (bug #1257).
+- FIX: Fixed incorrect RTC initialization on STM32G4/L4/L4+ (bug #1256).
+- FIX: Fixed syntax error in RP2040 GPIO driver (bug #1255).
+- FIX: Fixed undefined STM32_SDMMC_MAXCLK value for STM32H7 type 1 and 2
+       (bug #1254).
+- FIX: Fixed invalid checks on PLLP/R/Q dividers on STM32H7 (bug #1253).
+- FIX: Fixed remote wakeup failure in STM32 OTGv1 driver (bug #1252).
+- FIX: Fixed wrong use of hooks in RT/NIL (bug #1251).
+- FIX: Fixed SPI_MMC driver broken in 21.11.3 (bug #1249).
+
 *** 21.11.3 ***
 - NEW: STM32 DMA drivers now export an STM32_DMA_MAX_TRANSFER definition.
 - NEW: PAL events for RP2040 added.
@@ -137,6 +201,7 @@
        ARMv7-M and ARMv8-M-ML.
 - NEW: On STM32WBxx added a check on STM32_LSI_ENABLE required by IWDG.
 - NEW: Added SPIv2 support also to STM32WB and STM32WL.
+- FIX: Fixed uninitialized return message in EX subsystem (bug #1267).
 - FIX: Re-opened and fixed bug #1100.
 - FIX: Fixed wrong buffers toggling in STM32 USBv1 isochronous mode (bug #1232).
 - FIX: Fixed STM32 RTCv2 registers synchronization errata (bug #1231).

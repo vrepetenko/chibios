@@ -48,7 +48,6 @@ static bool mmc_is_card_inserted(void *instance);
 static bool mmc_is_write_protected(void *instance);
 static bool mmc_connect(void *instance);
 static bool mmc_disconnect(void *instance);
-static bool mmc_connect(void *instance);
 static bool mmc_read(void *instance, uint32_t startblk,
                        uint8_t *buffer, uint32_t n);
 static bool mmc_write(void *instance, uint32_t startblk,
@@ -116,7 +115,7 @@ static bool mmc_is_write_protected(void *instance) {
   MMCDriver *mmcp = (MMCDriver *)instance;
   bool err;
 
-  err = mmcIsCardInserted(mmcp);
+  err = mmcIsWriteProtected(mmcp);
 
   return err;
 }
@@ -175,10 +174,10 @@ static bool mmc_read(void *instance, uint32_t startblk,
       }
       buffer += MMCSD_BLOCK_SIZE;
       n--;
+    }
 
-      if (mmcStopSequentialRead(mmcp)) {
-        break;
-      }
+    if (mmcStopSequentialRead(mmcp)) {
+      break;
     }
 
     err = HAL_SUCCESS;
@@ -284,7 +283,7 @@ static bool mmc_wait_idle(MMCDriver *mmcp) {
   unsigned i;
 
   for (i = 0U; i < 16U; i++) {
-    spiReceive(mmcp->config->spip, 1U, mmcp->buffer);
+    (void) spiReceive(mmcp->config->spip, 1U, mmcp->buffer);
     if (mmcp->buffer[0] == 0xFFU) {
       return HAL_SUCCESS;
     }
@@ -293,14 +292,14 @@ static bool mmc_wait_idle(MMCDriver *mmcp) {
   /* Looks like it is a long wait.*/
   i = 0U;
   do {
-    spiReceive(mmcp->config->spip, 1U, mmcp->buffer);
+    (void) spiReceive(mmcp->config->spip, 1U, mmcp->buffer);
     if (mmcp->buffer[0] == 0xFFU) {
       return HAL_SUCCESS;
     }
 
     /* Trying to be nice with the other threads.*/
     osalThreadSleepMilliseconds(1);
-  } while (++i < MMC_IDLE_TIMEOUT_MS);
+  } while (++i < (unsigned)MMC_IDLE_TIMEOUT_MS);
 
   return HAL_FAILED;
 }
@@ -332,7 +331,7 @@ static bool mmc_send_hdr(MMCDriver *mmcp, uint8_t cmd, uint32_t arg) {
   /* Calculate CRC for command header, shift to right position, add stop bit.*/
   mmcp->buffer[5] = ((mmc_crc7(0, mmcp->buffer, 5U) & 0x7FU) << 1U) | 0x01U;
 
-  spiSend(mmcp->config->spip, 6, mmcp->buffer);
+  (void) spiSend(mmcp->config->spip, 6, mmcp->buffer);
 
   return HAL_SUCCESS;
 }
@@ -352,7 +351,7 @@ static bool mmc_recvr1(MMCDriver *mmcp, uint8_t *r1p) {
   int i;
 
   for (i = 0; i < 9; i++) {
-    spiReceive(mmcp->config->spip, 1, mmcp->buffer);
+    (void) spiReceive(mmcp->config->spip, 1, mmcp->buffer);
     *r1p = mmcp->buffer[0];
     if (mmcp->buffer[0] != 0xFFU) {
       return HAL_SUCCESS;
@@ -373,14 +372,12 @@ static bool mmc_recvr1(MMCDriver *mmcp, uint8_t *r1p) {
  * @notapi
  */
 static bool mmc_recvr3(MMCDriver *mmcp, uint8_t *r1p) {
+  bool ret;
 
-  if (mmc_recvr1(mmcp, r1p) == HAL_FAILED) {
-    return HAL_FAILED;
-  }
+  ret = mmc_recvr1(mmcp, r1p);
+  (void) spiReceive(mmcp->config->spip, 4, mmcp->buffer);
 
-  spiReceive(mmcp->config->spip, 4, mmcp->buffer);
-
-  return HAL_SUCCESS;
+  return ret;
 }
 
 /**
@@ -402,13 +399,8 @@ static bool mmc_send_command_R1(MMCDriver *mmcp, uint8_t cmd,
 
   spiSelect(mmcp->config->spip);
 
-  if ((mmc_send_hdr(mmcp, cmd, arg) ) ||
-      (mmc_recvr1(mmcp, r1p) )) {
-    result = HAL_FAILED;
-  }
-  else {
-    result = HAL_SUCCESS;
-  }
+  result = mmc_send_hdr(mmcp, cmd, arg);
+  result = mmc_recvr1(mmcp, r1p) || result;
 
   spiUnselect(mmcp->config->spip);
 
@@ -434,13 +426,8 @@ static bool mmc_send_command_R3(MMCDriver *mmcp, uint8_t cmd, uint32_t arg,
 
   spiSelect(mmcp->config->spip);
 
-  if ((mmc_send_hdr(mmcp, cmd, arg) == HAL_FAILED) ||
-      (mmc_recvr3(mmcp, r1p) == HAL_FAILED)) {
-    result = HAL_FAILED;
-  }
-  else {
-    result = HAL_SUCCESS;
-  }
+  result = mmc_send_hdr(mmcp, cmd, arg);
+  result = mmc_recvr3(mmcp, r1p) || result;
 
   spiUnselect(mmcp->config->spip);
 
@@ -464,12 +451,13 @@ static bool mmc_read_CxD(MMCDriver *mmcp, uint8_t cmd, uint32_t cxd[4]) {
   unsigned i;
   uint8_t r1;
   uint8_t *bp;
+  bool result;
 
   spiSelect(mmcp->config->spip);
 
-  if ((mmc_send_hdr(mmcp, cmd, 0) == HAL_FAILED) ||
-      (mmc_recvr1(mmcp, &r1) == HAL_FAILED) ||
-      (r1 != 0x00U)) {
+  result = mmc_send_hdr(mmcp, cmd, 0);
+  result = mmc_recvr1(mmcp, &r1) || result;
+  if (result || (r1 != 0x00U)) {
 
     spiUnselect(mmcp->config->spip);
     return HAL_FAILED;
@@ -477,11 +465,11 @@ static bool mmc_read_CxD(MMCDriver *mmcp, uint8_t cmd, uint32_t cxd[4]) {
 
   /* Wait for data availability.*/
   for (i = 0U; i < MMC_WAIT_DATA; i++) {
-    spiReceive(mmcp->config->spip, 1, mmcp->buffer);
+    (void) spiReceive(mmcp->config->spip, 1, mmcp->buffer);
     if (mmcp->buffer[0] == 0xFEU) {
       uint32_t *wp;
 
-      spiReceive(mmcp->config->spip, 16, mmcp->buffer);
+      (void) spiReceive(mmcp->config->spip, 16, mmcp->buffer);
       bp = mmcp->buffer;
       for (wp = &cxd[3]; wp >= cxd; wp--) {
         *wp = ((uint32_t)bp[0] << 24U) | ((uint32_t)bp[1] << 16U) |
@@ -490,7 +478,7 @@ static bool mmc_read_CxD(MMCDriver *mmcp, uint8_t cmd, uint32_t cxd[4]) {
       }
 
       /* CRC ignored then end of transaction. */
-      spiIgnore(mmcp->config->spip, 2);
+      (void) spiIgnore(mmcp->config->spip, 2);
       spiUnselect(mmcp->config->spip);
 
       return HAL_SUCCESS;
@@ -604,17 +592,14 @@ bool mmcConnect(MMCDriver *mmcp) {
   mmcp->block_addresses = false;
 
   /* Slow clock mode and 128 clock pulses.*/
-  spiStart(mmcp->config->spip, mmcp->config->lscfg);
-  spiIgnore(mmcp->config->spip, 16);
+  (void) spiStart(mmcp->config->spip, mmcp->config->lscfg);
+  (void) spiIgnore(mmcp->config->spip, 16);
 
   /* SPI mode selection.*/
   i = 0U;
   while (true) {
-    if (mmc_send_command_R1(mmcp, MMCSD_CMD_GO_IDLE_STATE, 0, &r1) == HAL_FAILED) {
-      goto failed;
-    }
-
-    if (r1 == 0x01U) {
+    if ((mmc_send_command_R1(mmcp, MMCSD_CMD_GO_IDLE_STATE, 0, &r1) == HAL_SUCCESS) &&
+        (r1 == 0x01U)) {
       break;
     }
 
@@ -638,25 +623,17 @@ bool mmcConnect(MMCDriver *mmcp) {
     /* Switch to SDHC mode.*/
     i = 0;
     while (true) {
-      i++;
-
-      if (mmc_send_command_R1(mmcp, MMCSD_CMD_APP_CMD, 0, &r1) == HAL_FAILED) {
-        goto failed;
+      if (mmc_send_command_R1(mmcp, MMCSD_CMD_APP_CMD, 0, &r1) == HAL_SUCCESS) {
+        if (r1 <= 0x01U) {
+          if (mmc_send_command_R3(mmcp, MMCSD_CMD_APP_OP_COND, 0x400001AAU, &r1) == HAL_SUCCESS) {
+            if (r1 == 0x00U) {
+              break;
+            }
+          }
+        }
       }
 
-      if (r1 != 0x01U) {
-        continue;
-      }
-
-      if (mmc_send_command_R3(mmcp, MMCSD_CMD_APP_OP_COND, 0x400001AAU, &r1) == HAL_FAILED) {
-        goto failed;
-      }
-
-      if (r1 == 0x00U) {
-        break;
-      }
-
-      if (i >= MMC_ACMD41_RETRY) {
+      if (++i >= MMC_ACMD41_RETRY) {
         goto failed;
       }
       osalThreadSleepMilliseconds(10);
@@ -676,9 +653,7 @@ bool mmcConnect(MMCDriver *mmcp) {
   /* Initialization.*/
   i = 0;
   while (true) {
-    if (mmc_send_command_R1(mmcp, MMCSD_CMD_INIT, 0, &r1) == HAL_FAILED) {
-      goto failed;
-    }
+    (void) mmc_send_command_R1(mmcp, MMCSD_CMD_INIT, 0, &r1);
     if (r1 == 0x00U) {
       break;
     }
@@ -692,7 +667,7 @@ bool mmcConnect(MMCDriver *mmcp) {
   }
 
   /* Initialization complete, full speed.*/
-  spiStart(mmcp->config->spip, mmcp->config->hscfg);
+  (void) spiStart(mmcp->config->spip, mmcp->config->hscfg);
 
   /* Setting block size.*/
   if (mmc_send_command_R1(mmcp, MMCSD_CMD_SET_BLOCKLEN,
@@ -761,7 +736,7 @@ bool mmcDisconnect(MMCDriver *mmcp) {
   osalSysUnlock();
 
   /* Wait for the pending write operations to complete.*/
-  spiStart(mmcp->config->spip, mmcp->config->hscfg);
+  (void) spiStart(mmcp->config->spip, mmcp->config->hscfg);
   spiSelect(mmcp->config->spip);
 
   result = mmc_wait_idle(mmcp);
@@ -788,7 +763,7 @@ bool mmcDisconnect(MMCDriver *mmcp) {
  */
 bool mmcStartSequentialRead(MMCDriver *mmcp, uint32_t startblk) {
   uint8_t r1;
-  bool result;
+  bool error;
 
   osalDbgCheck(mmcp != NULL);
   osalDbgAssert(mmcp->state == BLK_READY, "invalid state");
@@ -798,21 +773,21 @@ bool mmcStartSequentialRead(MMCDriver *mmcp, uint32_t startblk) {
 
   /* (Re)starting the SPI in case it has been reprogrammed externally, it can
      happen if the SPI bus is shared among multiple peripherals.*/
-  spiStart(mmcp->config->spip, mmcp->config->hscfg);
+  (void) spiStart(mmcp->config->spip, mmcp->config->hscfg);
   spiSelect(mmcp->config->spip);
 
   if (mmcp->block_addresses) {
-    result = mmc_send_hdr(mmcp, MMCSD_CMD_READ_MULTIPLE_BLOCK, startblk);
+    error = mmc_send_hdr(mmcp, MMCSD_CMD_READ_MULTIPLE_BLOCK, startblk);
   }
   else {
-    result = mmc_send_hdr(mmcp, MMCSD_CMD_READ_MULTIPLE_BLOCK,
-                          startblk * MMCSD_BLOCK_SIZE);
+    error = mmc_send_hdr(mmcp, MMCSD_CMD_READ_MULTIPLE_BLOCK,
+                         startblk * MMCSD_BLOCK_SIZE);
   }
-  if (result == HAL_FAILED) {
+  if (error) {
     goto failed;
   }
 
-  if ((mmc_recvr1(mmcp, &r1) == HAL_FAILED) ||
+  if ((mmc_recvr1(mmcp, &r1)) ||
       (r1 != 0x00U)) {
     goto failed;
   }
@@ -849,11 +824,11 @@ bool mmcSequentialRead(MMCDriver *mmcp, uint8_t *buffer) {
   }
 
   for (i = 0; i < MMC_WAIT_DATA; i++) {
-    spiReceive(mmcp->config->spip, 1, mmcp->buffer);
+    (void) spiReceive(mmcp->config->spip, 1, mmcp->buffer);
     if (mmcp->buffer[0] == 0xFEU) {
-      spiReceive(mmcp->config->spip, MMCSD_BLOCK_SIZE, buffer);
+      (void) spiReceive(mmcp->config->spip, MMCSD_BLOCK_SIZE, buffer);
       /* CRC ignored. */
-      spiIgnore(mmcp->config->spip, 2);
+      (void) spiIgnore(mmcp->config->spip, 2);
       return HAL_SUCCESS;
     }
   }
@@ -889,7 +864,7 @@ bool mmcStopSequentialRead(MMCDriver *mmcp) {
     return HAL_FAILED;
   }
 
-  spiSend(mmcp->config->spip, sizeof(stopcmd), stopcmd);
+  (void) spiSend(mmcp->config->spip, sizeof(stopcmd), stopcmd);
 
   /* TODO Ignoring R1 answer from the command. There is no action we could
      do on error.*/
@@ -917,7 +892,7 @@ bool mmcStopSequentialRead(MMCDriver *mmcp) {
  */
 bool mmcStartSequentialWrite(MMCDriver *mmcp, uint32_t startblk) {
   uint8_t r1;
-  bool result;
+  bool error;
 
   osalDbgCheck(mmcp != NULL);
   osalDbgAssert(mmcp->state == BLK_READY, "invalid state");
@@ -925,21 +900,20 @@ bool mmcStartSequentialWrite(MMCDriver *mmcp, uint32_t startblk) {
   /* Write operation in progress.*/
   mmcp->state = BLK_WRITING;
 
-  spiStart(mmcp->config->spip, mmcp->config->hscfg);
+  (void) spiStart(mmcp->config->spip, mmcp->config->hscfg);
   spiSelect(mmcp->config->spip);
   if (mmcp->block_addresses) {
-    result = mmc_send_hdr(mmcp, MMCSD_CMD_WRITE_MULTIPLE_BLOCK, startblk);
+    error = mmc_send_hdr(mmcp, MMCSD_CMD_WRITE_MULTIPLE_BLOCK, startblk);
   }
   else {
-    result = mmc_send_hdr(mmcp, MMCSD_CMD_WRITE_MULTIPLE_BLOCK,
-                          startblk * MMCSD_BLOCK_SIZE);
+    error = mmc_send_hdr(mmcp, MMCSD_CMD_WRITE_MULTIPLE_BLOCK,
+                         startblk * MMCSD_BLOCK_SIZE);
   }
-  if (result == HAL_FAILED) {
+  if (error) {
     goto failed;
   }
 
-  if ((mmc_recvr1(mmcp, &r1) != HAL_SUCCESS) ||
-      (r1 != 0x00U)) {
+  if (mmc_recvr1(mmcp, &r1) || (r1 != 0x00U)) {
     goto failed;
   }
 
@@ -974,10 +948,10 @@ bool mmcSequentialWrite(MMCDriver *mmcp, const uint8_t *buffer) {
     return HAL_FAILED;
   }
 
-  spiSend(mmcp->config->spip, sizeof(start), start);    /* Data prologue.   */
-  spiSend(mmcp->config->spip, MMCSD_BLOCK_SIZE, buffer);/* Data.            */
-  spiIgnore(mmcp->config->spip, 2);                     /* CRC ignored.     */
-  spiReceive(mmcp->config->spip, 1, mmcp->buffer);
+  (void) spiSend(mmcp->config->spip, sizeof(start), start);    /* Data prologue.   */
+  (void) spiSend(mmcp->config->spip, MMCSD_BLOCK_SIZE, buffer);/* Data.            */
+  (void) spiIgnore(mmcp->config->spip, 2);                     /* CRC ignored.     */
+  (void) spiReceive(mmcp->config->spip, 1, mmcp->buffer);
   if ((mmcp->buffer[0] & 0x1FU) == 0x05U) {
     return mmc_wait_idle(mmcp);
   }
@@ -1010,7 +984,7 @@ bool mmcStopSequentialWrite(MMCDriver *mmcp) {
     return HAL_FAILED;
   }
 
-  spiSend(mmcp->config->spip, sizeof(stop), stop);
+  (void) spiSend(mmcp->config->spip, sizeof(stop), stop);
   spiUnselect(mmcp->config->spip);
 
   /* Write operation finished.*/
@@ -1042,7 +1016,7 @@ bool mmcSync(MMCDriver *mmcp) {
   /* Synchronization operation in progress.*/
   mmcp->state = BLK_SYNCING;
 
-  spiStart(mmcp->config->spip, mmcp->config->hscfg);
+  (void) spiStart(mmcp->config->spip, mmcp->config->hscfg);
   spiSelect(mmcp->config->spip);
 
   result = mmc_wait_idle(mmcp);
@@ -1131,8 +1105,6 @@ bool mmcErase(MMCDriver *mmcp, uint32_t startblk, uint32_t endblk) {
 
   /* Command failed, state reset to BLK_READY.*/
 failed:
-  spiUnselect(mmcp->config->spip);
-
   mmcp->state = BLK_READY;
 
   return HAL_FAILED;
