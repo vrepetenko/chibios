@@ -1,6 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -52,7 +51,7 @@
 /**
  * @brief   OS Library version string.
  */
-#define CH_OSLIB_VERSION        "1.3.2"
+#define CH_OSLIB_VERSION        "1.3.3"
 
 /**
  * @brief   OS Library version major number.
@@ -67,7 +66,7 @@
 /**
  * @brief   OS Library version patch number.
  */
-#define CH_OSLIB_PATCH          2
+#define CH_OSLIB_PATCH          3
 /** @} */
 
 /*===========================================================================*/

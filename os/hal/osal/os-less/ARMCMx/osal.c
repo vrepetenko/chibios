@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -201,10 +201,12 @@ void osalThreadSleep(sysinterval_t time) {
  * @sclass
  */
 msg_t osalThreadSuspendS(thread_reference_t *trp) {
-  static thread_t self = {MSG_WAIT};
+  static thread_t self;
 
   osalDbgCheck(trp != NULL);
+  osalDbgAssert(*trp == NULL, "not NULL");
 
+  self.message = MSG_WAIT;
   *trp = &self;
   while (self.message == MSG_WAIT) {
     osalSysUnlock();

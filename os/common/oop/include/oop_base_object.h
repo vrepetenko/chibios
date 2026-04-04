@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2025 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@
 /**
  * @brief       Critical section enter.
  * @note        The critical section nature is not specified, implementation
- *              depends on the choosen underlying OS.
+ *              depends on the chosen underlying OS.
  */
 #define oopLock()                                                           \
   chSysLock()
@@ -106,7 +106,7 @@
 /**
  * @brief       Critical section leave.
  * @note        The critical section nature is not specified, implementation
- *              depends on the choosen underlying OS.
+ *              depends on the chosen underlying OS.
  */
 #define oopUnlock()                                                         \
   chSysUnlock()
@@ -192,9 +192,6 @@ extern "C" {
  * @{
  */
 /**
- * @memberof    base_object_c
- * @public
- *
  * @brief       Object finalization.
  *
  * @param[in,out] ip            Pointer to a @p base_object_c instance.
@@ -214,9 +211,6 @@ static inline void boDispose(void *ip) {
  * @{
  */
 /**
- * @memberof    base_object_c
- * @public
- *
  * @brief       Conditional object finalization.
  * @details     The object is disposed if the passed reference is different
  *              from @p NULL.

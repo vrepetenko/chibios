@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ static inline systime_t st_lld_get_alarm(void) {
  *
  * @return              The alarm status.
  * @retval false        if the alarm is not active.
- * @retval true         is the alarm is active
+ * @retval true         if the alarm is active.
  *
  * @notapi
  */

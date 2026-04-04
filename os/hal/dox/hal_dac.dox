@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
  * @defgroup DAC DAC Driver
  * @brief Generic DAC Driver.
  * @details This module implements a generic DAC (Digital to Analog Converter)
- *          driver.
+ *          driver. DAC conversions are modeled as circular streaming
+ *          operations; the full buffer callback marker is not a restart state.
  * @pre     In order to use the DAC driver the @p HAL_USE_DAC option
  *          must be enabled in @p halconf.h.
  *

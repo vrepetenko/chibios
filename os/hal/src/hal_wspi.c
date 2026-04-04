@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -198,7 +198,7 @@ void wspiStartSend(WSPIDriver *wspip, const wspi_command_t *cmdp,
  *
  * @param[in] wspip     pointer to the @p WSPIDriver object
  * @param[in] cmdp      pointer to the command descriptor
- * @param[in] n         number of bytes to send
+ * @param[in] n         number of bytes to receive
  * @param[out] rxbuf    the pointer to the receive buffer
  *
  * @api
@@ -300,7 +300,7 @@ bool wspiSend(WSPIDriver *wspip, const wspi_command_t *cmdp,
  *
  * @param[in] wspip     pointer to the @p WSPIDriver object
  * @param[in] cmdp      pointer to the command descriptor
- * @param[in] n         number of bytes to send
+ * @param[in] n         number of bytes to receive
  * @param[out] rxbuf    the pointer to the receive buffer
  * @return              The operation status.
  * @retval false        if the operation succeeded.

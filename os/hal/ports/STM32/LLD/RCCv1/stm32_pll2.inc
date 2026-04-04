@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -433,11 +433,17 @@ __STATIC_INLINE void pll2_wait_lock(void) {
 
 __STATIC_INLINE void pll2_setup(uint32_t cfgr, uint32_t divr, uint32_t fracr) {
 
+#if STM32_RCC_HAS_PLL2
   /* PLL2 activation.*/
-  RCC->PLL2CFGR  = cfgr & ~STM32_PLLFRACEN_MASK;
+  RCC->PLL2CFGR  = cfgr & ~RCC_PLL2CFGR_PLL2FRACEN_Msk;
   RCC->PLL2DIVR  = divr;
   RCC->PLL2FRACR = fracr;
   RCC->PLL2CFGR  = cfgr;
+#else
+  (void)cfgr;
+  (void)divr;
+  (void)fracr;
+#endif
 }
 
 __STATIC_INLINE void pll2_init(void) {

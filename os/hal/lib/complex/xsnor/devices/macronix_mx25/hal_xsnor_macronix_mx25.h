@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2025 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@
 
 /**
  * @brief       Delays insertion.
- * @details     If enabled this options inserts delays into the flash waiting
+ * @details     If enabled this option inserts delays into the flash waiting
  *              routines releasing some extra CPU time for threads with lower
  *              priority, this may slow down the driver a bit however.
  */

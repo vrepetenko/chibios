@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2021 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@
 /*===========================================================================*/
 
 /**
- * @brief   Enables the @p eflAcquireUse() and @p eflReleaseUse() APIs.
+ * @brief   Enables the @p flashAcquireExclusive() and
+ *          @p flashReleaseExclusive() APIs.
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(EFL_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
@@ -54,7 +55,7 @@
 /**
  * @extends BaseFlash
  *
- * @brief   Type of external flash driver class.
+ * @brief   Type of embedded flash driver class.
  */
 typedef struct hal_efl_driver EFlashDriver;
 

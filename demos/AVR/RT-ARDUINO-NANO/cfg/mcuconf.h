@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -31,29 +31,22 @@
 #define AVR_ADC_USE_ADC1                   FALSE
 
 /*
- * EXT drivers system settings.
+ * GPIO driver system settings.
  */
-#define AVR_EXT_USE_INT0                   FALSE
-#define AVR_EXT_USE_INT1                   FALSE
-#define AVR_EXT_USE_INT2                   FALSE
-#define AVR_EXT_USE_INT3                   FALSE
-#define AVR_EXT_USE_INT4                   FALSE
-#define AVR_EXT_USE_INT5                   FALSE
+#define AVR_GPIO_USE_PCINT0                FALSE
+#define AVR_GPIO_USE_PCINT1                FALSE
+#define AVR_GPIO_USE_PCINT2                FALSE
+#define AVR_GPIO_USE_PCINT3                FALSE
+#define AVR_GPIO_USE_PCINT4                FALSE
 
-/*
- * PCINT driver system settings.
- */
-#define AVR_EXT_USE_PCINT0                 FALSE
-#define AVR_EXT_USE_PCINT1                 FALSE
-#define AVR_EXT_USE_PCINT2                 FALSE
-#define AVR_EXT_USE_PCINT3                 FALSE
-#define AVR_EXT_USE_PCINT4                 FALSE
-#define AVR_EXT_USE_PCINT5                 FALSE
-#define AVR_EXT_USE_PCINT6                 FALSE
-#define AVR_EXT_USE_PCINT7                 FALSE
-#define AVR_EXT_USE_PCINT8                 FALSE
-#define AVR_EXT_USE_PCINT9                 FALSE
-#define AVR_EXT_USE_PCINT10                FALSE
+#define AVR_GPIO_USE_INT0                  FALSE
+#define AVR_GPIO_USE_INT1                  FALSE
+#define AVR_GPIO_USE_INT2                  FALSE
+#define AVR_GPIO_USE_INT3                  FALSE
+#define AVR_GPIO_USE_INT4                  FALSE
+#define AVR_GPIO_USE_INT5                  FALSE
+#define AVR_GPIO_USE_INT6                  FALSE
+#define AVR_GPIO_USE_INT7                  FALSE
 
 /*
  * CAN driver system settings.

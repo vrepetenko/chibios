@@ -1,6 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -64,8 +63,6 @@ typedef struct ch_virtual_timer virtual_timer_t;
  *
  * @param[in] vtp       pointer to the @p virtual_timer_t calling this callback
  * @param[in] p         optional argument to the callback
- * @return              The interval to be reloaded into the timer or zero.
- * @retval 0            if the timer must not be reloaded.
  */
 typedef void (*vtfunc_t)(virtual_timer_t *vtp, void *p);
 
@@ -261,12 +258,6 @@ struct ch_thread {
      *          state.
      */
     thread_reference_t          *wttrp;
-#if (CH_CFG_USE_MESSAGES == TRUE) || defined(__DOXYGEN__)
-    /**
-     * @brief   Thread sent message.
-     */
-    msg_t                       sentmsg;
-#endif
 #if (CH_CFG_USE_SEMAPHORES == TRUE) || defined(__DOXYGEN__)
     /**
      * @brief   Pointer to a generic semaphore object.
@@ -305,6 +296,24 @@ struct ch_thread {
    * @brief   Messages queue.
    */
   ch_queue_t                    msgqueue;
+  /**
+   * @brief   Sent message.
+   * @note    This field is intentionally placed outside the @p u union even
+   *          though it is only valid while the thread is in the
+   *          @p CH_STATE_SNDMSG or @p CH_STATE_SNDMSGQ states.
+   * @note    The reason for keeping it out of the union is that, when
+   *          @p CH_CFG_USE_MESSAGES_PRIORITY is enabled, a thread blocked in
+   *          @p CH_STATE_SNDMSGQ can be subject to priority inheritance: the
+   *          PI walk in @p chMtxLockS() needs to re-enqueue the sender in the
+   *          receiver's message queue after boosting its priority, and it does
+   *          so by storing a back-pointer to that queue in @p u.wtobjp.  At
+   *          the same time @p chMsgGet() must still be able to read the sent
+   *          message value until @p chMsgRelease() is called.  Because both
+   *          @p u.wtobjp and @p sentmsg must coexist while the thread is
+   *          queued, placing @p sentmsg in the union would cause them to alias
+   *          and corrupt each other.
+   */
+  msg_t                         sentmsg;
 #endif
 #if (CH_CFG_USE_EVENTS == TRUE) || defined(__DOXYGEN__)
   /**

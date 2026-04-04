@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -171,14 +171,17 @@
 #error "invalid STM32_USB_HOST_WAKEUP_DURATION setting, it must be between 2 and 15"
 #endif
 
-#if (STM32_USB_48MHZ_DELTA < 0) || (STM32_USB_48MHZ_DELTA > 250000)
-#error "invalid STM32_USB_48MHZ_DELTA setting, it must not exceed 250000"
+/* Maximum clock delta, note, clock is not just checked here but also at
+   runtime because the source could be dynamic.*/
+#if (STM32_USB_48MHZ_DELTA < 0) || (STM32_USB_48MHZ_DELTA > 120000)
+#error "invalid STM32_USB_48MHZ_DELTA setting, it must not exceed 120000"
 #endif
 
-/* Allowing for a small tolerance.*/
+#if !defined(HAL_LLD_USE_CLOCK_MANAGEMENT)
 #if (STM32_USBCLK < (48000000 - STM32_USB_48MHZ_DELTA)) ||                  \
     (STM32_USBCLK > (48000000 + STM32_USB_48MHZ_DELTA))
 #error "the USB USBv1 driver requires a 48MHz clock"
+#endif
 #endif
 
 /*===========================================================================*/

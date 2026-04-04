@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2020 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@
 /*
  * ICache settings.
  */
-#define STM32_ICACHE_CR                     (ICACHE_CR_EN)
+#define STM32_ICACHE_CR                     (ICACHE_CR_WAYSEL | ICACHE_CR_EN)
 #define STM32_ICACHE_CRR0                   0
 #define STM32_ICACHE_CRR1                   0
 #define STM32_ICACHE_CRR2                   0

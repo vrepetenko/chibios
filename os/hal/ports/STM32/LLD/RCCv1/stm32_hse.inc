@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@
 
 #if STM32_HSE_ENABLED
   #if STM32_HSECLK == 0
-    #error "HSE frequency not defined"
+    #error "HSE oscillator not present"
   #else /* STM32_HSECLK != 0 */
     #if defined(STM32_HSE_BYPASS)
       #if (STM32_HSECLK < STM32_HSECLK_BYP_MIN) || (STM32_HSECLK > STM32_HSECLK_BYP_MAX)

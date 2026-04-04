@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -295,7 +295,7 @@ typedef struct {
  */
 #define _pal_clear_event(e)                                                 \
   do {                                                                      \
-    osalThreadDequeueAllI(&_pal_events[pad].threads, MSG_RESET);            \
+    osalThreadDequeueAllI(&_pal_events[e].threads, MSG_RESET);              \
     _pal_events[e].cb = NULL;                                               \
     _pal_events[e].arg = NULL;                                              \
   } while (false)
@@ -312,7 +312,7 @@ typedef struct {
 #if (PAL_USE_CALLBACKS == FALSE) && (PAL_USE_WAIT == TRUE)
 #define _pal_clear_event(e)                                                 \
   do {                                                                      \
-    osalThreadDequeueAllI(&_pal_events[pad].threads, MSG_RESET);            \
+    osalThreadDequeueAllI(&_pal_events[e].threads, MSG_RESET);              \
   } while (false)
 #endif /* (PAL_USE_CALLBACKS == FALSE) && (PAL_USE_WAIT == TRUE) */
 
@@ -572,8 +572,8 @@ typedef struct {
     (void)(port);                                                           \
     (void)(mask);                                                           \
     (void)(offset);                                                         \
-    (void)(port);                                                           \
-  } while (mode)
+    (void)(mode);                                                           \
+  } while (false)
 #else
 #define palSetGroupMode(port, mask, offset, mode)                           \
   pal_lld_setgroupmode(port, mask, offset, mode)

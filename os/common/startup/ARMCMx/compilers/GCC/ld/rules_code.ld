@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 ENTRY(Reset_Handler)
 
+__vectors_align__ = DEFINED(__vectors_align__) ? __vectors_align__ : 1024;
+
 SECTIONS
 {
-    .vectors : ALIGN(1024)
+    .vectors : ALIGN(__vectors_align__)
     {
         __textvectors_base__ = LOADADDR(.vectors);
         __vectors_base__ = .;

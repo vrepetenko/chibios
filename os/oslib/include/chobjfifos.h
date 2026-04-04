@@ -1,6 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -110,7 +109,7 @@ extern "C" {
 
 /**
  * @brief   Initializes a FIFO object.
- * @pre     The messages size must be a multiple of the alignment
+ * @pre     The objects size must be a multiple of the alignment
  *          requirement.
  *
  * @param[out] ofp      pointer to a @p objects_fifo_t structure
@@ -138,7 +137,7 @@ static inline void chFifoObjectInitAligned(objects_fifo_t *ofp, size_t objsize,
 
 /**
  * @brief   Initializes a FIFO object.
- * @pre     The messages size must be a multiple of the alignment
+ * @pre     The objects size must be a multiple of the alignment
  *          requirement.
  *
  * @param[out] ofp      pointer to a @p objects_fifo_t structure

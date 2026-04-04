@@ -1,6 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -111,7 +110,7 @@ msg_t vfsGetCurrentDirectory(char *buf, size_t size) {
 
 /**
  * @brief   Returns file or directory information.
- *.
+ *
  * @param[in] path      Absolute path of the node to be examined.
  * @param[out] sp       Pointer to a @p vfs_stat_t structure.
  * @return              The operation result.
@@ -159,7 +158,7 @@ msg_t vfsOpenDirectory(const char *path, vfs_directory_node_c **vdnpp) {
  *
  * @param[in] path      Path of the file to be opened.
  * @param[in] flags     File open flags.
- * @param[out] vdnpp    Pointer to the pointer to the instantiated
+ * @param[out] vfnpp    Pointer to the pointer to the instantiated
  *                      @p vfs_file_node_c object.
  * @return              The operation result.
  *
@@ -187,7 +186,7 @@ msg_t vfsUnlink(const char *path) {
  * @brief   Renames a file or directory.
  *
  * @param[in] oldpath   Path of the file to be renamed.
- * @param[in] oldpath   New path of the renamed file.
+ * @param[in] newpath   New path of the renamed file.
  * @return              The operation result.
  *
  * @api
@@ -226,7 +225,7 @@ msg_t vfsRmdir(const char *path) {
 
 /**
  * @brief   Returns node information.
- *.
+ *
  * @param[in] np        Pointer to the @p vfs_node_c object
  * @param[out] sp       Pointer to a @p vfs_stat_t structure.
  * @return              The operation result.
@@ -297,7 +296,7 @@ msg_t vfsReadDirectoryNext(vfs_directory_node_c *vdnp,
  * @details The function reads data from a file node into a buffer.
  *
  * @param[in] vfnp      Pointer to the @p vfs_file_node_c object.
- * @param[out] buf      Pointer to the data buffer.
+ * @param[in] buf       Pointer to the data buffer.
  * @param[in] n         Maximum amount of data to be transferred.
  * @return              The transferred number of bytes or an error.
  *

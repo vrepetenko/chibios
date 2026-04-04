@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -316,11 +316,11 @@ msg_t i2cSlaveMatchAddress(I2CDriver *i2cp, i2caddr_t addr) {
 
   osalDbgCheck((i2cp != NULL) && (addr != 0x00));
 
-  chSysLock();
+  osalSysLock();
 
   msg_t result = i2c_lld_match_address(i2cp, addr);
 
-  chSysUnlock();
+  osalSysUnlock();
 
   return result;
 }

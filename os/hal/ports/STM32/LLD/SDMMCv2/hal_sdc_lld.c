@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
    SDMMC_STA_TXUNDERR | SDMMC_STA_RXOVERR)
 
 /* Fix for devices with single IDMABASEx register.*/
-#if defined(STM32H5XX)
+#if defined(STM32H5XX) || defined(STM32U3XX)
 #define IDMABASE0 IDMABASER
 #endif
 
@@ -442,12 +442,16 @@ void sdc_lld_stop(SDCDriver *sdcp) {
     /* Clock deactivation.*/
 #if STM32_SDC_USE_SDMMC1
     if (&SDCD1 == sdcp) {
+      /* Reset un-wedges DPSM without using CPSM to send CMDSTOP.*/
+      rccResetSDMMC1();
       rccDisableSDMMC1();
     }
 #endif
 
 #if STM32_SDC_USE_SDMMC2
     if (&SDCD2 == sdcp) {
+      /* Reset un-wedges DPSM without using CPSM to send CMDSTOP.*/
+      rccResetSDMMC2();
       rccDisableSDMMC2();
     }
 #endif

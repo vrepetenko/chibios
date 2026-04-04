@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -269,6 +269,8 @@ void adcStopConversionI(ADCDriver *adcp) {
  *          channels number configured into the conversion group and N is the
  *          buffer depth. The samples are sequentially written into the buffer
  *          with no gaps.
+ * @note    If the configured callback starts another conversion before this
+ *          function returns then the behavior is undefined.
  *
  * @param[in] adcp      pointer to the @p ADCDriver object
  * @param[in] grpp      pointer to a @p ADCConversionGroup object
@@ -278,7 +280,7 @@ void adcStopConversionI(ADCDriver *adcp) {
  * @return              The operation result.
  * @retval MSG_OK       Conversion finished.
  * @retval MSG_RESET    The conversion has been stopped using
- *                      @p acdStopConversion() or @p acdStopConversionI(),
+ *                      @p adcStopConversion() or @p adcStopConversionI(),
  *                      the result buffer may contain incorrect data.
  * @retval MSG_TIMEOUT  The conversion has been stopped because an hardware
  *                      error.

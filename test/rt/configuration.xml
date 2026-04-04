@@ -7,7 +7,7 @@
     </brief>
     <copyright>
       <value><![CDATA[/*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -416,7 +416,8 @@ test_println("");]]></value>
         <value />
       </condition>
       <shared_code>
-        <value><![CDATA[/* Timer callback for testing system functions in ISR context.*/
+        <value><![CDATA[#if CH_PORT_SUPPORTS_RECURSIVE_LOCKS == TRUE
+/* Timer callback for testing system functions in ISR context.*/
 static void vtcb(virtual_timer_t *vtp, void *p) {
   syssts_t sts;
 
@@ -432,7 +433,8 @@ static void vtcb(virtual_timer_t *vtp, void *p) {
   sts = chSysGetStatusAndLockX();
   chSysRestoreStatusX(sts);
   chSysUnlockFromISR();
-}]]></value>
+}
+#endif]]></value>
       </shared_code>
       <cases>
         <case>

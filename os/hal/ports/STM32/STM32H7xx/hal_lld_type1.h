@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -80,7 +80,6 @@
  * @name    Absolute Maximum Ratings
  * @{
  */
-#if !defined(STM32_ENFORCE_H7_REV_XY)
 /**
  * @brief   Absolute maximum system clock.
  */
@@ -205,36 +204,6 @@
  * @brief   Maximum ADC clock frequency.
  */
 #define STM32_ADCCLK_MAX                50000000
-
-#else /* defined(STM32_ENFORCE_H7_REV_XY) */
-
-#define STM32_SYSCLK_MAX                400000000
-#define STM32_SYSCLK_MAX_NOBOOST        400000000
-#define STM32_HCLK_MAX                  (STM32_SYSCLK_MAX / 2)
-#define STM32_HSECLK_MAX                48000000
-#define STM32_HSECLK_BYP_MAX            50000000
-#define STM32_HSECLK_MIN                4000000
-#define STM32_HSECLK_BYP_MIN            4000000
-#define STM32_LSE_CK_MAX                32768
-#define STM32_LSE_CK_BYP_MAX            1000000
-#define STM32_LSE_CK_MIN                32768
-#define STM32_PLLIN_MIN                 1000000
-#define STM32_PLLIN_THRESHOLD1          2000000
-#define STM32_PLLIN_THRESHOLD2          4000000
-#define STM32_PLLIN_THRESHOLD3          8000000
-#define STM32_PLLIN_MAX                 16000000
-#define STM32_PLLVCO_MIN                150000000
-#define STM32_PLLVCO_THRESHOLD          420000000
-#define STM32_PLLVCO_MAX                836000000
-#define STM32_PCLK1_MAX                 (STM32_HCLK_MAX / 2)
-#define STM32_PCLK2_MAX                 (STM32_HCLK_MAX / 2)
-#define STM32_PCLK3_MAX                 (STM32_HCLK_MAX / 2)
-#define STM32_PCLK4_MAX                 (STM32_HCLK_MAX / 2)
-#define STM32_SPI123_MAX                133000000
-#define STM32_SPI456_MAX                100000000
-#define STM32_ADCCLK_MAX                36000000
-
-#endif /* defined(STM32_ENFORCE_H7_REV_XY) */
 /** @} */
 
 /**

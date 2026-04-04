@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2021 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -192,13 +192,14 @@ void *flashGetOffsetAddress(BaseFlash *devp, flash_offset_t offset) {
  */
 flash_offset_t flashGetAddressOffset(BaseFlash *devp, void *addr) {
   const flash_descriptor_t *descriptor = flashGetDescriptor(devp);
+  uintptr_t addr_value = (uintptr_t)addr;
+  uintptr_t base_value = (uintptr_t)descriptor->address;
 
-  osalDbgAssert(((flash_offset_t)addr >= (flash_offset_t)descriptor->address) &&
-                ((flash_offset_t)addr <= ((flash_offset_t)descriptor->address +
-                                          descriptor->size)),
+  osalDbgAssert((addr_value >= base_value) &&
+                (addr_value < (base_value + (uintptr_t)descriptor->size)),
                 "invalid address");
 
-  return (flash_offset_t)addr - (flash_offset_t)descriptor->address;
+  return (flash_offset_t)(addr_value - base_value);
 }
 
 /** @} */

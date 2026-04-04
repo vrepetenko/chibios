@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -136,16 +136,18 @@
 #error "STM32_HCLK not defined"
 #endif
 
-#if STM32_HAS_SDMMC1 && (STM32_SDMMC1CLK * 10 > STM32_HCLK * 7)
-#error "STM32_SDMMC1CLK must not exceed STM32_HCLK * 0.7"
-#endif
+// No more a thing, now it is required for the AHB bus to have, at least,
+// 3 times the SDMMC bandwidth, that cannot be statically checked.
+//#if STM32_HAS_SDMMC1 && (STM32_SDMMC1CLK * 10 > STM32_HCLK * 7)
+//#error "STM32_SDMMC1CLK must not exceed STM32_HCLK * 0.7"
+//#endif
 
-#if STM32_HAS_SDMMC2 && (STM32_SDMMC2CLK * 10 > STM32_HCLK * 7)
-#error "STM32_SDMMC2CLK must not exceed STM32_HCLK * 0.7"
-#endif
+//#if STM32_HAS_SDMMC2 && (STM32_SDMMC2CLK * 10 > STM32_HCLK * 7)
+//#error "STM32_SDMMC2CLK must not exceed STM32_HCLK * 0.7"
+//#endif
 
 #if !defined(STM32_SDMMC_MAXCLK)
-#define STM32_SDMMC_MAXCLK              50000000
+#error "STM32_SDMMC_MAXCLK not defined in stm32_limits.h"
 #endif
 
 #if STM32_HAS_SDMMC1 && (STM32_SDMMC1CLK > STM32_SDMMC_MAXCLK)

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2025 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@
 
 /**
  * @class       null_stream_c
- * @extends     base_object_c.
+ * @extends     base_object_c
  * @implements  sequential_stream_i
  *
  * @brief       Null streams class.
@@ -115,8 +115,6 @@ extern "C" {
  * @{
  */
 /**
- * @memberof    null_stream_c
- *
  * @brief       Default initialization function of @p null_stream_c.
  *
  * @param[out]    self          Pointer to a @p null_stream_c instance to be

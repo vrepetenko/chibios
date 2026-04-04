@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -103,9 +103,8 @@ typedef enum {
   CAN_UNINIT = 0,                           /**< Not initialized.           */
   CAN_STOP = 1,                             /**< Stopped.                   */
   CAN_STARTING = 2,                         /**< Starting.                  */
-  CAN_STOPPING = 3,                         /**< Stopping.                  */
-  CAN_READY = 4,                            /**< Ready.                     */
-  CAN_SLEEP = 5                             /**< Sleep state.               */
+  CAN_READY = 3,                            /**< Ready.                     */
+  CAN_SLEEP = 4                             /**< Sleep state.               */
 } canstate_t;
 
 #include "hal_can_lld.h"

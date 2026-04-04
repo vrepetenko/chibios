@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -130,10 +130,8 @@
 /*
  * USB units.
  */
-#define STM32_USB1_HP_HANDLER               Vector60
-#define STM32_USB1_LP_HANDLER               Vector60
-#define STM32_USB1_HP_NUMBER                8
-#define STM32_USB1_LP_NUMBER                8
+#define STM32_USB1_HANDLER               Vector60
+#define STM32_USB1_NUMBER                8
 /** @} */
 
 /*===========================================================================*/

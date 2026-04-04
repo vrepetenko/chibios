@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2025 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -472,7 +472,7 @@ static inline flash_error_t xsnor_device_start_erase_all(void *ip) {
 }
 
 /**
- * @brief       Starts an sector erase operation.
+ * @brief       Starts a sector erase operation.
  *
  * @param[in,out] ip            Pointer to a @p hal_xsnor_base_c instance.
  * @param[in]     sector        Sector to be erased.

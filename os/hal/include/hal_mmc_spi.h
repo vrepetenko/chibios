@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -164,9 +164,9 @@ typedef mmc_spi_driver_t MMCDriver;
 /**
  * @brief   Returns the card insertion status.
  * @note    This macro wraps a low level function named
- *          @p sdc_lld_is_card_inserted(), this function must be
+ *          @p mmc_lld_is_card_inserted(), this function must be
  *          provided by the application because it is not part of the
- *          SDC driver.
+ *          MMC_SPI driver.
  *
  * @param[in] mmcp      pointer to the @p MMCDriver object
  * @return              The card state.
@@ -181,9 +181,9 @@ typedef mmc_spi_driver_t MMCDriver;
  * @brief   Returns the write protect status.
  *
  * @param[in] mmcp      pointer to the @p MMCDriver object
- * @return              The card state.
- * @retval false        card not inserted.
- * @retval true         card inserted.
+ * @return              The write protect status.
+ * @retval false        card not write protected.
+ * @retval true         card write protected.
  *
  * @api
  */

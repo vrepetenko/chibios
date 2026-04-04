@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -71,24 +71,26 @@ static void __bsio_default_cb(SIODriver *siop) {
   BufferedSIODriver *bsiop = (BufferedSIODriver *)siop->arg;
   sioevents_t events;
 
+  if (bsiop == NULL) {
+    return;
+  }
+
   osalSysLockFromISR();
+
+  /* Drain/fill FIFOs before re-enabling data interrupts in the LLD.
+     NOTE: this assumes status/error flags are not cleared by data reads,
+     otherwise non-data events could be lost before sioGetAndClearEventsX(). */
+  if (!sioIsRXEmptyX(siop)) {
+    __bsio_pop_data(bsiop);
+  }
+  if (!sioIsTXFullX(siop)) {
+    __bsio_push_data(bsiop);
+  }
 
   /* Posting the non-data SIO events as channel event flags, the masks are
      made to match.*/
   events = sioGetAndClearEventsX(siop);
   chnAddFlagsI(bsiop, (eventflags_t)(events & ~SIO_EV_ALL_DATA));
-
-  /* RX FIFO event.*/
-  if ((events & SIO_EV_RXNOTEMPY) != (sioevents_t)0) {
-
-    __bsio_pop_data(bsiop);
-  }
-
-  /* TX FIFO event.*/
-  if ((events & SIO_EV_TXNOTFULL) != (sioevents_t)0) {
-
-    __bsio_push_data(bsiop);
-  }
 
   osalSysUnlockFromISR();
 }
@@ -206,6 +208,7 @@ msg_t bsioStart(BufferedSIODriver *bsiop, const BufferedSIOConfig *config) {
   msg = sioStart(bsiop->siop, config);
   if (msg == HAL_RET_SUCCESS) {
     osalSysLock();
+    bsiop->siop->arg = (void *)bsiop;
     sioSetCallbackX(bsiop->siop, &__bsio_default_cb);
     sioWriteEnableFlagsX(bsiop->siop, SIO_EV_ALL_EVENTS);
     bsiop->state = BS_READY;

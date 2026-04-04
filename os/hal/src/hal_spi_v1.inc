@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -326,6 +326,8 @@ void spiAbort(SPIDriver *spip) {
  *          idle words on the SPI bus and ignores the received data.
  * @pre     In order to use this function the option @p SPI_USE_WAIT must be
  *          enabled.
+ * @note    If the configured callback starts another transfer before this
+ *          function returns then the behavior is undefined.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] n         number of words to be ignored
@@ -354,6 +356,8 @@ void spiIgnore(SPIDriver *spip, size_t n) {
  *          enabled.
  * @note    The buffers are organized as uint8_t arrays for data sizes below
  *          or equal to 8 bits else it is organized as uint16_t arrays.
+ * @note    If the configured callback starts another transfer before this
+ *          function returns then the behavior is undefined.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] n         number of words to be exchanged
@@ -385,6 +389,8 @@ void spiExchange(SPIDriver *spip, size_t n,
  *          enabled.
  * @note    The buffers are organized as uint8_t arrays for data sizes below
  *          or equal to 8 bits else it is organized as uint16_t arrays.
+ * @note    If the configured callback starts another transfer before this
+ *          function returns then the behavior is undefined.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] n         number of words to send
@@ -413,6 +419,8 @@ void spiSend(SPIDriver *spip, size_t n, const void *txbuf) {
  *          enabled.
  * @note    The buffers are organized as uint8_t arrays for data sizes below
  *          or equal to 8 bits else it is organized as uint16_t arrays.
+ * @note    If the configured callback starts another transfer before this
+ *          function returns then the behavior is undefined.
  *
  * @param[in] spip      pointer to the @p SPIDriver object
  * @param[in] n         number of words to receive

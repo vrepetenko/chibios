@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2022 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -360,7 +360,7 @@
 
 #define STM32_SRDPPRE_DIV1              (0U)
 #define STM32_SRDPPRE_DIV2              RCC_SRDCFGR_SRDPPRE_DIV2
-#define STM32_SRDPPRE_DIV4              RCC_SRDCFGR_SRDPPRE_DIV4 
+#define STM32_SRDPPRE_DIV4              RCC_SRDCFGR_SRDPPRE_DIV4
 #define STM32_SRDPPRE_DIV8              RCC_SRDCFGR_SRDPPRE_DIV8
 #define STM32_SRDPPRE_DIV16             RCC_SRDCFGR_SRDPPRE_DIV16
 

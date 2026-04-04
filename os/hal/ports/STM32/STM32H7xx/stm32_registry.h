@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,6 +28,24 @@
 /*===========================================================================*/
 /* Platform capabilities.                                                    */
 /*===========================================================================*/
+
+/* DBGMCU helpers.*/
+#define STM32_DBGMCU_TIM1_STOP()            DBGMCU->APB2FZ1 |= DBGMCU_APB2FZ1_DBG_TIM1
+#define STM32_DBGMCU_TIM2_STOP()            DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM2
+#define STM32_DBGMCU_TIM3_STOP()            DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM3
+#define STM32_DBGMCU_TIM4_STOP()            DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM4
+#define STM32_DBGMCU_TIM5_STOP()            DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM5
+#define STM32_DBGMCU_TIM6_STOP()            DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM6
+#define STM32_DBGMCU_TIM7_STOP()            DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM7
+#define STM32_DBGMCU_TIM8_STOP()            DBGMCU->APB2FZ1 |= DBGMCU_APB2FZ1_DBG_TIM8
+#define STM32_DBGMCU_TIM12_STOP()           DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM12
+#define STM32_DBGMCU_TIM13_STOP()           DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM13
+#define STM32_DBGMCU_TIM14_STOP()           DBGMCU->APB1LFZ1 |= DBGMCU_APB1LFZ1_DBG_TIM14
+#define STM32_DBGMCU_TIM15_STOP()           DBGMCU->APB2FZ1 |= DBGMCU_APB2FZ1_DBG_TIM15
+#define STM32_DBGMCU_TIM16_STOP()           DBGMCU->APB2FZ1 |= DBGMCU_APB2FZ1_DBG_TIM16
+#define STM32_DBGMCU_TIM17_STOP()           DBGMCU->APB2FZ1 |= DBGMCU_APB2FZ1_DBG_TIM17
+#define STM32_DBGMCU_TIM23_STOP()           DBGMCU->APB1HFZ1 |= DBGMCU_APB1HFZ1_DBG_TIM23
+#define STM32_DBGMCU_TIM24_STOP()           DBGMCU->APB1HFZ1 |= DBGMCU_APB1HFZ1_DBG_TIM24
 
 /* Cores.*/
 #if defined(STM32H730xx)  ||                                                \

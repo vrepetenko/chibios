@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ void mac_lld_init(void) {
 
 #if PLATFORM_MAC_USE_MAC1 == TRUE
   /* Driver initialization.*/
-  macObjectInit(&MACD1);
+  macObjectInit(&ETHD1);
 #endif
 }
 
@@ -86,7 +86,7 @@ void mac_lld_start(MACDriver *macp) {
   if (macp->state == MAC_STOP) {
     /* Enables the peripheral.*/
 #if PLATFORM_MAC_USE_MAC1 == TRUE
-    if (&MACD1 == macp) {
+    if (&ETHD1 == macp) {
 
     }
 #endif
@@ -109,7 +109,7 @@ void mac_lld_stop(MACDriver *macp) {
 
     /* Disables the peripheral.*/
 #if PLATFORM_MAC_USE_MAC1 == TRUE
-    if (&MACD1 == macp) {
+    if (&ETHD1 == macp) {
 
     }
 #endif

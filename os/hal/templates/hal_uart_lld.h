@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ typedef struct hal_uart_config {
    */
   uartcb_t                  rxend_cb;
   /**
-   * @brief Character received while out if the @p UART_RECEIVE state.
+   * @brief Character received while out of the @p UART_RX_ACTIVE state.
    */
   uartccb_t                 rxchar_cb;
   /**

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@
 #endif
 
 /**
- * @brief   SIO driver 8 enable switch.
+ * @brief   LP SIO driver 1 enable switch.
  * @details If set to @p TRUE the support for LPUART1 is included.
  * @note    The default is @p FALSE.
  */

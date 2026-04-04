@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -47,7 +47,8 @@
 /* Handling differences in ST headers.*/
 #if !defined(STM32H7XX) && !defined(STM32L4XX) && !defined(STM32L4XXP) &&   \
     !defined(STM32C0XX) && !defined(STM32G0XX) && !defined(STM32G4XX) &&    \
-    !defined(STM32WBXX) && !defined(STM32WLXX) && !defined(STM32H5XX)
+    !defined(STM32WBXX) && !defined(STM32WLXX) && !defined(STM32H5XX) &&    \
+    !defined(STM32U0XX) && !defined(STM32U3XX)
 #define EMR1    EMR
 #define IMR1    IMR
 #define PR1     PR

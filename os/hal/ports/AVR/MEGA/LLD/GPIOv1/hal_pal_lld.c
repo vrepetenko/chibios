@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -173,14 +173,10 @@ void _pal_lld_setgroupmode(ioportid_t port,
  */
 void _pal_lld_enablepadevent(ioportid_t     port,
                              iopadid_t      pad,
-                             ioeventmode_t  mode,
-                             palcallback_t  callback,
-                             void           *arg) {
+                             ioeventmode_t  mode) {
   (void)port;
   (void)pad;
   (void)mode;
-  (void)callback;
-  (void)arg;
 
   /* TODO: Implement the interruption here. */
 }

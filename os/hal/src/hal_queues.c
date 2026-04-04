@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
  *          Serial device drivers are usually designed to have a lower side
  *          (lower driver, it is usually an interrupt service routine) and an
  *          upper side (upper driver, accessed by the application threads).<br>
- *          There are several kind of queues:<br>
+ *          There are several kinds of queues:<br>
  *          - <b>Input queue</b>, unidirectional queue where the writer is the
  *            lower side and the reader is the upper side.
  *          - <b>Output queue</b>, unidirectional queue where the writer is the

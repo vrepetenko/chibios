@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -107,6 +107,26 @@ struct GPTDriver {
 /*===========================================================================*/
 /* Driver macros.                                                            */
 /*===========================================================================*/
+
+/**
+ * @brief   Returns the interval of GPT peripheral.
+ *
+ * @param[in] gptp      pointer to a @p GPTDriver object
+ * @return              The current interval.
+ *
+ * @notapi
+ */
+#define gpt_lld_get_interval(gptp) 0U
+
+/**
+ * @brief   Returns the counter value of GPT peripheral.
+ *
+ * @param[in] gptp      pointer to a @p GPTDriver object
+ * @return              The current counter value.
+ *
+ * @notapi
+ */
+#define gpt_lld_get_counter(gptp) 0U
 
 /**
  * @brief   Changes the interval of GPT peripheral.

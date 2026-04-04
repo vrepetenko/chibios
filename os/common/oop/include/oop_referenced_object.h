@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2025 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ typedef unsigned int object_references_t;
 
 /**
  * @class       referenced_object_c
- * @extends     base_object_c.
+ * @extends     base_object_c
  *
  * @brief       Common ancestor class of all reference-counted objects.
  * @details     Base class for objects that implement a reference counter and
@@ -123,9 +123,6 @@ extern "C" {
  * @{
  */
 /**
- * @memberof    referenced_object_c
- * @public
- *
  * @brief       New object reference creation.
  * @details     The references counter is increased and a new reference pointer
  *              is returned.
@@ -141,9 +138,6 @@ static inline void *roAddRef(void *ip) {
 }
 
 /**
- * @memberof    referenced_object_c
- * @public
- *
  * @brief       Release of an object reference.
  * @details     The reference counter is decreased, if the counter reaches zero
  *              then the object is disposed.

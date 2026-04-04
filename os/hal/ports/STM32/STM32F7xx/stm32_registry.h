@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -33,6 +33,22 @@
  * @name    STM32F7xx capabilities
  * @{
  */
+
+/* DBGMCU helpers.*/
+#define STM32_DBGMCU_TIM1_STOP()            DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP
+#define STM32_DBGMCU_TIM2_STOP()            DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM2_STOP
+#define STM32_DBGMCU_TIM3_STOP()            DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM3_STOP
+#define STM32_DBGMCU_TIM4_STOP()            DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM4_STOP
+#define STM32_DBGMCU_TIM5_STOP()            DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM5_STOP
+#define STM32_DBGMCU_TIM6_STOP()            DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM6_STOP
+#define STM32_DBGMCU_TIM7_STOP()            DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM7_STOP
+#define STM32_DBGMCU_TIM8_STOP()            DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM8_STOP
+#define STM32_DBGMCU_TIM9_STOP()            DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM9_STOP
+#define STM32_DBGMCU_TIM10_STOP()           DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM10_STOP
+#define STM32_DBGMCU_TIM11_STOP()           DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM11_STOP
+#define STM32_DBGMCU_TIM12_STOP()           DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM12_STOP
+#define STM32_DBGMCU_TIM13_STOP()           DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM13_STOP
+#define STM32_DBGMCU_TIM14_STOP()           DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM14_STOP
 
 /*===========================================================================*/
 /* Common.                                                                   */

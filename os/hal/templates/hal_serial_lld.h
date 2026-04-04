@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@
 /**
  * @brief   PLATFORM Serial Driver configuration structure.
  * @details An instance of this structure must be passed to @p sdStart()
- *          in order to configure and start a serial driver operations.
+ *          in order to configure and start a serial driver.
  * @note    This structure content is architecture dependent, each driver
  *          implementation defines its own version and the custom static
  *          initializers.

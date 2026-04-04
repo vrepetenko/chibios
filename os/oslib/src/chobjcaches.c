@@ -1,6 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -43,11 +42,11 @@
  *          - <b>Release Object</b>: Releases an object to the cache handling
  *            the media update, if required.
  *          .
- * @pre     In order to use the pipes APIs the @p CH_CFG_USE_OBJ_CACHES
+ * @pre     In order to use the objects caches APIs the @p CH_CFG_USE_OBJ_CACHES
  *          option must be enabled in @p chconf.h.
  * @note    Compatible with RT and NIL.
  *
- * @addtogroup oslib_objchaches
+ * @addtogroup oslib_objcaches
  * @{
  */
 
@@ -252,11 +251,11 @@ void chCacheObjectInit(objects_cache_t *ocp,
              (objsz >= sizeof (oc_object_t)) &&
              ((objsz & (PORT_NATURAL_ALIGN - 1U)) == 0U));
 
-  chSemObjectInit(&ocp->cache_sem, (cnt_t)1);
   chSemObjectInit(&ocp->lru_sem, (cnt_t)objn);
   ocp->hashn            = hashn;
   ocp->hashp            = hashp;
   ocp->objn             = objn;
+  ocp->objsz            = objsz;
   ocp->objvp            = objvp;
   ocp->readf            = readf;
   ocp->writef           = writef;
@@ -322,10 +321,15 @@ oc_object_t *chCacheGetObject(objects_cache_t *ocp,
 
       chDbgAssert((objp->obj_flags & OC_FLAG_INLRU) == OC_FLAG_INLRU,
                   "not in LRU");
+      chDbgAssert(chSemGetCounterI(&ocp->lru_sem) > (cnt_t)0,
+                  "LRU semaphore out of sync");
 
       /* Removing the object from LRU, now it is "owned".*/
       LRU_REMOVE(objp);
       objp->obj_flags &= ~OC_FLAG_INLRU;
+
+      /* Consuming the matching LRU token.*/
+      chSemFastWaitI(&ocp->lru_sem);
 
       /* Getting the object semaphore, we know there is no wait so
          using the "fast" variant.*/

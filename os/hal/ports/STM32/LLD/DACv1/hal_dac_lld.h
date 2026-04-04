@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -39,13 +39,6 @@
  * @name    Configuration options
  * @{
  */
-
-/**
- * @brief   DAC mode control register.
- */
-#if !defined(STM32_DAC_HAS_MCR) || defined(__DOXYGEN__)
-#define STM32_DAC_HAS_MCR                   FALSE
-#endif
 
 /**
  * @brief   Enables the DAC dual mode.
@@ -268,6 +261,10 @@
 #endif
 #if !defined(STM32_HAS_DAC4_CH2)
 #define STM32_HAS_DAC4_CH2                  FALSE
+#endif
+
+#if !defined(STM32_DAC_HAS_MCR)
+#define STM32_DAC_HAS_MCR                   FALSE
 #endif
 
 #if STM32_DAC_USE_DAC1_CH1 && !STM32_HAS_DAC1_CH1

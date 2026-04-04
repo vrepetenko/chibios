@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ void pwm_lld_init(void) {
 #if PLATFORM_PWM_USE_PWM1 == TRUE
   /* Driver initialization.*/
   pwmObjectInit(&PWMD1);
+  PWMD1.channels = PWM_CHANNELS;
 #endif
 }
 

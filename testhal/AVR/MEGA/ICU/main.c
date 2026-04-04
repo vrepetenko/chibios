@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ int main(void) {
 
   static ICUConfig icu3cfg = {
     ICU_INPUT_ACTIVE_HIGH,
-    0, /* bogus frequency */
+    0, /* Bogus frequency */
     width_cb,
     period_cb,
     overflow_cb,

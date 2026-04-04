@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2021 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ __STATIC_INLINE void uart_enable_rx_errors_irq(SIODriver *siop) {
   imsc = __sio_reloc_field(siop->enabled, SIO_EV_OVERRUN_ERR, SIO_EV_OVERRUN_ERR_POS, UART_UARTIMSC_OEIM_Pos) |
          __sio_reloc_field(siop->enabled, SIO_EV_RXBREAK,     SIO_EV_RXBREAK_POS,     UART_UARTIMSC_BEIM_Pos) |
          __sio_reloc_field(siop->enabled, SIO_EV_PARITY_ERR,  SIO_EV_PARITY_ERR_POS,  UART_UARTIMSC_PEIM_Pos) |
-         __sio_reloc_field(siop->enabled, SIO_EV_FRAMING_ERR, SIO_EV_FRAMING_ERR_POS, UART_UARTIMSC_TXIM_Pos);
+         __sio_reloc_field(siop->enabled, SIO_EV_FRAMING_ERR, SIO_EV_FRAMING_ERR_POS, UART_UARTIMSC_FEIM_Pos);
   siop->uart->UARTIMSC |= imsc;
 }
 
@@ -248,15 +248,13 @@ void sio_lld_stop(SIODriver *siop) {
 void sio_lld_update_enable_flags(SIODriver *siop) {
   uint32_t imsc;
 
-  osalDbgAssert((siop->enabled & SIO_EV_TXDONE) == 0U, "unsupported event");
-
   imsc = __sio_reloc_field(siop->enabled, SIO_EV_RXNOTEMPY,   SIO_EV_RXNOTEMPY_POS,   UART_UARTIMSC_RXIM_Pos) |
          __sio_reloc_field(siop->enabled, SIO_EV_TXNOTFULL,   SIO_EV_TXNOTFULL_POS,   UART_UARTIMSC_TXIM_Pos) |
          __sio_reloc_field(siop->enabled, SIO_EV_OVERRUN_ERR, SIO_EV_OVERRUN_ERR_POS, UART_UARTIMSC_OEIM_Pos) |
          __sio_reloc_field(siop->enabled, SIO_EV_RXBREAK,     SIO_EV_RXBREAK_POS,     UART_UARTIMSC_BEIM_Pos) |
          __sio_reloc_field(siop->enabled, SIO_EV_PARITY_ERR,  SIO_EV_PARITY_ERR_POS,  UART_UARTIMSC_PEIM_Pos) |
-         __sio_reloc_field(siop->enabled, SIO_EV_FRAMING_ERR, SIO_EV_FRAMING_ERR_POS, UART_UARTIMSC_TXIM_Pos) |
-         __sio_reloc_field(siop->enabled, SIO_EV_RXIDLE,      SIO_EV_RXIDLE_POS,      UART_UARTIMSC_FEIM_Pos);
+         __sio_reloc_field(siop->enabled, SIO_EV_FRAMING_ERR, SIO_EV_FRAMING_ERR_POS, UART_UARTIMSC_FEIM_Pos) |
+         __sio_reloc_field(siop->enabled, SIO_EV_RXIDLE,      SIO_EV_RXIDLE_POS,      UART_UARTIMSC_RTIM_Pos);
 
   /* Setting up the operation.*/
   siop->uart->UARTIMSC = imsc;

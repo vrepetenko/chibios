@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -608,7 +608,7 @@ cryerror_t cry_lld_encrypt_AES_GCM(CRYDriver *cryp,
  * @param[in] iv                128 bits input vector
  * @param[in] tag_size          size of the authentication tag, this number
  *                              must be between 1 and 16
- * @param[in] tag_in            buffer for the generated authentication tag
+ * @param[in] tag_in            buffer for the received authentication tag
  * @return                      The operation status.
  * @retval CRY_NOERROR          if the operation succeeded.
  * @retval CRY_ERR_INV_ALGO     if the operation is unsupported on this

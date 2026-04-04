@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@
 #define Q_TIMEOUT       MSG_TIMEOUT /**< @brief Timeout condition.          */
 #define Q_RESET         MSG_RESET   /**< @brief Queue has been reset.       */
 #define Q_EMPTY         MSG_TIMEOUT /**< @brief Queue empty.                */
-#define Q_FULL          MSG_TIMEOUT /**< @brief Queue full,                 */
+#define Q_FULL          MSG_TIMEOUT /**< @brief Queue full.                 */
 /** @} */
 
 /*===========================================================================*/

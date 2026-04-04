@@ -1,6 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -21,7 +20,7 @@
  * @file    oslib/include/chobjcaches.h
  * @brief   Objects Caches macros and structures.
  *
- * @addtogroup oslib_objchaches
+ * @addtogroup oslib_objcaches
  * @{
  */
 
@@ -219,10 +218,6 @@ struct ch_objects_cache {
    * @brief   LRU list header.
    */
   oc_lru_header_t       lru;
-  /**
-   * @brief   Semaphore for cache access.
-   */
-  semaphore_t           cache_sem;
   /**
    * @brief   Semaphore for LRU access.
    */

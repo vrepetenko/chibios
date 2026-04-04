@@ -7,7 +7,7 @@
     </brief>
     <copyright>
       <value><![CDATA[/*
-    ChibiOS - Copyright (C) 2006..2017 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -1200,6 +1200,28 @@ chJobPost(&jq, jdp);
 (void) chThdWait(tp1);
 (void) chThdWait(tp2);
 test_assert_sequence("abcdefgh", "unexpected tokens");
+]]></value>
+              </code>
+            </step>
+            <step>
+              <description>
+                <value>Verifying that all descriptors have been returned.</value>
+              </description>
+              <tags>
+                <value></value>
+              </tags>
+              <code>
+                <value><![CDATA[
+cnt_t cnt;
+size_t used;
+
+chSysLock();
+cnt = chGuardedPoolGetCounterI(&jq.free);
+used = chMBGetUsedCountI(&jq.mbx);
+chSysUnlock();
+
+test_assert(cnt == (cnt_t)JOBS_QUEUE_SIZE, "lost descriptors");
+test_assert(used == 0U, "pending jobs");
 ]]></value>
               </code>
             </step>

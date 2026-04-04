@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -250,7 +250,7 @@ void can_lld_wakeup(CANDriver *canp) {
   (void)canp;
 
 }
-#endif /* CAN_USE_SLEEP_MOD == TRUEE */
+#endif /* CAN_USE_SLEEP_MODE == TRUE */
 
 #endif /* HAL_USE_CAN == TRUE */
 

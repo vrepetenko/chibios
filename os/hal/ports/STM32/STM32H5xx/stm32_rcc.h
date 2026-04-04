@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2025 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -341,7 +341,7 @@
 /**
  * @brief   Resets one or more peripheral on the AHB4 bus.
  *
- * @param[in] mask      AHB3 peripherals mask
+ * @param[in] mask      AHB4 peripherals mask
  *
  * @api
  */
@@ -683,34 +683,6 @@
  * @api
  */
 #define rccResetI2C4() rccResetAPB3(RCC_APB3RSTR_I2C4RST)
-/** @} */
-
-/**
- * @name    QUADSPI peripherals specific RCC operations
- * @{
- */
-/**
- * @brief   Enables the QUADSPI1 peripheral clock.
- *
- * @param[in] lp        low power enable flag
- *
- * @api
- */
-#define rccEnableQUADSPI1(lp) rccEnableAHB3(RCC_AHB3ENR_QSPIEN, lp)
-
-/**
- * @brief   Disables the QUADSPI1 peripheral clock.
- *
- * @api
- */
-#define rccDisableQUADSPI1() rccDisableAHB3(RCC_AHB3ENR_QSPIEN)
-
-/**
- * @brief   Resets the QUADSPI1 peripheral.
- *
- * @api
- */
-#define rccResetQUADSPI1() rccResetAHB3(RCC_AHB3RSTR_QSPIRST)
 /** @} */
 
 /**

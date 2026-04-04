@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -556,7 +556,9 @@ void mmcStop(MMCDriver *mmcp) {
   osalDbgAssert((mmcp->state == BLK_STOP) || (mmcp->state == BLK_ACTIVE),
                 "invalid state");
 
-  spiStop(mmcp->config->spip);
+  if (mmcp->config != NULL) {
+    spiStop(mmcp->config->spip);
+  }
 
   mmcp->config = NULL;
   mmcp->state  = BLK_STOP;

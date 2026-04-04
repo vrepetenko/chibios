@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@
  * Shared code.
  ****************************************************************************/
 
+#if CH_PORT_SUPPORTS_RECURSIVE_LOCKS == TRUE
 /* Timer callback for testing system functions in ISR context.*/
 static void vtcb(virtual_timer_t *vtp, void *p) {
   syssts_t sts;
@@ -60,6 +61,7 @@ static void vtcb(virtual_timer_t *vtp, void *p) {
   chSysRestoreStatusX(sts);
   chSysUnlockFromISR();
 }
+#endif
 
 /****************************************************************************
  * Test cases.

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -185,14 +185,14 @@ sioevents_t sio_lld_get_events(SIODriver *siop) {
 
 /**
  * @brief   Reads data from the RX FIFO.
- * @details The function is not blocking, it writes frames until there
- *          is space available without waiting.
+ * @details The function is not blocking, it reads frames until there
+ *          is no more data available without waiting.
  *
  * @param[in] siop          pointer to an @p SIODriver structure
  * @param[in] buffer        pointer to the buffer for read frames
  * @param[in] n             maximum number of frames to be read
  * @return                  The number of frames copied from the buffer.
- * @retval 0                if the TX FIFO is full.
+ * @retval 0                if the RX FIFO is empty.
  */
 size_t sio_lld_read(SIODriver *siop, uint8_t *buffer, size_t n) {
 
@@ -208,7 +208,7 @@ size_t sio_lld_read(SIODriver *siop, uint8_t *buffer, size_t n) {
  *          is space available without waiting.
  *
  * @param[in] siop          pointer to an @p SIODriver structure
- * @param[in] buffer        pointer to the buffer for read frames
+ * @param[in] buffer        pointer to the buffer for transmit frames
  * @param[in] n             maximum number of frames to be written
  * @return                  The number of frames copied from the buffer.
  * @retval 0                if the TX FIFO is full.

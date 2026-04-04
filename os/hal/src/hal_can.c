@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -151,7 +151,6 @@ void canStop(CANDriver *canp) {
                 "invalid state");
 
   /* The low level driver is stopped.*/
-  canp->state  = CAN_STOPPING;
   can_lld_stop(canp);
   canp->config = NULL;
   canp->state  = CAN_STOP;
