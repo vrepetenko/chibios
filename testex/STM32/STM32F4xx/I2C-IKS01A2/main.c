@@ -23,7 +23,6 @@
 #include "lsm303agr.h"
 #include "lsm6dsl.h"
 
-#define cls(chp)                            chprintf(chp, "\033[2J\033[1;1H")
 #define MAX_AXIS_NUMBER                     3U
 
 /* Array for data storage. */

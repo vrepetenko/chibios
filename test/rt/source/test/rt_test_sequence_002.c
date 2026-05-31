@@ -83,15 +83,13 @@ static void vtcb(virtual_timer_t *vtp, void *p) {
  */
 
 static void rt_test_002_001_execute(void) {
-  bool result;
 
   /* [2.1.1] Testing Ready List integrity.*/
   test_set_step(1);
   {
     chSysLock();
-    result = chSysIntegrityCheckI(CH_INTEGRITY_RLIST);
+    chSftIntegrityCheckI(CH_INTEGRITY_RLIST);
     chSysUnlock();
-    test_assert(result == false, "ready list check failed");
   }
   test_end_step(1);
 
@@ -99,9 +97,8 @@ static void rt_test_002_001_execute(void) {
   test_set_step(2);
   {
     chSysLock();
-    result = chSysIntegrityCheckI(CH_INTEGRITY_VTLIST);
+    chSftIntegrityCheckI(CH_INTEGRITY_VTLIST);
     chSysUnlock();
-    test_assert(result == false, "virtual timers list check failed");
   }
   test_end_step(2);
 
@@ -109,9 +106,8 @@ static void rt_test_002_001_execute(void) {
   test_set_step(3);
   {
     chSysLock();
-    result = chSysIntegrityCheckI(CH_INTEGRITY_REGISTRY);
+    chSftIntegrityCheckI(CH_INTEGRITY_REGISTRY);
     chSysUnlock();
-    test_assert(result == false, "registry list check failed");
   }
   test_end_step(3);
 
@@ -119,9 +115,8 @@ static void rt_test_002_001_execute(void) {
   test_set_step(4);
   {
     chSysLock();
-    result = chSysIntegrityCheckI(CH_INTEGRITY_PORT);
+    chSftIntegrityCheckI(CH_INTEGRITY_PORT);
     chSysUnlock();
-    test_assert(result == false, "port layer check failed");
   }
   test_end_step(4);
 }

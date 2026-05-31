@@ -71,6 +71,9 @@ void cryObjectInit(CRYDriver *cryp) {
 
   cryp->state    = CRY_STOP;
   cryp->config   = NULL;
+#if CRY_USE_MUTUAL_EXCLUSION == TRUE
+  osalMutexObjectInit(&cryp->mutex);
+#endif
 #if defined(CRY_DRIVER_EXT_INIT_HOOK)
   CRY_DRIVER_EXT_INIT_HOOK(cryp);
 #endif
@@ -148,6 +151,9 @@ void cryStop(CRYDriver *cryp) {
  * @brief   Initializes the AES transient key.
  * @note    It is the underlying implementation to decide which key sizes are
  *          allowable.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from the transient key load through the
+ *          subsequent block operations using that key.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] size              key size in bytes
@@ -181,8 +187,13 @@ cryerror_t cryLoadAESTransientKey(CRYDriver *cryp,
 
 /**
  * @brief   Encryption of a single block using AES.
- * @note    The implementation of this function must guarantee that it can
- *          be called from any context.
+ * @details This is the any-context variant of the API.
+ * @note    Portable code should use key identifier zero only.
+ * @note    No implementation is preferable to one violating the
+ *          @p X-class contract. If a backend cannot guarantee polled
+ *          execution without IRQs, DMA, or thread-context services then it
+ *          shall not advertise this capability and this function returns
+ *          @p CRY_ERR_INV_ALGO.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] key_id            the key to be used for the operation, zero is
@@ -200,21 +211,19 @@ cryerror_t cryLoadAESTransientKey(CRYDriver *cryp,
  * @retval CRY_ERR_OP_FAILURE   if the operation failed, implementation
  *                              dependent.
  *
- * @special
+ * @xclass
  */
-cryerror_t cryEncryptAES(CRYDriver *cryp,
-                         crykey_t key_id,
-                         const uint8_t *in,
-                         uint8_t *out) {
+cryerror_t cryEncryptAESX(CRYDriver *cryp,
+                          crykey_t key_id,
+                          const uint8_t *in,
+                          uint8_t *out) {
 
   osalDbgCheck((cryp != NULL) && (in != NULL) && (out != NULL));
 
   osalDbgAssert(cryp->state == CRY_READY, "not ready");
 
-#if CRY_LLD_SUPPORTS_AES == TRUE
+#if CRY_LLD_SUPPORTS_AES_X == TRUE
   return cry_lld_encrypt_AES(cryp, key_id, in, out);
-#elif HAL_CRY_USE_FALLBACK == TRUE
-  return cry_fallback_encrypt_AES(cryp, key_id, in, out);
 #else
   (void)cryp;
   (void)key_id;
@@ -227,8 +236,13 @@ cryerror_t cryEncryptAES(CRYDriver *cryp,
 
 /**
  * @brief   Decryption of a single block using AES.
- * @note    The implementation of this function must guarantee that it can
- *          be called from any context.
+ * @details This is the any-context variant of the API.
+ * @note    Portable code should use key identifier zero only.
+ * @note    No implementation is preferable to one violating the
+ *          @p X-class contract. If a backend cannot guarantee polled
+ *          execution without IRQs, DMA, or thread-context services then it
+ *          shall not advertise this capability and this function returns
+ *          @p CRY_ERR_INV_ALGO.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] key_id            the key to be used for the operation, zero is
@@ -246,21 +260,19 @@ cryerror_t cryEncryptAES(CRYDriver *cryp,
  * @retval CRY_ERR_OP_FAILURE   if the operation failed, implementation
  *                              dependent.
  *
- * @special
+ * @xclass
  */
-cryerror_t cryDecryptAES(CRYDriver *cryp,
-                         crykey_t key_id,
-                         const uint8_t *in,
-                         uint8_t *out) {
+cryerror_t cryDecryptAESX(CRYDriver *cryp,
+                          crykey_t key_id,
+                          const uint8_t *in,
+                          uint8_t *out) {
 
   osalDbgCheck((cryp != NULL) && (in != NULL) && (out != NULL));
 
   osalDbgAssert(cryp->state == CRY_READY, "not ready");
 
-#if CRY_LLD_SUPPORTS_AES == TRUE
+#if CRY_LLD_SUPPORTS_AES_X == TRUE
   return cry_lld_decrypt_AES(cryp, key_id, in, out);
-#elif HAL_CRY_USE_FALLBACK == TRUE
-  return cry_fallback_decrypt_AES(cryp, key_id, in, out);
 #else
   (void)cryp;
   (void)key_id;
@@ -276,6 +288,7 @@ cryerror_t cryDecryptAES(CRYDriver *cryp,
  * @note    The function operates on data buffers whose length is a multiple
  *          of an AES block, this means that padding must be done by the
  *          caller.
+ * @note    Portable code should use key identifier zero only.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] key_id            the key to be used for the operation, zero is
@@ -328,6 +341,7 @@ cryerror_t cryEncryptAES_ECB(CRYDriver *cryp,
  * @note    The function operates on data buffers whose length is a multiple
  *          of an AES block, this means that padding must be done by the
  *          caller.
+ * @note    Portable code should use key identifier zero only.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] key_id            the key to be used for the operation, zero is
@@ -844,6 +858,9 @@ cryerror_t cryDecryptAES_GCM(CRYDriver *cryp,
  * @brief   Initializes the DES transient key.
  * @note    It is the underlying implementation to decide which key sizes are
  *          allowable.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from the transient key load through the
+ *          subsequent block operations using that key.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] size              key size in bytes
@@ -877,8 +894,13 @@ cryerror_t cryLoadDESTransientKey(CRYDriver *cryp,
 
 /**
  * @brief   Encryption of a single block using (T)DES.
- * @note    The implementation of this function must guarantee that it can
- *          be called from any context.
+ * @details This is the any-context variant of the API.
+ * @note    Portable code should use key identifier zero only.
+ * @note    No implementation is preferable to one violating the
+ *          @p X-class contract. If a backend cannot guarantee polled
+ *          execution without IRQs, DMA, or thread-context services then it
+ *          shall not advertise this capability and this function returns
+ *          @p CRY_ERR_INV_ALGO.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] key_id            the key to be used for the operation, zero is
@@ -896,21 +918,19 @@ cryerror_t cryLoadDESTransientKey(CRYDriver *cryp,
  * @retval CRY_ERR_OP_FAILURE   if the operation failed, implementation
  *                              dependent.
  *
- * @special
+ * @xclass
  */
-cryerror_t cryEncryptDES(CRYDriver *cryp,
-                         crykey_t key_id,
-                         const uint8_t *in,
-                         uint8_t *out) {
+cryerror_t cryEncryptDESX(CRYDriver *cryp,
+                          crykey_t key_id,
+                          const uint8_t *in,
+                          uint8_t *out) {
 
   osalDbgCheck((cryp != NULL) && (in != NULL) && (out != NULL));
 
   osalDbgAssert(cryp->state == CRY_READY, "not ready");
 
-#if CRY_LLD_SUPPORTS_DES == TRUE
+#if CRY_LLD_SUPPORTS_DES_X == TRUE
   return cry_lld_encrypt_DES(cryp, key_id, in, out);
-#elif HAL_CRY_USE_FALLBACK == TRUE
-  return cry_fallback_encrypt_DES(cryp, key_id, in, out);
 #else
   (void)cryp;
   (void)key_id;
@@ -923,9 +943,13 @@ cryerror_t cryEncryptDES(CRYDriver *cryp,
 
 /**
  * @brief   Decryption of a single block using (T)DES.
- * @note    The implementation of this function must guarantee that it can
- *          be called from any context.
- *
+ * @details This is the any-context variant of the API.
+ * @note    Portable code should use key identifier zero only.
+ * @note    No implementation is preferable to one violating the
+ *          @p X-class contract. If a backend cannot guarantee polled
+ *          execution without IRQs, DMA, or thread-context services then it
+ *          shall not advertise this capability and this function returns
+ *          @p CRY_ERR_INV_ALGO.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] key_id            the key to be used for the operation, zero is
@@ -943,21 +967,19 @@ cryerror_t cryEncryptDES(CRYDriver *cryp,
  * @retval CRY_ERR_OP_FAILURE   if the operation failed, implementation
  *                              dependent.
  *
- * @special
+ * @xclass
  */
-cryerror_t cryDecryptDES(CRYDriver *cryp,
-                         crykey_t key_id,
-                         const uint8_t *in,
-                         uint8_t *out) {
+cryerror_t cryDecryptDESX(CRYDriver *cryp,
+                          crykey_t key_id,
+                          const uint8_t *in,
+                          uint8_t *out) {
 
   osalDbgCheck((cryp != NULL) && (in != NULL) && (out != NULL));
 
   osalDbgAssert(cryp->state == CRY_READY, "not ready");
 
-#if CRY_LLD_SUPPORTS_DES == TRUE
+#if CRY_LLD_SUPPORTS_DES_X == TRUE
   return cry_lld_decrypt_DES(cryp, key_id, in, out);
-#elif HAL_CRY_USE_FALLBACK == TRUE
-  return cry_fallback_decrypt_DES(cryp, key_id, in, out);
 #else
   (void)cryp;
   (void)key_id;
@@ -1185,6 +1207,9 @@ cryerror_t cryDecryptDES_CBC(CRYDriver *cryp,
 /**
  * @brief   Hash initialization using SHA1.
  * @note    Use of this algorithm is not recommended because proven weak.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from @p crySHA1Init() through the matching
+ *          @p crySHA1Final().
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[out] sha1ctxp         pointer to a SHA1 context to be initialized
@@ -1290,6 +1315,9 @@ cryerror_t crySHA1Final(CRYDriver *cryp, SHA1Context *sha1ctxp, uint8_t *out) {
 
 /**
  * @brief   Hash initialization using SHA256.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from @p crySHA256Init() through the matching
+ *          @p crySHA256Final().
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[out] sha256ctxp       pointer to a SHA256 context to be initialized
@@ -1394,6 +1422,9 @@ cryerror_t crySHA256Final(CRYDriver *cryp, SHA256Context *sha256ctxp,
 
 /**
  * @brief   Hash initialization using SHA512.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from @p crySHA512Init() through the matching
+ *          @p crySHA512Final().
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[out] sha512ctxp       pointer to a SHA512 context to be initialized
@@ -1500,6 +1531,9 @@ cryerror_t crySHA512Final(CRYDriver *cryp, SHA512Context *sha512ctxp,
  * @brief   Initializes the HMAC transient key.
  * @note    It is the underlying implementation to decide which key sizes are
  *          allowable.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from the transient key load through the
+ *          subsequent HMAC init/update/final sequence.
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[in] size              key size in bytes
@@ -1534,6 +1568,9 @@ cryerror_t cryLoadHMACTransientKey(CRYDriver *cryp,
 
 /**
  * @brief   Hash initialization using HMAC_SHA256.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from @p cryHMACSHA256Init() through the
+ *          matching @p cryHMACSHA256Final().
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[out] hmacsha256ctxp   pointer to a HMAC_SHA256 context to be
@@ -1643,6 +1680,9 @@ cryerror_t cryHMACSHA256Final(CRYDriver *cryp,
 
 /**
  * @brief   Hash initialization using HMAC_SHA512.
+ * @note    When sharing a @p CRYDriver instance, callers should hold
+ *          @p cryAcquireBus() from @p cryHMACSHA512Init() through the
+ *          matching @p cryHMACSHA512Final().
  *
  * @param[in] cryp              pointer to the @p CRYDriver object
  * @param[out] hmacsha512ctxp   pointer to a HMAC_SHA512 context to be
@@ -1749,6 +1789,45 @@ cryerror_t cryHMACSHA512Final(CRYDriver *cryp,
   return CRY_ERR_INV_ALGO;
 #endif
 }
+
+#if (CRY_USE_MUTUAL_EXCLUSION == TRUE) || defined(__DOXYGEN__)
+/**
+ * @brief   Gains exclusive access to the cryptographic peripheral.
+ * @details This function tries to gain ownership to the CRY peripheral, if it
+ *          is already being used then the invoking thread is queued.
+ * @note    Callers should keep the peripheral locked across multi-step
+ *          sequences such as transient-key load plus block operations, or
+ *          hash/HMAC init-update-final flows.
+ * @pre     In order to use this function the option
+ *          @p CRY_USE_MUTUAL_EXCLUSION must be enabled.
+ *
+ * @param[in] cryp              pointer to the @p CRYDriver object
+ *
+ * @api
+ */
+void cryAcquireBus(CRYDriver *cryp) {
+
+  osalDbgCheck(cryp != NULL);
+
+  osalMutexLock(&cryp->mutex);
+}
+
+/**
+ * @brief   Releases exclusive access to the cryptographic peripheral.
+ * @pre     In order to use this function the option
+ *          @p CRY_USE_MUTUAL_EXCLUSION must be enabled.
+ *
+ * @param[in] cryp              pointer to the @p CRYDriver object
+ *
+ * @api
+ */
+void cryReleaseBus(CRYDriver *cryp) {
+
+  osalDbgCheck(cryp != NULL);
+
+  osalMutexUnlock(&cryp->mutex);
+}
+#endif /* CRY_USE_MUTUAL_EXCLUSION == TRUE */
 
 #endif /* HAL_USE_CRY == TRUE */
 

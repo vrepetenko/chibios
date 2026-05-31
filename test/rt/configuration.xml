@@ -51,11 +51,13 @@
  * Stack size of test threads.
  */
 #if !defined(THREADS_STACK_SIZE)
-  #if defined(PORT_ARCHITECTURE_AVR) || defined(PORT__ARCHITECTURE_MSP430)
+  #if defined(PORT_ARCHITECTURE_AVR) || defined(PORT_ARCHITECTURE_MSP430)
     #define THREADS_STACK_SIZE      48
   #elif defined(PORT__ARCHITECTURE_STM8)
     #define THREADS_STACK_SIZE      64
   #elif defined(PORT__ARCHITECTURE_SIMIA32)
+    #define THREADS_STACK_SIZE      512
+  #elif defined(PORT_ARCHITECTURE_SIMX86_64)
     #define THREADS_STACK_SIZE      512
   #else
     #define THREADS_STACK_SIZE      192
@@ -457,7 +459,7 @@ static void vtcb(virtual_timer_t *vtp, void *p) {
               <value />
             </teardown_code>
             <local_variables>
-              <value><![CDATA[bool result;]]></value>
+              <value />
             </local_variables>
           </various_code>
           <steps>
@@ -470,9 +472,8 @@ static void vtcb(virtual_timer_t *vtp, void *p) {
               </tags>
               <code>
                 <value><![CDATA[chSysLock();
-result = chSysIntegrityCheckI(CH_INTEGRITY_RLIST);
-chSysUnlock();
-test_assert(result == false, "ready list check failed");]]></value>
+chSftIntegrityCheckI(CH_INTEGRITY_RLIST);
+chSysUnlock();]]></value>
               </code>
             </step>
             <step>
@@ -484,9 +485,8 @@ test_assert(result == false, "ready list check failed");]]></value>
               </tags>
               <code>
                 <value><![CDATA[chSysLock();
-result = chSysIntegrityCheckI(CH_INTEGRITY_VTLIST);
-chSysUnlock();
-test_assert(result == false, "virtual timers list check failed");]]></value>
+chSftIntegrityCheckI(CH_INTEGRITY_VTLIST);
+chSysUnlock();]]></value>
               </code>
             </step>
             <step>
@@ -498,9 +498,8 @@ test_assert(result == false, "virtual timers list check failed");]]></value>
               </tags>
               <code>
                 <value><![CDATA[chSysLock();
-result = chSysIntegrityCheckI(CH_INTEGRITY_REGISTRY);
-chSysUnlock();
-test_assert(result == false, "registry list check failed");]]></value>
+chSftIntegrityCheckI(CH_INTEGRITY_REGISTRY);
+chSysUnlock();]]></value>
               </code>
             </step>
             <step>
@@ -512,9 +511,8 @@ test_assert(result == false, "registry list check failed");]]></value>
               </tags>
               <code>
                 <value><![CDATA[chSysLock();
-result = chSysIntegrityCheckI(CH_INTEGRITY_PORT);
-chSysUnlock();
-test_assert(result == false, "port layer check failed");]]></value>
+chSftIntegrityCheckI(CH_INTEGRITY_PORT);
+chSysUnlock();]]></value>
               </code>
             </step>
           </steps>

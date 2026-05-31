@@ -43,7 +43,7 @@
 /**
  * @brief   Stable release flag.
  */
-#define CH_HAL_STABLE           1
+#define CH_HAL_STABLE           0
 
 /**
  * @name    ChibiOS/HAL version identification
@@ -159,6 +159,10 @@
 
 #if !defined(HAL_USE_DAC)
 #define HAL_USE_DAC                         FALSE
+#endif
+
+#if !defined(HAL_USE_DISPLAY)
+#define HAL_USE_DISPLAY                     FALSE
 #endif
 
 #if !defined(HAL_USE_EFL)
@@ -325,6 +329,7 @@ static inline bool halClockSwitchMode(const halclkcfg_t *ccp) {
 #include "hal_can.h"
 #include "hal_crypto.h"
 #include "hal_dac.h"
+#include "hal_dspl.h"
 #include "hal_efl.h"
 #include "hal_gpt.h"
 #include "hal_i2c.h"

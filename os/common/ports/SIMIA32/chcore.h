@@ -47,16 +47,16 @@
 #define PORT_NATURAL_ALIGN              sizeof (void *)
 
 /**
- * @brief   Stack alignment constant.
+ * @brief   Stack initial alignment constant.
  * @note    It is the alignment required for the stack pointer.
  */
-#define PORT_STACK_ALIGN                sizeof (stkalign_t)
+#define PORT_STACK_ALIGN                16U
 
 /**
  * @brief   Working Areas alignment constant.
  * @note    It is the alignment to be enforced for thread working areas.
  */
-#define PORT_WORKING_AREA_ALIGN         sizeof (stkalign_t)
+#define PORT_WORKING_AREA_ALIGN         16U
 /** @} */
 
 /**
@@ -133,7 +133,7 @@
  */
 typedef struct {
   uint8_t a[16];
-} stkalign_t __attribute__((aligned(16)));
+} stkline_t __attribute__((aligned(16)));
 
 /**
  * @brief   Type of a generic x86 register.
@@ -220,17 +220,6 @@ struct port_context {
                          sizeof (struct port_intctx) +                      \
                          ((size_t)(n)) +                                    \
                          ((size_t)(PORT_INT_REQUIRED_STACK)))
-
-/**
- * @brief   Static working area allocation.
- * @details This macro is used to allocate a static thread working area
- *          aligned as both position and size.
- *
- * @param[in] s         the name to be assigned to the stack array
- * @param[in] n         the stack size to be assigned to the thread
- */
-#define PORT_WORKING_AREA(s, n)                                             \
-  stkalign_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkalign_t)]
 
 /**
  * @brief   Priority level verification macro.

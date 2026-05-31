@@ -27,20 +27,9 @@
 #ifndef SBHOST_H
 #define SBHOST_H
 
-#include "sberr.h"
-#include "sbapi.h"
-
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
-
-/**
- * @brief   Magic numbers
- * @{
- */
-#define SB_MAGIC1                           0xFE9154C0U
-#define SB_MAGIC2                           0x0C4519EFU
-/** @} */
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -54,137 +43,16 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-/**
- * @brief   Type of a sandbox manager global structure.
- */
-typedef struct {
-#if (CH_CFG_USE_EVENTS == TRUE) || defined(__DOXYGEN__)
-  /**
-   * @brief   Event source for sandbox termination.
-   */
-  event_source_t                termination_es;
-#endif
-} sb_t;
-
-/**
- * @brief   Type of a sandbox memory region.
- */
-typedef struct {
-  /**
-   * @brief   Memory range base.
-   * @note    Zero if not used.
-   */
-  uint32_t                      base;
-  /**
-   * @brief   Memory range end (non inclusive).
-   * @note    Zero if not used.
-   */
-  uint32_t                      end;
-  /**
-   * @brief   Writable memory range.
-   */
-  bool                          writeable;
-} sb_memory_region_t;
-
-/**
- * @brief   Type of a sandbox configuration structure.
- */
-typedef struct {
-  /**
-   * @brief   Memory region for code.
-   * @note    It is used to locate the startup header.
-   */
-  uint32_t                      code_region;
-  /**
-   * @brief   Memory region for data and stack.
-   * @note    It is used for initial PSP placement.
-   */
-  uint32_t                      data_region;
-  /**
-   * @brief   SandBox regions.
-   * @note    The following memory regions are used only for pointers
-   *          validation, not for MPU setup.
-   */
-  sb_memory_region_t            regions[SB_NUM_REGIONS];
-#if (PORT_SWITCHED_REGIONS_NUMBER == SB_NUM_REGIONS) || defined(__DOXYGEN__)
-  /**
-   * @brief   MPU regions initialization values.
-   * @note    Regions initialization values must be chosen to be
-   *          consistent with the values in the "regions" field.
-   */
-  mpureg_t                      mpuregs[SB_NUM_REGIONS];
-#endif
-  /**
-   * @brief   Sandbox STDIN stream.
-   * @note    Set this to @p NULL if standard I/O is not needed.
-   * @note    By design you can use HAL streams here, you need to use
-   *          a cast however.
-   */
-  SandboxStream                 *stdin_stream;
-  /**
-   * @brief   Sandbox STDOUT stream.
-   * @note    Set this to @p NULL if standard I/O is not needed.
-   * @note    By design you can use HAL streams here, you need to use
-   *          a cast however.
-   */
-  SandboxStream                 *stdout_stream;
-  /**
-   * @brief   Sandbox STDERR stream.
-   * @note    Set this to @p NULL if standard I/O is not needed.
-   * @note    By design you can use HAL streams here, you need to use
-   *          a cast however.
-   */
-  SandboxStream                 *stderr_stream;
-} sb_config_t;
-
-/**
- * @brief   Type of a sandbox object.
- */
-typedef struct {
-  /**
-   * @brief   Pointer to the sandbox configuration data.
-   */
-  const sb_config_t             *config;
-  /**
-   * @brief   Thread running in the sandbox.
-   */
-  thread_t                      *tp;
-#if (CH_CFG_USE_MESSAGES == TRUE) || defined(__DOXYGEN__)
-  /**
-   * @brief   Thread sending a message to the sandbox.
-   */
-  thread_t                      *msg_tp;
-#endif
-#if (CH_CFG_USE_EVENTS == TRUE) || defined(__DOXYGEN__)
-  event_source_t                es;
-#endif
-} sb_class_t;
-
-/**
- * @brief   Type of a sandbox binary image header.
- */
-typedef struct {
-  /**
-   * @brief   Magic number 1.
-   */
-  uint32_t                      hdr_magic1;
-  /**
-   * @brief   Magic number 2.
-   */
-  uint32_t                      hdr_magic2;
-  /**
-   * @brief   Header size, inclusive of magic numbers.
-   */
-  uint32_t                      hdr_size;
-  /**
-   * @brief   Used-defined parameters, defaulted to zero.
-   */
-  uint32_t                      user;
-} sb_header_t;
-
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
+
+/**
+ * @brief   Sandbox stack area declaration.
+ *
+ * @param[in] name      name of the sandbox stack area
+ */
+#define SB_STACK(name) THD_STACK(name, SB_CFG_PRIVILEGED_STACK_SIZE);
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -195,17 +63,26 @@ extern sb_t sb;
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void port_syscall(struct port_extctx *ctxp, uint32_t n);
-  bool sb_is_valid_read_range(sb_class_t *sbcp, const void *start, size_t size);
-  bool sb_is_valid_write_range(sb_class_t *sbcp, void *start, size_t size);
-  void sbObjectInit(sb_class_t *sbcp);
-  void sbStart(sb_class_t *sbcp, const sb_config_t *config);
-  thread_t *sbStartThread(sb_class_t *sbcp, const sb_config_t *config,
-                          const char *name, void *wsp, size_t size,
-                          tprio_t prio);
-  msg_t sbSendMessageTimeout(sb_class_t *sbcp,
+  size_t sb_strv_getsize(const char *v[], int *np);
+  void sb_strv_copy(const char *sp[], void *dp, int n);
+  void sbObjectInit(sb_class_t *sbp);
+  bool sbIsThreadRunningX(sb_class_t *sbp);
+  thread_t *sbStart(sb_class_t *sbp, tprio_t prio, stkline_t *stkbase,
+                    const char *argv[], const char *envp[]);
+#if SB_CFG_ENABLE_VFS == TRUE
+  msg_t sbExecStatic(sb_class_t *sbp, tprio_t prio,
+                     stkline_t *stkbase, const char *path,
+                     const char *argv[], const char *envp[]);
+#if (PORT_SWITCHED_REGIONS_NUMBER > 0) && (CH_CFG_USE_HEAP == TRUE)
+  msg_t sbExecDynamic(sb_class_t *sbp, tprio_t prio, size_t heapsize,
+                      const char *path, const char *argv[], const char *envp[]);
+#endif
+#endif
+#if CH_CFG_USE_MESSAGES == TRUE
+  msg_t sbSendMessageTimeout(sb_class_t *sbp,
                              msg_t msg,
                              sysinterval_t timeout);
+#endif
 #ifdef __cplusplus
 }
 #endif
@@ -226,29 +103,108 @@ static inline void sbHostInit(void) {
 #endif
 }
 
-#if (CH_CFG_USE_WAITEXIT == TRUE) || defined(__DOXYGEN__)
 /**
- * @brief   Blocks the execution of the invoking thread until the sandbox
- *          thread terminates then the exit code is returned.
+ * @brief   Blocks the execution of the invoking thread until the specified
+ *          sandbox thread terminates then the exit code is returned.
  * @pre     The configuration option @p CH_CFG_USE_WAITEXIT must be enabled in
  *          order to use this function.
  *
- * @param[in] sbcp      pointer to the sandbox object
- * @return              The exit code from the terminated thread.
+ * @param[in] sbp       pointer to a @p sb_class_t structure
+ * @return              The exit code from the terminated sandbox thread.
+ * @retval MSG_RESET    Sandbox thread not started.
  *
  * @api
  */
-static inline msg_t sbWait(sb_class_t *sbcp) {
+static inline msg_t sbWait(sb_class_t *sbp) {
+  msg_t msg;
 
-  return chThdWait(sbcp->tp);
+  msg = chThdWait(&sbp->thread);
+
+  return msg;
 }
-#endif /* CH_CFG_USE_WAITEXIT == TRUE */
+
+/**
+ * @brief   Associates a memory area to a sandbox region.
+ *
+ * @param[in] sbp       pointer to a @p sb_class_t structure
+ * @param[in] region    region number in range 0..SB_CFG_NUM_REGIONS-1
+ * @param[in] base      memory area base
+ * @param[in] size      memory area size
+ * @param[in] attr      memory area attributes
+ *
+ * @api
+ */
+static inline void sbSetRegion(sb_class_t *sbp, unsigned region,
+                               uint8_t *base, size_t size,
+                               uint32_t attr) {
+  sb_memory_region_t *mrp;
+
+  chDbgCheck((region <= SB_CFG_NUM_REGIONS-1));
+
+  mrp = &sbp->regions[region];
+  mrp->area.base = base;
+  mrp->area.size = size;
+  mrp->attributes = attr;
+}
+
+#if (SB_CFG_ENABLE_VFS == TRUE) || defined(__DOXYGEN__)
+/**
+ * @brief   Associates a VFS file system to a sandbox as root.
+ * @note    The passed driver instance is used directly and is not wrapped
+ *          nor duplicated by the SB subsystem.
+ * @note    In order to have a sandbox-private current working directory and
+ *          any other mutable filesystem state, the host code must associate
+ *          a distinct mutable VFS driver instance to each sandbox.
+ * @note    If the same VFS object is shared among sandboxes then the current
+ *          working directory and any other driver-local state are shared too.
+ *
+ * @param[in] sbp       pointer to a @p sb_class_t structure
+ * @param[in] drvp      pointer to a @p vfs_driver_c structure or @p NULL
+ *
+ * @api
+ */
+static inline void sbSetFileSystem(sb_class_t *sbp, vfs_driver_c *drvp) {
+
+  sbp->io.vfs_driver = drvp;
+}
+
+/**
+ * @brief   Registers a file descriptor on a sandbox.
+ *
+ * @param[in] sbp       pointer to a @p sb_class_t structure
+ * @param[in] fd        file descriptor to be assigned
+ * @param[in] np        VFS node to be registered on the file descriptor
+ *
+ * @api
+ */
+static inline void sbRegisterDescriptor(sb_class_t *sbp, int fd, vfs_node_c *np) {
+
+  chDbgAssert(sb_is_available_descriptor(&sbp->io, fd), "invalid file descriptor");
+
+  sbp->io.vfs_nodes[fd]  = np;
+}
+#endif /* SB_CFG_ENABLE_VFS == TRUE */
+
+#if (SB_CFG_ENABLE_VIO == TRUE) || defined(__DOXYGEN__)
+/**
+ * @brief   Associates a VIO configuration to a sandbox.
+ *
+ * @param[in] sbp       pointer to a @p sb_class_t structure
+ * @param[in] vioconf   pointer to a VIO configuration or @p NULL
+ *
+ * @api
+ */
+static inline void sbSetVirtualIO(sb_class_t *sbp, const vio_conf_t *vioconf) {
+
+  sbp->vioconf = vioconf;
+}
+#endif /* SB_CFG_ENABLE_VIO == TRUE */
 
 #if (CH_CFG_USE_MESSAGES == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Sends a message to a sandboxed thread.
  *
- * @param[in] sbcp      pointer to the sandbox object
+ * @param[in] sbp      pointer to the sandbox object
  * @param[in] msg       message to be sent
  * @return              The returned message.
  * @retval MSG_RESET    if the exchange aborted, sandboxed thread API usage
@@ -256,9 +212,9 @@ static inline msg_t sbWait(sb_class_t *sbcp) {
  *
  * @api
  */
-static inline msg_t sbSendMessage(sb_class_t *sbcp, msg_t msg) {
+static inline msg_t sbSendMessage(sb_class_t *sbp, msg_t msg) {
 
-  return sbSendMessageTimeout(sbcp, msg, TIME_INFINITE);
+  return sbSendMessageTimeout(sbp, msg, TIME_INFINITE);
 }
 #endif /* CH_CFG_USE_MESSAGES == TRUE */
 
@@ -266,40 +222,40 @@ static inline msg_t sbSendMessage(sb_class_t *sbcp, msg_t msg) {
 /**
  * @brief   Adds a set of event flags directly to the specified sandbox.
  *
- * @param[in] sbcp      pointer to the sandbox object
+ * @param[in] sbp      pointer to the sandbox object
  * @param[in] events    the events set to be ORed
  *
  * @iclass
  */
-static inline void sbEvtSignalI(sb_class_t *sbcp, eventmask_t events) {
+static inline void sbEvtSignalI(sb_class_t *sbp, eventmask_t events) {
 
-  chEvtSignalI(sbcp->tp, events);
+  chEvtSignalI(&sbp->thread, events);
 }
 
 /**
  * @brief   Adds a set of event flags directly to the specified sandbox.
  *
- * @param[in] sbcp      pointer to the sandbox object
+ * @param[in] sbp      pointer to the sandbox object
  * @param[in] events    the events set to be ORed
  *
  * @api
  */
-static inline void sbEvtSignal(sb_class_t *sbcp, eventmask_t events) {
+static inline void sbEvtSignal(sb_class_t *sbp, eventmask_t events) {
 
-  chEvtSignal(sbcp->tp, events);
+  chEvtSignal(&sbp->thread, events);
 }
 
 /**
  * @brief   Returns the sandbox event source object.
  *
- * @param[in] sbcp      pointer to the sandbox object
+ * @param[in] sbp      pointer to the sandbox object
  * @return              The pointer to the event source object.
  *
  * @xclass
  */
-static inline event_source_t *sbGetEventSourceX(sb_class_t *sbcp) {
+static inline event_source_t *sbGetEventSourceX(sb_class_t *sbp) {
 
-  return &sbcp->es;
+  return &sbp->base.es;
 }
 #endif /* CH_CFG_USE_EVENTS == TRUE */
 

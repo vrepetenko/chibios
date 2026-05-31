@@ -209,8 +209,14 @@ test_println("");]]></value>
 test_print("--- CH_CFG_USE_MAILBOXES:               ");
 test_printn(CH_CFG_USE_MAILBOXES);
 test_println("");
+test_print("--- CH_CFG_USE_MEMCHECKS:               ");
+test_printn(CH_CFG_USE_MEMCHECKS);
+test_println("");
 test_print("--- CH_CFG_USE_MEMCORE:                 ");
 test_printn(CH_CFG_USE_MEMCORE);
+test_println("");
+test_print("--- CH_CFG_MEMCORE_SIZE:                ");
+test_printn(CH_CFG_MEMCORE_SIZE);
 test_println("");
 test_print("--- CH_CFG_USE_HEAP:                    ");
 test_printn(CH_CFG_USE_HEAP);
@@ -1068,7 +1074,7 @@ static msg_t msg_queue[JOBS_QUEUE_SIZE];
 
 static void job_slow(void *arg) {
 
-  test_emit_token((int)arg);
+  test_emit_token((char)(uintptr_t)arg);
   chThdSleepMilliseconds(10);
 }
 
@@ -1171,7 +1177,7 @@ job_descriptor_t *jdp;
 for (i = 0; i < 8; i++) {
   jdp = chJobGet(&jq);
   jdp->jobfunc = job_slow;
-  jdp->jobarg  = (void *)('a' + i);
+  jdp->jobarg  = (void *)(uintptr_t)('a' + i);
   chJobPost(&jq, jdp);
 }
 ]]></value>
@@ -1247,7 +1253,7 @@ test_assert(used == 0U, "pending jobs");
         <value><![CDATA[
 static bool exit_flag;
 
-static int dis_func0(void) {
+static msg_t dis_func0(void) {
 
   test_emit_token('0');
 
@@ -1288,7 +1294,7 @@ static msg_t dis_func4(msg_t a, msg_t b, msg_t c, msg_t d) {
   return (msg_t)a;
 }
 
-static int dis_func_end(void) {
+static msg_t dis_func_end(void) {
 
   test_emit_token('Z');
   exit_flag = true;
@@ -1369,24 +1375,24 @@ tp = chThdCreate(&td);
               </tags>
               <code>
                 <value><![CDATA[
-int retval;
+msg_t retval;
 
-retval = chDelegateCallDirect0(tp, (delegate_fn0_t)dis_func0);
+retval = chDelegateCallDirect0(tp, dis_func0);
 test_assert(retval == 0x55AA, "invalid return value");
 
-retval = chDelegateCallDirect1(tp, (delegate_fn1_t)dis_func1, 'A');
+retval = chDelegateCallDirect1(tp, dis_func1, 'A');
 test_assert(retval == (int)'A', "invalid return value");
 
-retval = chDelegateCallDirect2(tp, (delegate_fn2_t)dis_func2, 'B', 'C');
+retval = chDelegateCallDirect2(tp, dis_func2, 'B', 'C');
 test_assert(retval == (int)'B', "invalid return value");
 
-retval = chDelegateCallDirect3(tp, (delegate_fn3_t)dis_func3, 'D', 'E', 'F');
+retval = chDelegateCallDirect3(tp, dis_func3, 'D', 'E', 'F');
 test_assert(retval == (int)'D', "invalid return value");
 
-retval = chDelegateCallDirect4(tp, (delegate_fn4_t)dis_func4, 'G', 'H', 'I', 'J');
+retval = chDelegateCallDirect4(tp, dis_func4, 'G', 'H', 'I', 'J');
 test_assert(retval == (int)'G', "invalid return value");
 
-retval = chDelegateCallDirect0(tp, (delegate_fn0_t)dis_func_end);
+retval = chDelegateCallDirect0(tp, dis_func_end);
 test_assert(retval == 0xAA55, "invalid return value");
 
 test_assert_sequence("0ABCDEFGHIJZ", "unexpected tokens");
@@ -1438,7 +1444,7 @@ typedef struct {
   uint8_t           data[SIZE_OBJECTS];
 } cached_object_t;
 
-static oc_hash_header_t hash_headers[NUM_HASH_ENTRIES];
+static oc_hash_element_t hash_elements[NUM_HASH_ENTRIES];
 static cached_object_t objects[NUM_OBJECTS];
 static objects_cache_t cache1;
 
@@ -1504,7 +1510,7 @@ static bool obj_write(objects_cache_t *ocp,
                 <value><![CDATA[
 chCacheObjectInit(&cache1,
                   NUM_HASH_ENTRIES,
-                  hash_headers,
+                  hash_elements,
                   NUM_OBJECTS,
                   sizeof (cached_object_t),
                   objects,
@@ -1526,7 +1532,7 @@ chCacheObjectInit(&cache1,
 uint32_t i;
 
 for (i = 0; i < (NUM_OBJECTS * 2); i++) {
-  oc_object_t * objp = chCacheGetObject(&cache1, 0U, i);
+  oc_object_t * objp = chCacheGetObject(&cache1, NULL, i);
 
   test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
   test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "should not be in sync");
@@ -1552,7 +1558,7 @@ uint32_t i;
 bool error;
 
 for (i = 0; i < (NUM_OBJECTS * 2); i++) {
-  oc_object_t *objp = chCacheGetObject(&cache1, 0U, i);
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, i);
 
   test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
   test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");
@@ -1584,7 +1590,7 @@ uint32_t i;
 bool error;
 
 for (i = 0; i < (NUM_OBJECTS * 2); i++) {
-  oc_object_t *objp = chCacheGetObject(&cache1, 0U, i);
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, i);
 
   test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
   test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");
@@ -1593,7 +1599,7 @@ for (i = 0; i < (NUM_OBJECTS * 2); i++) {
 
   test_assert(error == false, "returned error");
 
-  objp = chCacheGetObject(&cache1, 0U, i);
+  objp = chCacheGetObject(&cache1, NULL, i);
 
   test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
   test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) == 0U, "not in sync");
@@ -1617,7 +1623,7 @@ test_assert_sequence("abcdefgh", "unexpected tokens");
 uint32_t i;
 
 for (i = NUM_OBJECTS; i < (NUM_OBJECTS * 2); i++) {
-  oc_object_t *objp = chCacheGetObject(&cache1, 0U, i);
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, i);
 
   test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
   test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) == 0U, "not in sync");
@@ -1641,7 +1647,56 @@ test_assert_sequence("", "unexpected tokens");
 uint32_t i;
 
 for (i = 0; i < NUM_OBJECTS; i++) {
-  oc_object_t *objp = chCacheGetObject(&cache1, 0U, i);
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, i);
+
+  test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");
+
+  chCacheReleaseObject(&cache1, objp);
+}
+
+test_assert_sequence("", "unexpected tokens");
+]]></value>
+              </code>
+            </step>
+            <step>
+              <description>
+                <value>Repeated cached hits followed by a miss.</value>
+              </description>
+              <tags>
+                <value></value>
+              </tags>
+              <code>
+                <value><![CDATA[
+bool error;
+uint32_t i;
+
+{
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, NUM_OBJECTS);
+
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");
+
+  error = chCacheReadObject(&cache1, objp, false);
+
+  test_assert(error == false, "returned error");
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) == 0U, "not in sync");
+
+  chCacheReleaseObject(&cache1, objp);
+}
+
+test_assert_sequence("e", "unexpected tokens");
+
+for (i = 0; i < 16U; i++) {
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, NUM_OBJECTS);
+
+  test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) == 0U, "not in sync");
+
+  chCacheReleaseObject(&cache1, objp);
+}
+
+{
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, 0U);
 
   test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
   test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");
@@ -1674,11 +1729,11 @@ test_assert_sequence("", "unexpected tokens");
       <shared_code>
         <value><![CDATA[#define MEMORY_POOL_SIZE 4
 
-static uint32_t objects[MEMORY_POOL_SIZE];
-static MEMORYPOOL_DECL(mp1, sizeof (uint32_t), PORT_NATURAL_ALIGN, NULL);
+static uintptr_t objects[MEMORY_POOL_SIZE];
+static MEMORYPOOL_DECL(mp1, sizeof (uintptr_t), PORT_NATURAL_ALIGN, NULL);
 
 #if CH_CFG_USE_SEMAPHORES
-static GUARDEDMEMORYPOOL_DECL(gmp1, sizeof (uint32_t), PORT_NATURAL_ALIGN);
+static GUARDEDMEMORYPOOL_DECL(gmp1, sizeof (uintptr_t), PORT_NATURAL_ALIGN);
 #endif
 
 static void *null_provider(size_t size, unsigned align) {
@@ -1703,7 +1758,7 @@ static void *null_provider(size_t size, unsigned align) {
           </condition>
           <various_code>
             <setup_code>
-              <value><![CDATA[chPoolObjectInit(&mp1, sizeof (uint32_t), NULL);]]></value>
+              <value><![CDATA[chPoolObjectInit(&mp1, sizeof (uintptr_t), NULL);]]></value>
             </setup_code>
             <teardown_code>
               <value />
@@ -1794,7 +1849,7 @@ static void *null_provider(size_t size, unsigned align) {
                 <value />
               </tags>
               <code>
-                <value><![CDATA[chPoolObjectInit(&mp1, sizeof (uint32_t), null_provider);
+                <value><![CDATA[chPoolObjectInit(&mp1, sizeof (uintptr_t), null_provider);
 test_assert(chPoolAlloc(&mp1) == NULL, "provider returned memory");]]></value>
               </code>
             </step>
@@ -1813,7 +1868,7 @@ test_assert(chPoolAlloc(&mp1) == NULL, "provider returned memory");]]></value>
           </condition>
           <various_code>
             <setup_code>
-              <value><![CDATA[chGuardedPoolObjectInit(&gmp1, sizeof (uint32_t));]]></value>
+              <value><![CDATA[chGuardedPoolObjectInit(&gmp1, sizeof (uintptr_t));]]></value>
             </setup_code>
             <teardown_code>
               <value />
@@ -1911,7 +1966,7 @@ test_assert(chPoolAlloc(&mp1) == NULL, "provider returned memory");]]></value>
           </condition>
           <various_code>
             <setup_code>
-              <value><![CDATA[chGuardedPoolObjectInit(&gmp1, sizeof (uint32_t));]]></value>
+              <value><![CDATA[chGuardedPoolObjectInit(&gmp1, sizeof (uintptr_t));]]></value>
             </setup_code>
             <teardown_code>
               <value />
@@ -1989,32 +2044,35 @@ size_t n, sz;]]></value>
             <step>
               <description>
                 <value>Testing initial conditions, the heap must not be
-                  fragmented and one free block present.</value>
+                  fragmented and one free block present, finally, integrity is checked.</value>
               </description>
               <tags>
                 <value />
               </tags>
               <code>
-                <value><![CDATA[test_assert(chHeapStatus(&test_heap, &sz, NULL) == 1, "heap fragmented");]]></value>
+                <value><![CDATA[test_assert(chHeapStatus(&test_heap, &sz, NULL) == 1, "heap fragmented");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
                 <value>Trying to allocate an block bigger than available
-                  space, an error is expected.</value>
+                  space, an error is expected, finally, integrity is checked.</value>
               </description>
               <tags>
                 <value />
               </tags>
               <code>
                 <value><![CDATA[p1 = chHeapAlloc(&test_heap, sizeof test_heap_buffer * 2);
-test_assert(p1 == NULL, "allocation not failed");]]></value>
+test_assert(p1 == NULL, "allocation not failed");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
                 <value>Single block allocation using chHeapAlloc() then
-                  the block is freed using chHeapFree(), must not fail.
+                  the block is freed using chHeapFree(), must not fail, finally,
+                  integrity is checked.
                 </value>
               </description>
               <tags>
@@ -2023,14 +2081,15 @@ test_assert(p1 == NULL, "allocation not failed");]]></value>
               <code>
                 <value><![CDATA[p1 = chHeapAlloc(&test_heap, ALLOC_SIZE);
 test_assert(p1 != NULL, "allocation failed");
-chHeapFree(p1);]]></value>
+chHeapFree(p1);
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
                 <value>Using chHeapStatus() to assess the heap state.
                   There must be at least one free block of sufficient
-                  size.</value>
+                  size, finally, integrity is checked.</value>
               </description>
               <tags>
                 <value />
@@ -2041,12 +2100,14 @@ chHeapFree(p1);]]></value>
 n = chHeapStatus(&test_heap, &total_size, &largest_size);
 test_assert(n == 1, "missing free block");
 test_assert(total_size >= ALLOC_SIZE, "unexpected heap state");
-test_assert(total_size == largest_size, "unexpected heap state");]]></value>
+test_assert(total_size == largest_size, "unexpected heap state");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
-                <value>Allocating then freeing in the same order.
+                <value>Allocating then freeing in the same order, finally,
+                  integrity is checked.
                 </value>
               </description>
               <tags>
@@ -2059,12 +2120,14 @@ p3 = chHeapAlloc(&test_heap, ALLOC_SIZE);
 chHeapFree(p1);                                 /* Does not merge.*/
 chHeapFree(p2);                                 /* Merges backward.*/
 chHeapFree(p3);                                 /* Merges both sides.*/
-test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");]]></value>
+test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
-                <value>Allocating then freeing in reverse order.</value>
+                <value>Allocating then freeing in reverse order, finally,
+                  integrity is checked.</value>
               </description>
               <tags>
                 <value />
@@ -2076,14 +2139,15 @@ p3 = chHeapAlloc(&test_heap, ALLOC_SIZE);
 chHeapFree(p3);                                 /* Merges forward.*/
 chHeapFree(p2);                                 /* Merges forward.*/
 chHeapFree(p1);                                 /* Merges forward.*/
-test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");]]></value>
+test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
                 <value>Small fragments handling. Checking the behavior
                   when allocating blocks with size not multiple of
-                  alignment unit.</value>
+                  alignment unit, finally, integrity is checked.</value>
               </description>
               <tags>
                 <value />
@@ -2100,14 +2164,15 @@ test_assert((chHeapStatus(&test_heap, &n, NULL) == 1) ||
             (chHeapStatus(&test_heap, &n, NULL) == 2), "heap fragmented");
 chHeapFree(p2);
 chHeapFree(p1);
-test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");]]></value>
+test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
                 <value>Skipping a fragment, the first fragment in the
                   list is too small so the allocator must pick the
-                  second one.</value>
+                  second one, finally, integrity is checked.</value>
               </description>
               <tags>
                 <value />
@@ -2120,12 +2185,14 @@ test_assert( chHeapStatus(&test_heap, &n, NULL) == 2, "invalid state");
 p1 = chHeapAlloc(&test_heap, ALLOC_SIZE * 2); /* Skips first fragment.*/
 chHeapFree(p1);
 chHeapFree(p2);
-test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");]]></value>
+test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
-                <value>Allocating the whole available space.</value>
+                <value>Allocating the whole available space, finally,
+                  integrity is checked.</value>
               </description>
               <tags>
                 <value />
@@ -2135,13 +2202,15 @@ test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");]]></val
 p1 = chHeapAlloc(&test_heap, n);
 test_assert(p1 != NULL, "allocation failed");
 test_assert(chHeapStatus(&test_heap, NULL, NULL) == 0, "not empty");
-chHeapFree(p1);]]></value>
+chHeapFree(p1);
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
             <step>
               <description>
                 <value>Testing final conditions. The heap geometry must
-                  be the same than the one registered at beginning.
+                  be the same than the one registered at beginning, finally,
+                  integrity is checked.
                 </value>
               </description>
               <tags>
@@ -2149,7 +2218,8 @@ chHeapFree(p1);]]></value>
               </tags>
               <code>
                 <value><![CDATA[test_assert(chHeapStatus(&test_heap, &n, NULL) == 1, "heap fragmented");
-test_assert(n == sz, "size changed");]]></value>
+test_assert(n == sz, "size changed");
+test_assert(!chHeapIntegrityCheck(&test_heap), "integrity failure");]]></value>
               </code>
             </step>
           </steps>

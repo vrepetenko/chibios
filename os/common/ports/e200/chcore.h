@@ -53,16 +53,18 @@
 #define PORT_NATURAL_ALIGN              sizeof (void *)
 
 /**
- * @brief   Stack alignment constant.
- * @note    It is the alignment required for the stack pointer.
+ * @brief   Stack initial alignment constant.
+ * @note    It is the alignment required for the initial stack pointer,
+ *          must be a multiple of sizeof (port_stkline_t).
  */
-#define PORT_STACK_ALIGN                sizeof (stkalign_t)
+#define PORT_STACK_ALIGN                8U
 
 /**
  * @brief   Working Areas alignment constant.
- * @note    It is the alignment to be enforced for thread working areas.
+ * @note    It is the alignment to be enforced for thread working areas,
+ *          must be a multiple of sizeof (port_stkline_t).
  */
-#define PORT_WORKING_AREA_ALIGN         sizeof (stkalign_t)
+#define PORT_WORKING_AREA_ALIGN         8U
 /** @} */
 
 /**
@@ -246,7 +248,7 @@
  * @brief   Type of stack and memory alignment enforcement.
  * @note    In this architecture the stack alignment is enforced to 64 bits.
  */
-typedef uint64_t stkalign_t;
+typedef uint64_t stkline_t;
 
 /**
  * @brief   Generic PPC register.
@@ -363,17 +365,6 @@ struct port_context {
                          ((size_t)(n)) + ((size_t)(PORT_INT_REQUIRED_STACK)))
 
 /**
- * @brief   Static working area allocation.
- * @details This macro is used to allocate a static thread working area
- *          aligned as both position and size.
- *
- * @param[in] s         the name to be assigned to the stack array
- * @param[in] n         the stack size to be assigned to the thread
- */
-#define PORT_WORKING_AREA(s, n)                                             \
-  stkalign_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkalign_t)]
-
-/**
  * @brief   IRQ prologue code.
  * @details This macro must be inserted at the start of all IRQ handlers
  *          enabled to invoke system APIs.
@@ -436,7 +427,7 @@ struct port_context {
 #else
 #define port_switch(ntp, otp) {                                             \
   register struct port_intctx *sp asm ("%r1");                              \
-  if ((stkalign_t *)(void *)(sp - 1) < otp->wabase)                         \
+  if ((stkline_t *)(void *)(sp - 1) < otp->wabase)                          \
     chSysHalt("stack overflow");                                            \
   _port_switch(ntp, otp);                                                   \
 }

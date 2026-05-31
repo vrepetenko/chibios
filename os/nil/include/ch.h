@@ -29,6 +29,8 @@
 #ifndef CH_H
 #define CH_H
 
+#include <string.h>
+
 #include "chtypes.h"
 
 /*===========================================================================*/
@@ -43,7 +45,7 @@
 /**
  * @brief   Stable release flag.
  */
-#define CH_KERNEL_STABLE        1
+#define CH_KERNEL_STABLE        0
 
 /**
  * @name    ChibiOS/NIL version identification
@@ -52,7 +54,7 @@
 /**
  * @brief   Kernel version string.
  */
-#define CH_KERNEL_VERSION       "4.1.4"
+#define CH_KERNEL_VERSION       "4.2.0"
 
 /**
  * @brief   Kernel version major number.
@@ -62,12 +64,12 @@
 /**
  * @brief   Kernel version minor number.
  */
-#define CH_KERNEL_MINOR         1
+#define CH_KERNEL_MINOR         2
 
 /**
  * @brief   Kernel version patch number.
  */
-#define CH_KERNEL_PATCH         4
+#define CH_KERNEL_PATCH         0
 /** @} */
 
 /**
@@ -179,6 +181,15 @@
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
+/**
+ * @name    Unavailable options
+ * @{
+ */
+#define CH_CFG_USE_MUTEXES          FALSE
+#define CH_CFG_SMP_MODE             FALSE
+#define CH_DBG_STATISTICS           FALSE
+/** @} */
+
 #include "chconf.h"
 #include "chlicense.h"
 
@@ -221,14 +232,6 @@
 
 #if !defined(CH_CFG_USE_EVENTS)
 #error "CH_CFG_USE_EVENTS not defined in chconf.h"
-#endif
-
-#if !defined(CH_CFG_USE_MUTEXES) || defined(__DOXYGEN__)
-#error "CH_CFG_USE_MUTEXES not defined in chconf.h"
-#endif
-
-#if !defined(CH_DBG_STATISTICS) || defined(__DOXYGEN__)
-#error "CH_DBG_STATISTICS not defined in chconf.h"
 #endif
 
 #if !defined(CH_DBG_SYSTEM_STATE_CHECK) || defined(__DOXYGEN__)
@@ -346,14 +349,6 @@
        "be zero or greater than one"
 #endif
 
-#if CH_CFG_USE_MUTEXES == TRUE
-#error "mutexes not yet supported"
-#endif
-
-#if CH_DBG_STATISTICS == TRUE
-#error "statistics not yet supported"
-#endif
-
 #if (CH_DBG_SYSTEM_STATE_CHECK == TRUE) ||                                  \
     (CH_DBG_ENABLE_CHECKS == TRUE)      ||                                  \
     (CH_DBG_ENABLE_ASSERTS == TRUE)     ||                                  \
@@ -373,18 +368,24 @@
 #define THD_IDLE_END                    NULL
 #endif
 
+/**
+ * @brief   Definition required for compatibility with OSLIB.
+ * @note    This setting is not currently supported by NIL.
+ */
+#define CH_CFG_HARDENING_LEVEL          0
+
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-#if defined(PORT_DOES_NOT_PROVIDE_TYPES) || defined(__DOXYGEN__)
 /**
  * @name    Kernel types
  * @{
  */
+#if defined(PORT_DOES_NOT_PROVIDE_TYPES) || defined(__DOXYGEN__)
 typedef port_rtcnt_t    rtcnt_t;            /**< Realtime counter.          */
 typedef port_syssts_t   syssts_t;           /**< System status word.        */
-typedef port_stkalign_t stkalign_t;         /**< Stack alignment type.      */
+typedef port_stkline_t  stkline_t;          /**< Stack alignment type.      */
 
 #if (PORT_ARCH_REGISTERS_WIDTH == 32) || defined(__DOXYGEN__)
 typedef uint8_t         tstate_t;           /**< Thread state.              */
@@ -507,8 +508,8 @@ struct nil_threads_queue {
  */
 struct nil_thread_descriptor {
   const char        *name;      /**< @brief Thread name, for debugging.     */
-  stkalign_t        *wbase;     /**< @brief Thread working area base.       */
-  stkalign_t        *wend;      /**< @brief Thread working area end.        */
+  stkline_t         *wbase;     /**< @brief Thread working area base.       */
+  stkline_t         *wend;      /**< @brief Thread working area end.        */
   tprio_t           prio;       /**< @brief Thread priority slot.           */
   tfunc_t           funcp;      /**< @brief Thread function.                */
   void              *arg;       /**< @brief Thread function argument.       */
@@ -545,7 +546,7 @@ struct nil_thread {
   msg_t                 sntmsg;     /**< @brief Sent message.               */
 #endif
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || defined(__DOXYGEN__)
-  stkalign_t            *wabase;    /**< @brief Thread stack boundary.      */
+  stkline_t             *wabase;    /**< @brief Thread stack boundary.      */
 #endif
   /* Optional extra fields.*/
   CH_CFG_THREAD_EXT_FIELDS
@@ -666,6 +667,24 @@ struct nil_os_instance {
  * @{
  */
 /**
+ * @brief   Natural data alignment for the current architecture.
+ * @note    Represents the required alignment for integer and pointer
+ *          data types.
+ */
+#define MEM_NATURAL_ALIGN       PORT_NATURAL_ALIGN
+
+/**
+ * @brief   Port-defined check on function pointers.
+ *
+ * @param[in] p         function pointer to be checked
+ */
+#if defined(PORT_IS_VALID_FUNCTION) || defined(__DOXYGEN__)
+#define MEM_IS_VALID_FUNCTION(p)    PORT_IS_VALID_FUNCTION(p)
+#else
+#define MEM_IS_VALID_FUNCTION(p)    true
+#endif
+
+/**
  * @brief   Alignment mask constant.
  *
  * @param[in] a         alignment, must be a power of two
@@ -719,8 +738,8 @@ struct nil_os_instance {
  *
  * @api
  */
-#define THD_WORKING_AREA_SIZE(n) MEM_ALIGN_NEXT(PORT_WA_SIZE(n),            \
-                                                PORT_STACK_ALIGN)
+#define THD_WORKING_AREA_SIZE(n)                                            \
+  MEM_ALIGN_NEXT(PORT_WA_SIZE(n), PORT_STACK_ALIGN)
 
 /**
  * @brief   Static working area allocation.
@@ -732,12 +751,14 @@ struct nil_os_instance {
  *
  * @api
  */
-#define THD_WORKING_AREA(s, n) PORT_WORKING_AREA(s, n)
+#define THD_WORKING_AREA(s, n)                                              \
+  CC_ALIGN_DATA(PORT_WORKING_AREA_ALIGN)                                    \
+  stkline_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkline_t)]
 /** @} */
 
 /**
  * @brief   Returns the top address of a working area.
- * @note    The parameter is assumed to be an array of @p stkalign_t. The
+ * @note    The parameter is assumed to be an array of @p stkline_t. The
  *          macros is invalid for anything else.
  *
  * @param[in] wa        working area array
@@ -745,7 +766,7 @@ struct nil_os_instance {
  * @api
  */
 #define THD_WORKING_AREA_END(wa)                                            \
-  ((wa) + ((sizeof wa) / sizeof (stkalign_t)))
+  ((wa) + ((sizeof wa) / sizeof (stkline_t)))
 
 /**
  * @name    Threads abstraction macros
@@ -1211,30 +1232,27 @@ struct nil_os_instance {
   (void) chSchGoSleepTimeoutS(NIL_STATE_SLEEPING, timeout)
 
 /**
- * @brief   Suspends the invoking thread until the system time arrives to the
- *          specified value.
- *
- * @param[in] abstime   absolute system time
- *
- * @sclass
- */
-#define chThdSleepUntilS(abstime)                                           \
-  (void) chSchGoSleepTimeoutS(NIL_STATE_SLEEPING,                           \
-                              chTimeDiffX(chVTGetSystemTimeX(), (abstime)))
-
-/**
  * @brief   Initializes a threads queue object.
  *
- * @param[out] tqp      pointer to the threads queue object
+ * @param[out] tqp      pointer to a @p threads_queue_t structure
  *
  * @init
  */
 #define chThdQueueObjectInit(tqp) ((tqp)->cnt = (cnt_t)0)
 
 /**
+ * @brief   Disposes a threads queue.
+ *
+ * @param[in] tqp       pointer to a @p threads_queue_t structure
+ *
+ * @dispose
+ */
+#define chThdQueueObjectDispose(tqp) ((void) tqp)
+
+/**
  * @brief   Evaluates to @p true if the specified queue is empty.
  *
- * @param[out] tqp      pointer to the threads queue object
+ * @param[out] tqp      pointer to a @p threads_queue_t structure
  * @return              The queue status.
  * @retval false        if the queue is not empty.
  * @retval true         if the queue is empty.
@@ -1385,7 +1403,7 @@ struct nil_os_instance {
 
 #if !defined(__DOXYGEN__)
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || defined(__DOXYGEN__)
-extern stkalign_t __main_thread_stack_base__, __main_thread_stack_end__;
+extern stkline_t __main_thread_stack_base__, __main_thread_stack_end__;
 #endif
 extern os_instance_t nil;
 extern const thread_descriptor_t nil_thd_configs[];
@@ -1421,6 +1439,7 @@ extern "C" {
   void chThdResumeI(thread_reference_t *trp, msg_t msg);
   void chThdResume(thread_reference_t *trp, msg_t msg);
   void chThdSleep(sysinterval_t timeout);
+  void chThdSleepUntilS(systime_t abstime);
   void chThdSleepUntil(systime_t abstime);
   msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, sysinterval_t timeout);
   void chThdDoDequeueNextI(threads_queue_t *tqp, msg_t msg);

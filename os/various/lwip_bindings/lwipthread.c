@@ -82,6 +82,10 @@
 #define PERIODIC_TIMER_ID       1
 #define FRAME_RECEIVED_ID       2
 
+static net_addr_mode_t addressMode;
+static ip4_addr_t ip, gateway, netmask;
+static struct netif thisif;
+
 /*
  * Suspension point for initialization procedure.
  */
@@ -126,10 +130,10 @@ static void low_level_init(struct netif *netif) {
  */
 static err_t low_level_output(struct netif *netif, struct pbuf *p) {
   struct pbuf *q;
-  MACTransmitDescriptor td;
+  lwip_transmit_handle_t txh;
 
   (void)netif;
-  if (macWaitTransmitDescriptor(&ETHD1, &td, TIME_MS2I(LWIP_SEND_TIMEOUT)) != MSG_OK)
+  if (lwip_wait_transmit_handle(&txh) != MSG_OK)
     return ERR_TIMEOUT;
 
 #if ETH_PAD_SIZE
@@ -137,9 +141,20 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p) {
 #endif
 
   /* Iterates through the pbuf chain. */
-  for(q = p; q != NULL; q = q->next)
-    macWriteTransmitDescriptor(&td, (uint8_t *)q->payload, (size_t)q->len);
-  macReleaseTransmitDescriptorX(&td);
+  for (q = p; q != NULL; q = q->next) {
+    size_t n = lwip_write_transmit_handle(&txh, (const uint8_t *)q->payload,
+                                          (size_t)q->len);
+    if (n != (size_t)q->len) {
+      lwip_release_transmit_handle(&txh);
+#if ETH_PAD_SIZE
+      pbuf_header(p, ETH_PAD_SIZE);      /* reclaim the padding word */
+#endif
+      LINK_STATS_INC(link.drop);
+      MIB2_STATS_NETIF_INC(netif, ifoutdiscards);
+      return ERR_BUF;
+    }
+  }
+  lwip_release_transmit_handle(&txh);
 
   MIB2_STATS_NETIF_ADD(netif, ifoutoctets, p->tot_len);
   if (((u8_t*)p->payload)[0] & 1) {
@@ -171,18 +186,19 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p) {
  *         NULL on memory error
  */
 static bool low_level_input(struct netif *netif, struct pbuf **pbuf) {
-  MACReceiveDescriptor rd;
+  lwip_receive_handle_t rxh;
   struct pbuf *q;
+  size_t total;
   u16_t len;
 
   (void)netif;
 
   osalDbgAssert(pbuf != NULL, "invalid null pointer");
 
-  if (macWaitReceiveDescriptor(&ETHD1, &rd, TIME_IMMEDIATE) != MSG_OK)
+  if (lwip_wait_receive_handle(&rxh) != MSG_OK)
     return false;
 
-  len = (u16_t)rd.size;
+  len = (u16_t)lwip_receive_size(&rxh);
 
 #if ETH_PAD_SIZE
   len += ETH_PAD_SIZE;        /* allow room for Ethernet padding */
@@ -195,11 +211,24 @@ static bool low_level_input(struct netif *netif, struct pbuf **pbuf) {
 #if ETH_PAD_SIZE
     pbuf_header(*pbuf, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
+    total = 0U;
 
     /* Iterates through the pbuf chain. */
-    for(q = *pbuf; q != NULL; q = q->next)
-      macReadReceiveDescriptor(&rd, (uint8_t *)q->payload, (size_t)q->len);
-    macReleaseReceiveDescriptorX(&rd);
+    for (q = *pbuf; q != NULL; q = q->next) {
+      size_t n;
+
+      n = lwip_read_receive_handle(&rxh, (uint8_t *)q->payload,
+                                   (size_t)q->len);
+      total += n;
+      if (n != (size_t)q->len) {
+        break;
+      }
+    }
+    lwip_release_receive_handle(&rxh);
+
+#if defined(__CHIBIOS_XHAL_CONF__) && (ETH_SUPPORTS_ZERO_COPY != TRUE)
+    pbuf_realloc(*pbuf, (u16_t)total);
+#endif
 
     MIB2_STATS_NETIF_ADD(netif, ifinoctets, (*pbuf)->tot_len);
 
@@ -219,7 +248,7 @@ static bool low_level_input(struct netif *netif, struct pbuf **pbuf) {
     LINK_STATS_INC(link.recv);
   }
   else {
-    macReleaseReceiveDescriptorX(&rd);     // Drop packet
+    lwip_release_receive_handle(&rxh);     /* Drop packet. */
     LINK_STATS_INC(link.memerr);
     LINK_STATS_INC(link.drop);
     MIB2_STATS_NETIF_INC(netif, ifindiscards);
@@ -266,10 +295,6 @@ static err_t ethernetif_init(struct netif *netif) {
   return ERR_OK;
 }
 
-static net_addr_mode_t addressMode;
-static ip4_addr_t ip, gateway, netmask;
-static struct netif thisif;
-
 void lwipDefaultLinkUpCB(void *p)
 {
   struct netif *ifc = (struct netif*) p;
@@ -307,7 +332,6 @@ void lwipDefaultLinkDownCB(void *p)
 static THD_FUNCTION(lwip_thread, p) {
   event_timer_t evt;
   event_listener_t el0, el1;
-  static const MACConfig mac_config = {thisif.hwaddr};
   err_t result;
   tcpip_callback_fn link_up_cb = NULL;
   tcpip_callback_fn link_down_cb = NULL;
@@ -320,10 +344,7 @@ static THD_FUNCTION(lwip_thread, p) {
   /* TCP/IP parameters, runtime or compile time.*/
   if (p) {
     lwipthread_opts_t *opts = p;
-    unsigned i;
 
-    for (i = 0; i < 6; i++)
-      thisif.hwaddr[i] = opts->macaddress[i];
     ip.addr = opts->address;
     gateway.addr = opts->gateway;
     netmask.addr = opts->netmask;
@@ -335,12 +356,6 @@ static THD_FUNCTION(lwip_thread, p) {
     link_down_cb = opts->link_down_cb;
   }
   else {
-    thisif.hwaddr[0] = LWIP_ETHADDR_0;
-    thisif.hwaddr[1] = LWIP_ETHADDR_1;
-    thisif.hwaddr[2] = LWIP_ETHADDR_2;
-    thisif.hwaddr[3] = LWIP_ETHADDR_3;
-    thisif.hwaddr[4] = LWIP_ETHADDR_4;
-    thisif.hwaddr[5] = LWIP_ETHADDR_5;
     LWIP_IPADDR(&ip);
     LWIP_GATEWAY(&gateway);
     LWIP_NETMASK(&netmask);
@@ -366,7 +381,11 @@ static THD_FUNCTION(lwip_thread, p) {
     thisif.hostname = LWIP_NETIF_HOSTNAME_STRING;
 #endif
 
-  macStart(&ETHD1, &mac_config);
+  if (lwip_lld_start((const lwipthread_opts_t *)p, &thisif) !=
+      HAL_RET_SUCCESS) {
+    chThdSleepMilliseconds(1000);
+    osalSysHalt("ethernet start error");
+  }
 
   MIB2_INIT_NETIF(&thisif, snmp_ifType_ethernet_csmacd, 0);
 
@@ -385,8 +404,8 @@ static THD_FUNCTION(lwip_thread, p) {
   evtObjectInit(&evt, LWIP_LINK_POLL_INTERVAL);
   evtStart(&evt);
   chEvtRegisterMask(&evt.et_es, &el0, PERIODIC_TIMER_ID);
-  chEvtRegisterMaskWithFlags(macGetEventSource(&ETHD1), &el1,
-                                               FRAME_RECEIVED_ID, MAC_FLAGS_RX);
+  chEvtRegisterMaskWithFlags(lwip_get_event_source(), &el1,
+                             FRAME_RECEIVED_ID, lwip_get_receive_event_flag());
   chEvtAddEvents(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID);
 
   /* Resumes the caller and goes to the final priority.*/
@@ -396,17 +415,17 @@ static THD_FUNCTION(lwip_thread, p) {
   while (true) {
     eventmask_t mask = chEvtWaitAny(ALL_EVENTS);
     if (mask & PERIODIC_TIMER_ID) {
-      bool current_link_status = macPollLinkStatus(&ETHD1);
+      bool current_link_status = lwip_poll_link_status();
       if (current_link_status != netif_is_link_up(&thisif)) {
         if (current_link_status) {
           tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
-                                     &thisif, 0);
-          tcpip_callback_with_block(link_up_cb, &thisif, 0);
+                                     &thisif, 1);
+          tcpip_callback_with_block(link_up_cb, &thisif, 1);
         }
         else {
           tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_down,
-                                     &thisif, 0);
-          tcpip_callback_with_block(link_down_cb, &thisif, 0);
+                                     &thisif, 1);
+          tcpip_callback_with_block(link_down_cb, &thisif, 1);
         }
       }
     }
@@ -420,6 +439,9 @@ static THD_FUNCTION(lwip_thread, p) {
             /* IP or ARP packet? */
             case ETHTYPE_IP:
             case ETHTYPE_ARP:
+#if LWIP_IPV6
+            case ETHTYPE_IPV6:
+#endif
               /* full packet send to tcpip_thread to process */
               if (thisif.input(p, &thisif) == ERR_OK)
                 break;
@@ -522,10 +544,14 @@ static void do_reconfigure(void *p)
 void lwipReconfigure(const lwipreconf_opts_t *opts)
 {
   lwip_reconf_params_t params;
+  err_t err;
+
   params.opts = opts;
   chSemObjectInit(&params.completion, 0);
-  tcpip_callback_with_block(do_reconfigure, &params, 0);
-  chSemWait(&params.completion);
+  err = tcpip_callback_with_block(do_reconfigure, &params, 1);
+  if (err == ERR_OK) {
+    chSemWait(&params.completion);
+  }
 }
 
 /** @} */

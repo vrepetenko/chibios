@@ -212,7 +212,7 @@ void vt_storm_execute(const vt_storm_config_t *cfg) {
   chprintf(cfg->out, "*** System Time size: %d bits\r\n", CH_CFG_ST_RESOLUTION);
   chprintf(cfg->out, "*** Intervals size:   %d bits\r\n", CH_CFG_INTERVALS_SIZE);
   chprintf(cfg->out, "*** SysTick:          %d Hz\r\n", CH_CFG_ST_FREQUENCY);
-  chprintf(cfg->out, "*** Delta:            %d ticks\r\n", CH_CFG_ST_TIMEDELTA);
+  chprintf(cfg->out, "*** Initial delta:    %d ticks\r\n", chVTGetCurrentDelta());
   chprintf(cfg->out, "\r\n");
 
 #if VT_STORM_CFG_HAMMERS
@@ -323,6 +323,7 @@ void vt_storm_execute(const vt_storm_config_t *cfg) {
     if (warning) {
       chprintf(cfg->out, "\r\nRFCU warning detected at %u uS %u ticks",
                TIME_I2US(delay), delay);
+      chprintf(cfg->out, "\r\nRecalculated delta is %u ticks", chVTGetCurrentDelta());
     }
     else {
       chprintf(cfg->out, "\r\nNo warnings");

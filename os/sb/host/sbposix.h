@@ -27,9 +27,18 @@
 #ifndef SBPOSIX_H
 #define SBPOSIX_H
 
+#if (SB_CFG_ENABLE_VFS == TRUE) || defined(__DOXYGEN__)
+
+#include "vfs.h"
+
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
+
+/**
+ * @brief    Posix shared syscall handler
+ */
+#define SB_SVC128_HANDLER       sb_sysc_stdio
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -43,6 +52,26 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+#if (SB_CFG_ENABLE_VFS == TRUE) || defined(__DOXYGEN__)
+/**
+ * @brief   Type of a sandbox I/O structure.
+ */
+typedef struct {
+  /**
+   * @brief   VFS driver associated to the sandbox as root.
+   * @note    The object is owned by the host side. SB uses the pointed
+   *          driver instance directly so mutable state inside the driver,
+   *          such as the current working directory, is private to the
+   *          sandbox only if a distinct driver instance is associated to it.
+   */
+  vfs_driver_c                  *vfs_driver;
+  /**
+   * @brief   VFS nodes associated to file descriptors.
+   */
+  vfs_node_c                    *vfs_nodes[SB_CFG_FD_NUM];
+} sb_ioblock_t;
+#endif
+
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
@@ -54,11 +83,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  uint32_t sb_posix_open(const char *pathname, uint32_t flags);
-  uint32_t sb_posix_close(uint32_t fd);
-  uint32_t sb_posix_read(uint32_t fd, uint8_t *buf, size_t count);
-  uint32_t sb_posix_write(uint32_t fd, const uint8_t *buf, size_t count);
-  uint32_t sb_posix_lseek(uint32_t fd, uint32_t offset, uint32_t whence);
+  void __sb_io_cleanup(sb_class_t *sbp);
+  void sb_sysc_stdio(sb_class_t *sbp, struct port_extctx *ectxp);
 #ifdef __cplusplus
 }
 #endif
@@ -66,6 +92,23 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+static inline bool sb_is_valid_descriptor(int fd) {
+
+  return (fd >= 0) && (fd < SB_CFG_FD_NUM);
+}
+
+static inline bool sb_is_available_descriptor(sb_ioblock_t *iop, int fd) {
+
+  return (fd >= 0) && (fd < SB_CFG_FD_NUM) && (iop->vfs_nodes[fd] == NULL);
+}
+
+static inline bool sb_is_existing_descriptor(sb_ioblock_t *iop, int fd) {
+
+  return (fd >= 0) && (fd < SB_CFG_FD_NUM) && (iop->vfs_nodes[fd] != NULL);
+}
+
+#endif /* SB_CFG_ENABLE_VFS == TRUE */
 
 #endif /* SBPOSIX_H */
 

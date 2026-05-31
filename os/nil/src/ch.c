@@ -656,7 +656,6 @@ void chSchRescheduleS(void) {
  * @param[in] timeout   the number of ticks before the operation timeouts.
  *                      the following special values are allowed:
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The wakeup message.
  * @retval MSG_TIMEOUT  if a timeout occurred.
  *
@@ -767,7 +766,7 @@ thread_t *chThdCreateI(const thread_descriptor_t *tdp) {
              (tdp->wbase != NULL) &&
              MEM_IS_ALIGNED(tdp->wbase, PORT_WORKING_AREA_ALIGN) &&
              (tdp->wend > tdp->wbase) &&
-             MEM_IS_ALIGNED(tdp->wbase, PORT_STACK_ALIGN) &&
+             MEM_IS_ALIGNED(tdp->wend, PORT_STACK_ALIGN) &&
              (tdp->funcp != NULL));
 
   chDbgCheckClassI();
@@ -781,7 +780,7 @@ thread_t *chThdCreateI(const thread_descriptor_t *tdp) {
   tp->epmask = (eventmask_t)0;
 #endif
 #if CH_DBG_ENABLE_STACK_CHECK == TRUE
-  tp->wabase = (stkalign_t *)tdp->wbase;
+  tp->wabase = (stkline_t *)tdp->wbase;
 #endif
 
   /* Port dependent thread initialization.*/
@@ -895,7 +894,6 @@ msg_t chThdWait(thread_t *tp) {
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The wake up message.
  *
  * @sclass
@@ -972,6 +970,25 @@ void chThdSleep(sysinterval_t timeout) {
  *
  * @param[in] abstime   absolute system time
  *
+ * @sclass
+ */
+void chThdSleepUntilS(systime_t abstime) {
+  sysinterval_t interval;
+
+  chDbgCheckClassS();
+
+  interval = chTimeDiffX(chVTGetSystemTimeX(), abstime);
+  if (interval > (sysinterval_t)0) {
+    (void) chSchGoSleepTimeoutS(NIL_STATE_SLEEPING, interval);
+  }
+}
+
+/**
+ * @brief   Suspends the invoking thread until the system time arrives to the
+ *          specified value.
+ *
+ * @param[in] abstime   absolute system time
+ *
  * @api
  */
 void chThdSleepUntil(systime_t abstime) {
@@ -991,7 +1008,6 @@ void chThdSleepUntil(systime_t abstime) {
  *                      handled as follow:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The message from @p osalQueueWakeupOneI() or
  *                      @p osalQueueWakeupAllI() functions.
  * @retval MSG_TIMEOUT  if the thread has not been dequeued within the

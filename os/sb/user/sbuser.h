@@ -27,7 +27,14 @@
 #ifndef SBUSER_H
 #define SBUSER_H
 
-#include "sberr.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+#include "errcodes.h"
+#include "dirent.h"
+#include "sbsysc.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -44,6 +51,32 @@
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/
+
+/**
+ * @brief   Type of a parameters structure passed to the sandbox.
+ */
+typedef struct sb_parameters {
+  /**
+   * @brief   Number of arguments.
+   */
+  int                       argc;
+  /**
+   * @brief   Vector of arguments.
+   */
+  char                      **argv;
+  /**
+   * @brief   Pointer to environment variables array.
+   */
+  char                      **envp;
+  /**
+   * @brief   Address of the physical sandbox end.
+   */
+  uint8_t                   *sb_end;
+  /**
+   * @brief   Address of heap end.
+   */
+  uint8_t                   *heap_end;
+} sb_parameters_t;
 
 /**
  * @brief   Type of system time counter.
@@ -78,7 +111,7 @@ typedef uint32_t time_secs_t;
 /**
  * @brief   Type of a message.
  */
-typedef uint32_t msg_t;
+typedef int32_t msg_t;
 
 /**
  * @brief   Type of an event mask.
@@ -132,21 +165,51 @@ typedef uint32_t eventflags_t;
   register uint32_t r0 asm ("r0");                                          \
   asm volatile ("svc " #x : "=r" (r0) : : "memory")
 
+#define __syscall0rr(x)                                                     \
+  register uint32_t r0 asm ("r0");                                          \
+  register uint32_t r1 asm ("r1");                                          \
+  asm volatile ("svc " #x : "=r" (r0), "=r" (r1) : : "memory")
+
 #define __syscall1r(x, p1)                                                  \
   register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
   asm volatile ("svc " #x : "=r" (r0) : "r" (r0) : "memory")
 
+#define __syscall1rr(x, p1)                                                 \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  register uint32_t r1 asm ("r1");                                          \
+  asm volatile ("svc " #x : "=r" (r0), "=r" (r1) :                          \
+                             "r" (r0) :                                     \
+                             "memory")
+
 #define __syscall2r(x, p1, p2)                                              \
   register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
   register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
-  asm volatile ("svc " #x : "=r" (r0) : "r" (r0), "r" (r1) : "memory")
+  asm volatile ("svc " #x : "=r" (r0) :                                     \
+                            "r" (r0), "r" (r1) :                            \
+                            "memory")
+
+#define __syscall2rr(x, p1, p2)                                             \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
+  asm volatile ("svc " #x : "=r" (r0), "=r" (r1) :                          \
+                            "r" (r0), "r" (r1) :                            \
+                            "memory")
 
 #define __syscall3r(x, p1, p2, p3)                                          \
   register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
   register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
   register uint32_t r2 asm ("r2") = (uint32_t)(p3);                         \
   asm volatile ("svc " #x : "=r" (r0) : "r" (r0), "r" (r1),                 \
-                                        "r" (r2) : "memory")
+                                        "r" (r2) :                          \
+                                        "memory")
+
+#define __syscall3rr(x, p1, p2, p3)                                         \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
+  register uint32_t r2 asm ("r2") = (uint32_t)(p3);                         \
+  asm volatile ("svc " #x : "=r" (r0), "=r" (r1) :                          \
+                            "r" (r0), "r" (r1), "r" (r2) :                  \
+                            "memory")
 
 #define __syscall4r(x, p1, p2, p3, p4)                                      \
   register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
@@ -154,12 +217,31 @@ typedef uint32_t eventflags_t;
   register uint32_t r2 asm ("r2") = (uint32_t)(p3);                         \
   register uint32_t r3 asm ("r3") = (uint32_t)(p4);                         \
   asm volatile ("svc " #x : "=r" (r0) : "r" (r0), "r" (r1),                 \
-                                        "r" (r2), "r" (r3) : "memory")
+                                        "r" (r2), "r" (r3) :                \
+                                        "memory")
+
+#define __syscall4rr(x, p1, p2, p3, p4)                                     \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
+  register uint32_t r2 asm ("r2") = (uint32_t)(p3);                         \
+  register uint32_t r3 asm ("r3") = (uint32_t)(p4);                         \
+  asm volatile ("svc " #x : "=r" (r0), "=r" (r1) :                          \
+                            "r" (r0), "r" (r1), "r" (r2), "r" (r3) :        \
+                            "memory")
 /** @} */
+
+/**
+ * @brief   VRQ return pseudo-instruction.
+ *
+ * @api
+ */
+#define __sb_vrq_return()   __syscall0(127)
 
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
+
+extern sb_parameters_t __sb_parameters;
 
 #ifdef __cplusplus
 extern "C" {
@@ -174,17 +256,29 @@ extern "C" {
 /*===========================================================================*/
 
 /**
+ * @brief   Posix-style file status.
+ *
+ * @param[in] pathname  file to be examined
+ * @param[in] statbuf   pointer to a @p stat structure
+ * @return              Operation result.
+ */
+static inline msg_t sbStat(const char *pathname, struct stat *statbuf) {
+
+  __syscall3r(128, SB_POSIX_STAT, pathname, statbuf);
+  return (msg_t)r0;
+}
+
+/**
  * @brief   Posix-style file open.
  *
  * @param[in] pathname  file to be opened
  * @param[in] flags     open mode
  * @return              The file descriptor or an error.
  */
-static inline uint32_t sbFileOpen(const char *pathname,
-                                  uint32_t flags) {
+static inline msg_t sbOpen(const char *pathname, int flags) {
 
-  __syscall3r(0, SB_POSIX_OPEN, pathname, flags);
-  return r0;
+  __syscall3r(128, SB_POSIX_OPEN, pathname, flags);
+  return (msg_t)r0;
 }
 
 /**
@@ -193,10 +287,48 @@ static inline uint32_t sbFileOpen(const char *pathname,
  * @param[in] fd        file descriptor
  * @return              Operation result.
  */
-static inline uint32_t sbFileClose(uint32_t fd) {
+static inline msg_t sbClose(int fd) {
 
-  __syscall2r(0, SB_POSIX_CLOSE, fd);
-  return r0;
+  __syscall2r(128, SB_POSIX_CLOSE, fd);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style file descriptor duplication.
+ *
+ * @param[in] fd        file descriptor
+ * @return              Operation result.
+ */
+static inline msg_t sbDup(int fd) {
+
+  __syscall2r(128, SB_POSIX_DUP, fd);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style file descriptor assignment.
+ *
+ * @param[in] oldfd     old file descriptor
+ * @param[in] newfd     new file descriptor
+ * @return              Operation result.
+ */
+static inline msg_t sbDup2(int oldfd, int newfd) {
+
+  __syscall3r(128, SB_POSIX_DUP, oldfd, newfd);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style file status.
+ *
+ * @param[in] fd        file descriptor
+ * @param[in] statbuf   pointer to a @p stat structure
+ * @return              Operation result.
+ */
+static inline msg_t sbFstat(int fd, struct stat *statbuf) {
+
+  __syscall3r(128, SB_POSIX_FSTAT, fd, statbuf);
+  return (msg_t)r0;
 }
 
 /**
@@ -207,12 +339,10 @@ static inline uint32_t sbFileClose(uint32_t fd) {
  * @param[in] count     number of bytes
  * @return              The number of bytes really transferred or an error.
  */
-static inline size_t sbFileRead(uint32_t fd,
-                                uint8_t *buf,
-                                size_t count) {
+static inline msg_t sbRead(int fd, void *buf, size_t count) {
 
-  __syscall4r(0, SB_POSIX_READ, fd, buf, count);
-  return (size_t)r0;
+  __syscall4r(128, SB_POSIX_READ, fd, buf, count);
+  return (msg_t)r0;
 }
 
 /**
@@ -223,12 +353,10 @@ static inline size_t sbFileRead(uint32_t fd,
  * @param[in] count     number of bytes
  * @return              The number of bytes really transferred or an error.
  */
-static inline size_t sbFileWrite(uint32_t fd,
-                                 const uint8_t *buf,
-                                 size_t count) {
+static inline msg_t sbWrite(int fd, const void *buf, size_t count) {
 
-  __syscall4r(0, SB_POSIX_WRITE, fd, buf, count);
-  return (size_t)r0;
+  __syscall4r(128, SB_POSIX_WRITE, fd, buf, count);
+  return (msg_t)r0;
 }
 
 /**
@@ -239,12 +367,120 @@ static inline size_t sbFileWrite(uint32_t fd,
  * @param[in] whence    operation mode
  * @return              Operation result.
  */
-static inline uint32_t sbFileSeek(uint32_t fd,
-                                  uint32_t offset,
-                                  uint32_t whence) {
+static inline msg_t sbSeek(int fd, off_t offset, int whence) {
 
-  __syscall4r(0, SB_POSIX_LSEEK, fd, offset, whence);
-  return (size_t)r0;
+  __syscall4r(128, SB_POSIX_LSEEK, fd, offset, whence);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style directory read.
+ * @param[in] fd        file descriptor
+ * @param[in] buf       buffer pointer
+ * @param[in] count     number of bytes
+ * @return              The number of bytes really transferred or an error.
+ */
+static inline msg_t sbGetdents(int fd, void *buf, size_t count) {
+
+  __syscall4r(128, SB_POSIX_GETDENTS, fd, buf, count);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style change current directory.
+ *
+ * @param[in] path      new current path
+ * @return              Operation result.
+ */
+static inline msg_t sbChdir(const char *path) {
+
+  __syscall2r(128, SB_POSIX_CHDIR, path);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style get current directory.
+ *
+ * @param[in] buf       path buffer
+ * @param[in] size      path buffer size
+ * @return              Operation result.
+ */
+static inline msg_t sbGetcwd(char *buf, size_t size) {
+
+  __syscall3r(128, SB_POSIX_GETCWD, buf, size);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style unlink file.
+ *
+ * @param[in] path      file to be unlinked
+ * @return              Operation result.
+ */
+static inline msg_t sbUnlink(const char *path) {
+
+  __syscall2r(128, SB_POSIX_UNLINK, path);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style rename file or directory.
+ *
+ * @param[in] oldpath   old path to the file or directory
+ * @param[in] newpath   new path to the file or directory
+ * @return              Operation result.
+ */
+static inline msg_t sbRename(const char *oldpath, const char *newpath) {
+
+  __syscall3r(128, SB_POSIX_RENAME, oldpath, newpath);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style create directory.
+ *
+ * @param[in] path      directory to be created
+ * @param[in] mode      directory creation mode
+ * @return              Operation result.
+ */
+static inline msg_t sbMkdir(const char *path, mode_t mode) {
+
+  __syscall3r(128, SB_POSIX_MKDIR, path, mode);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Posix-style remove directory.
+ *
+ * @param[in] path      directory to be removed
+ * @return              Operation result.
+ */
+static inline msg_t sbRmdir(const char *path) {
+
+  __syscall2r(128, SB_POSIX_RMDIR, path);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Returns the system time.
+ *
+ * @return              The current system time.
+ */
+static inline systime_t sbGetSystemTime(void) {
+
+  __syscall0r(1);
+  return (systime_t)r0;
+}
+
+/**
+ * @brief   Returns the system time frequency.
+ *
+ * @return              The system time frequency.
+ */
+static inline uint32_t sbGetFrequency(void) {
+
+  __syscall0r(2);
+  return (uint32_t)r0;
 }
 
 /**
@@ -256,29 +492,7 @@ static inline uint32_t sbFileSeek(uint32_t fd,
  */
 static inline void sbExit(msg_t msg) {
 
-  __syscall1r(1, msg);
-}
-
-/**
- * @brief   Returns the system time.
- *
- * @return              The current system time.
- */
-static inline systime_t sbGetSystemTime(void) {
-
-  __syscall0r(2);
-  return (systime_t)r0;
-}
-
-/**
- * @brief   Returns the system time frequency.
- *
- * @return              The system time frequency.
- */
-static inline uint32_t sbGetFrequency(void) {
-
-  __syscall0r(3);
-  return (uint32_t)r0;
+  __syscall1r(129, msg);
 }
 
 /**
@@ -290,7 +504,7 @@ static inline uint32_t sbGetFrequency(void) {
  */
 static inline void sbSleep(sysinterval_t interval) {
 
-  __syscall1r(4, interval);
+  __syscall1r(130, interval);
 }
 
 /**
@@ -308,7 +522,7 @@ static inline void sbSleep(sysinterval_t interval) {
  */
 static inline void sbSleepUntil(systime_t prev, systime_t next) {
 
-  __syscall2r(5, prev, next);
+  __syscall2r(131, prev, next);
 }
 
 /**
@@ -318,7 +532,7 @@ static inline void sbSleepUntil(systime_t prev, systime_t next) {
  */
 static inline msg_t sbMsgWait(void) {
 
-  __syscall0r(6);
+  __syscall0r(132);
   return (uint32_t)r0;
 }
 
@@ -331,7 +545,7 @@ static inline msg_t sbMsgWait(void) {
  */
 static inline uint32_t sbMsgReply(msg_t msg) {
 
-  __syscall1r(7, msg);
+  __syscall1r(133, msg);
   return (uint32_t)r0;
 }
 
@@ -360,7 +574,7 @@ static inline uint32_t sbMsgReply(msg_t msg) {
 static inline eventmask_t sbEventWaitOneTimeout(eventmask_t events,
                                                 sysinterval_t timeout) {
 
-  __syscall2r(8, events, timeout);
+  __syscall2r(134, events, timeout);
   return (uint32_t)r0;
 }
 
@@ -385,7 +599,7 @@ static inline eventmask_t sbEventWaitOneTimeout(eventmask_t events,
 static inline eventmask_t sbEventWaitAnyTimeout(eventmask_t events,
                                                 sysinterval_t timeout) {
 
-  __syscall2r(9, events, timeout);
+  __syscall2r(135, events, timeout);
   return (uint32_t)r0;
 }
 
@@ -409,7 +623,7 @@ static inline eventmask_t sbEventWaitAnyTimeout(eventmask_t events,
 static inline eventmask_t sbEventWaitAllTimeout(eventmask_t events,
                                                 sysinterval_t timeout) {
 
-  __syscall2r(10, events, timeout);
+  __syscall2r(136, events, timeout);
   return (uint32_t)r0;
 }
 
@@ -423,8 +637,26 @@ static inline eventmask_t sbEventWaitAllTimeout(eventmask_t events,
  */
 static inline uint32_t sbEventBroadcastFlags(eventflags_t flags) {
 
-  __syscall1r(11, flags);
+  __syscall1r(137, flags);
   return (uint32_t)r0;
+}
+
+/**
+ * @brief   Loads an elf file within the sandbox into the specified buffer.
+ * @details The file is loaded and relocated starting from the buffer
+ *          address.
+ *
+ * @param[in] fname     file to be loaded
+ * @param[in] buf       load buffer
+ * @param[in] size      size of the load buffer
+ *
+ * @api
+ */
+static inline msg_t sbLoadElf(const char *fname, uint8_t *buf, size_t size) {
+
+  __syscall3r(138, fname, buf, size);
+  return (msg_t)r0;
+
 }
 
 /**
@@ -595,6 +827,7 @@ static inline sysinterval_t sbTimeDiffX(systime_t start, systime_t end) {
  * @param[in] time      the time to be verified
  * @param[in] start     the start of the time window (inclusive)
  * @param[in] end       the end of the time window (non inclusive)
+ * @return              The time range check result.
  * @retval true         current time within the specified time window.
  * @retval false        current time not within the specified time window.
  *
@@ -648,6 +881,148 @@ static inline void sbSleepMilliseconds(time_msecs_t msecs) {
 static inline void sbSleepMicroseconds(time_usecs_t usecs) {
 
   sbSleep(sbTimeUS2I(usecs));
+}
+
+/**
+ * @brief   Sets an alarm.
+ * @note    On alarm a VRQ is triggered on vector @p SB_VRQ_ALARM.
+ * @note    The interval @p TIME_IMMEDIATE is not allowed.
+ *
+ * @param[in] interval  the interval in system ticks
+ * @param[in] reload    specifies a periodic alarm
+ * @return              The operation result.
+ * @retval CH_RET_SUCCESS if the alarm has been accepted.
+ * @retval CH_RET_EINVAL  if @p interval is @p TIME_IMMEDIATE.
+ *
+ * @api
+ */
+static inline msg_t sbSetAlarm(sysinterval_t interval, bool reload) {
+
+  __syscall2r(253, (uint32_t)interval, (uint32_t)reload);
+  return (msg_t)r0;
+}
+
+/**
+ * @brief   Resets an alarm.
+ *
+ * @api
+ */
+static inline void sbResetAlarm(void) {
+
+  __syscall0(254);
+}
+
+/**
+ * @brief   VRQ @p wait pseudo-instruction.
+ *
+ * @api
+ */
+static inline void __sb_vrq_wait(void) {
+
+  __syscall0(255);
+}
+
+/**
+ * @brief   VRQ @p gcsts pseudo-instruction.
+ *
+ * @param[in] n         VRQ number
+ * @return              The associated VRQ flags.
+ *
+ * @api
+ */
+static inline uint32_t __sb_vrq_gcsts(uint32_t nvrq) {
+
+  __syscall1r(119, nvrq);
+  return r0;
+}
+
+/**
+ * @brief   VRQ @p setwt pseudo-instruction.
+ *
+ * @param[in] m         VRQs mask
+ * @return              The mask of pending interrupts.
+ *
+ * @api
+ */
+static inline uint32_t __sb_vrq_setwt(uint32_t m) {
+
+  __syscall1r(120, m);
+  return r0;
+}
+
+/**
+ * @brief   VRQ @p clrwt pseudo-instruction.
+ *
+ * @param[in] m         VRQs mask
+ * @return              The mask of pending interrupts.
+ *
+ * @api
+ */
+static inline uint32_t __sb_vrq_clrwt(uint32_t m) {
+
+  __syscall1r(121, m);
+  return r0;
+}
+
+/**
+ * @brief   VRQ @p seten pseudo-instruction.
+ *
+ * @param[in] m         VRQs mask
+ * @return              The mask of enabled interrupts.
+ *
+ * @api
+ */
+static inline uint32_t __sb_vrq_seten(uint32_t m) {
+
+  __syscall1r(122, m);
+  return r0;
+}
+
+/**
+ * @brief   VRQ @p clren pseudo-instruction.
+ *
+ * @param[in] m         VRQs mask
+ * @return              The mask of enabled interrupts.
+ *
+ * @api
+ */
+static inline uint32_t __sb_vrq_clren(uint32_t m) {
+
+  __syscall1r(123, m);
+  return r0;
+}
+
+/**
+ * @brief   VRQ @p disable pseudo-instruction.
+ *
+ * @api
+ */
+static inline void __sb_vrq_disable(void) {
+
+  __syscall0(124);
+}
+
+/**
+ * @brief   VRQ @p enable pseudo-instruction.
+ *
+ * @api
+ */
+static inline void __sb_vrq_enable(void) {
+
+  __syscall0(125);
+}
+
+/**
+ * @brief   VRQ @p getisr pseudo-instruction.
+ *
+ * @return              The interrupts status register value.
+ *
+ * @api
+ */
+static inline uint32_t __sb_vrq_getisr(void) {
+
+  __syscall0r(126);
+  return r0;
 }
 
 #endif /* SBUSER_H */

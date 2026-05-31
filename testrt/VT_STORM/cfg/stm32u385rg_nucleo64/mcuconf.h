@@ -136,7 +136,7 @@
 #define STM32_I2C2SEL                       RCC_CCIPR1_I2C2SEL_PCLK1
 #define STM32_I2C3SEL                       RCC_CCIPR3_I2C3SEL_PCLK3
 #define STM32_I3C1SEL                       RCC_CCIPR1_I3C1SEL_PCLK1
-#define STM32_I3C2SEL                       RCC_CCIPR1_I3C2SEL_PCLK3
+#define STM32_I3C2SEL                       RCC_CCIPR1_I3C2SEL_PCLK2
 #define STM32_ADCDACSEL                     RCC_CCIPR2_ADCDACSEL_HCLK
 #define STM32_DAC1SHSEL                     RCC_CCIPR2_DAC1SHSEL_IGNORE
 #define STM32_ADCDACPRE                     RCC_CCIPR2_ADCDACPRE_ICLK
@@ -284,9 +284,6 @@
 /*
  * RTC driver system settings.
  */
-#define STM32_RTC_PRESA_VALUE               32
-#define STM32_RTC_PRESS_VALUE               1024
-#define STM32_RTC_CR_INIT                   0
 
 /*
  * SDC driver system settings.

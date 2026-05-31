@@ -52,7 +52,7 @@ extern bool __avr_in_isr;
 #define PORT_NATURAL_ALIGN              1U
 
 /**
- * @brief   Stack alignment constant.
+ * @brief   Stack initial alignment constant.
  * @note    It is the alignment required for the stack pointer.
  */
 #define PORT_STACK_ALIGN                1U
@@ -150,7 +150,7 @@ extern bool __avr_in_isr;
  * @brief   Type of stack and memory alignment enforcement.
  * @note    In this architecture the stack alignment is enforced to 8 bits.
  */
-typedef uint8_t stkalign_t;
+typedef uint8_t stkline_t;
 
 /**
  * @brief   Interrupt saved context.
@@ -272,17 +272,6 @@ struct port_context {
                          ((size_t)(n)) + ((size_t)(PORT_INT_REQUIRED_STACK)))
 
 /**
- * @brief   Static working area allocation.
- * @details This macro is used to allocate a static thread working area
- *          aligned as both position and size.
- *
- * @param[in] s         the name to be assigned to the stack array
- * @param[in] n         the stack size to be assigned to the thread
- */
-#define PORT_WORKING_AREA(s, n)                                             \
-  stkalign_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkalign_t)]
-
-/**
  * @brief   Priority level verification macro.
  */
 #define PORT_IRQ_IS_VALID_PRIORITY(n) false
@@ -350,7 +339,7 @@ struct port_context {
 /**
  * @brief   Returns a word representing a critical section status.
  *
- * @return              The critical section status.
+ * @return  The critical section status.
  */
 #define port_get_lock_status() port_get_irq_status()
 
@@ -362,8 +351,7 @@ struct port_context {
  * @retval false        if running outside a critical section.
  * @retval true         if running within a critical section.
  */
-#define port_is_locked(sts) (!port_irq_enabled(sts))
-
+#define port_is_locked(sts) !port_irq_enabled(sts)
 
 /**
  * @brief   Port-related initialization code.

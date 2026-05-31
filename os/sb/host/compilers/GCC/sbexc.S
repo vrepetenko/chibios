@@ -48,24 +48,26 @@
 
                 .align      2
                 .thumb_func
-                .global     port_syscall
-port_syscall:
-                ldr         r3, =sb_syscalls
-                ldr.w       r3, [r3, r1, lsl #2]
+                .global     __sb_dispatch_syscall
+__sb_dispatch_syscall:
+                movw        r3, #:lower16:sb_syscalls
+                movt        r3, #:upper16:sb_syscalls
+                subs        r2, #128
+                ldr.w       r3, [r3, r2, lsl #2]
                 blx         r3
                 svc         1
-.zombies1:      b           .zombies1
+1:              b           1b
 
                 .align      2
                 .thumb_func
                 .global     HardFault_Handler
 HardFault_Handler:
                 tst.w       lr, #8
-                beq.n       .normal_hf
+                beq.n       1f
                 mrs         r3, CONTROL
                 tst.w       r3, #1
-                bne.w       .exit_thd
-.normal_hf:     ldr         r3, =HardFault_Handler_SB
+                bne.w       .Lexit_thd
+1:              ldr         r3, =HardFault_Handler_SB
                 bx          r3
 
                 .align      2
@@ -73,11 +75,11 @@ HardFault_Handler:
                 .global     MemManage_Handler
 MemManage_Handler:
                 tst.w       lr, #8
-                beq.n       .normal_mm
+                beq.n       1f
                 mrs         r3, CONTROL
                 tst.w       r3, #1
-                bne.w       .exit_thd
-.normal_mm:     ldr         r3, =MemManage_Handler_SB
+                bne.w       .Lexit_thd
+1:              ldr         r3, =MemManage_Handler_SB
                 bx          r3
 
                 .align      2
@@ -85,11 +87,11 @@ MemManage_Handler:
                 .global     BusFault_Handler
 BusFault_Handler:
                 tst.w       lr, #8
-                beq.n       .normal_bf
+                beq.n       1f
                 mrs         r3, CONTROL
                 tst.w       r3, #1
-                bne.w       .exit_thd
-.normal_bf:     ldr         r3, =BusFault_Handler_SB
+                bne.w       .Lexit_thd
+1:              ldr         r3, =BusFault_Handler_SB
                 bx          r3
 
                 .align      2
@@ -97,11 +99,11 @@ BusFault_Handler:
                 .global     UsageFault_Handler
 UsageFault_Handler:
                 tst.w       lr, #8
-                beq.n       .normal_uf
+                beq.n       1f
                 mrs         r3, CONTROL
                 tst.w       r3, #1
-                bne.w       .exit_thd
-.normal_uf:     ldr         r3, =UsageFault_Handler_SB
+                bne.w       .Lexit_thd
+1:              ldr         r3, =UsageFault_Handler_SB
                 bx          r3
 
 /*
@@ -109,24 +111,27 @@ UsageFault_Handler:
  * Makes the current exception return on chThdExit() with the PSR
  * value as exit message.
  */
-.exit_thd:
+.Lexit_thd:
                 mov.w       r4, lr
 
                 /* This thread is going to die so going back on
                    S-PSP and working safely from there.*/
                 bl          port_get_s_psp
+#if defined(PORT_ARCHITECTURE_ARM_V8M_MAINLINE)
+                msr         PSPLIM, r1
+#endif
 #if CORTEX_USE_FPU
                 sub.w       r0, r0, #104
 #else
                 sub.w       r0, r0, #32
-                msr         PSP, r0
 #endif
+                msr         PSP, r0
 
                 /* Forcing return on exit syscall code with PSR
                    value as exit message.*/
                 mrs         r2, PSR
                 str         r2, [r0, #0]
-                ldr         r2, =.do_exit
+                ldr         r2, =.Ldo_exit
                 str         r2, [r0, #24]
                 ldr         r2, =0x01000000
                 str         r2, [r0, #28]
@@ -147,9 +152,9 @@ UsageFault_Handler:
                 bx          r4
 
                 /* Exception exit point.*/
-.do_exit:
+.Ldo_exit:
                 bl          __sb_abort
-.zombies2:      b           .zombies2
+1:              b           1b
 
                 .align      2
                 .thumb_func

@@ -49,6 +49,20 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+#if (CH_CFG_USE_HEAP == TRUE) || defined(__DOXYGEN__)
+static void thd_heapfree(thread_t *tp) {
+
+  chHeapFree((void *)tp->wabase);
+}
+#endif /* CH_CFG_USE_HEAP == TRUE */
+
+#if (CH_CFG_USE_MEMPOOLS == TRUE) || defined(__DOXYGEN__)
+static void thd_poolfree(thread_t *tp) {
+
+  chPoolFree((memory_pool_t *)tp->object, (void *)tp->wabase);
+}
+#endif /* CH_CFG_USE_MEMPOOLS == TRUE */
+
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
@@ -70,8 +84,8 @@
  * @param[in] name      thread name
  * @param[in] prio      the priority level for the new thread
  * @param[in] pf        the thread function
- * @param[in] arg       an argument passed to the thread function. It can be
- *                      @p NULL.
+ * @param[in] arg       an argument to be passed to the thread function. It
+ *                      can be @p NULL.
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  * @retval NULL         if the memory cannot be allocated.
@@ -82,15 +96,23 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
                               const char *name, tprio_t prio,
                               tfunc_t pf, void *arg) {
   thread_t *tp;
+  size_t size_aligned;
   void *wbase, *wend;
 
-  wbase = chHeapAllocAligned(heapp, size, PORT_WORKING_AREA_ALIGN);
+  size_aligned = MEM_ALIGN_NEXT(size, PORT_STACK_ALIGN);
+  if ((size_aligned < size) ||
+      (size_aligned < THD_WORKING_AREA_SIZE(0))) {
+    return NULL;
+  }
+
+  wbase = chHeapAllocAligned(heapp, size_aligned, PORT_WORKING_AREA_ALIGN);
   if (wbase == NULL) {
     return NULL;
   }
-  wend = (void *)((uint8_t *)wbase + size);
+  wend = (void *)((uint8_t *)wbase + size_aligned);
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, pf, arg);
+  thread_descriptor_t td = __THD_DECL_DATA(name, wbase, wend, prio,
+                                           pf, arg, NULL);
 
 #if CH_DBG_FILL_THREADS == TRUE
   __thd_stackfill((uint8_t *)wbase, (uint8_t *)wend);
@@ -98,7 +120,7 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
 
   chSysLock();
   tp = chThdCreateSuspendedI(&td);
-  tp->flags = CH_FLAG_MODE_HEAP;
+  chThdSetCallbackX(tp, thd_heapfree, NULL);
   chSchWakeupS(tp, MSG_OK);
   chSysUnlock();
 
@@ -125,8 +147,8 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
  * @param[in] name      thread name
  * @param[in] prio      the priority level for the new thread
  * @param[in] pf        the thread function
- * @param[in] arg       an argument passed to the thread function. It can be
- *                      @p NULL.
+ * @param[in] arg       an argument to be passed to the thread function. It
+ *                      can be @p NULL.
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  * @retval  NULL        if the memory pool is empty.
@@ -136,17 +158,26 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
 thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
                                     tprio_t prio, tfunc_t pf, void *arg) {
   thread_t *tp;
+  size_t size;
   void *wbase, *wend;
 
   chDbgCheck(mp != NULL);
+
+  size = MEM_ALIGN_PREV(mp->object_size, PORT_STACK_ALIGN);
+  chDbgAssert(mp->align >= PORT_WORKING_AREA_ALIGN, "invalid pool alignment");
+  chDbgAssert(size >= THD_WORKING_AREA_SIZE(0), "invalid pool object size");
 
   wbase = chPoolAlloc(mp);
   if (wbase == NULL) {
     return NULL;
   }
-  wend = (void *)((uint8_t *)wbase + mp->object_size);
+  chDbgAssert(MEM_IS_ALIGNED(wbase, PORT_WORKING_AREA_ALIGN),
+              "invalid pool object alignment");
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, pf, arg);
+  wend = (void *)((uint8_t *)wbase + size);
+
+  thread_descriptor_t td = __THD_DECL_DATA(name, wbase, wend, prio,
+                                           pf, arg, NULL);
 
 #if CH_DBG_FILL_THREADS == TRUE
   __thd_stackfill((uint8_t *)wbase, (uint8_t *)wend);
@@ -154,8 +185,7 @@ thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
 
   chSysLock();
   tp = chThdCreateSuspendedI(&td);
-  tp->flags = CH_FLAG_MODE_MPOOL;
-  tp->mpool = mp;
+  chThdSetCallbackX(tp, thd_poolfree, (void *)mp);
   chSchWakeupS(tp, MSG_OK);
   chSysUnlock();
 

@@ -223,22 +223,26 @@
  */
 #if STM32_CRY_USE_CRYP1 || defined (__DOXYGEN__)
 #define CRY_LLD_SUPPORTS_AES                TRUE
+#define CRY_LLD_SUPPORTS_AES_X              TRUE
 #define CRY_LLD_SUPPORTS_AES_ECB            TRUE
 #define CRY_LLD_SUPPORTS_AES_CBC            TRUE
 #define CRY_LLD_SUPPORTS_AES_CFB            FALSE
 #define CRY_LLD_SUPPORTS_AES_CTR            FALSE
 #define CRY_LLD_SUPPORTS_AES_GCM            FALSE
-#define CRY_LLD_SUPPORTS_DES                TRUE
-#define CRY_LLD_SUPPORTS_DES_ECB            TRUE
-#define CRY_LLD_SUPPORTS_DES_CBC            TRUE
+#define CRY_LLD_SUPPORTS_DES                FALSE
+#define CRY_LLD_SUPPORTS_DES_X              FALSE
+#define CRY_LLD_SUPPORTS_DES_ECB            FALSE
+#define CRY_LLD_SUPPORTS_DES_CBC            FALSE
 #else
 #define CRY_LLD_SUPPORTS_AES                FALSE
+#define CRY_LLD_SUPPORTS_AES_X              FALSE
 #define CRY_LLD_SUPPORTS_AES_ECB            FALSE
 #define CRY_LLD_SUPPORTS_AES_CBC            FALSE
 #define CRY_LLD_SUPPORTS_AES_CFB            FALSE
 #define CRY_LLD_SUPPORTS_AES_CTR            FALSE
 #define CRY_LLD_SUPPORTS_AES_GCM            FALSE
 #define CRY_LLD_SUPPORTS_DES                FALSE
+#define CRY_LLD_SUPPORTS_DES_X              FALSE
 #define CRY_LLD_SUPPORTS_DES_ECB            FALSE
 #define CRY_LLD_SUPPORTS_DES_CBC            FALSE
 #endif
@@ -246,7 +250,7 @@
 #define CRY_LLD_SUPPORTS_SHA1               FALSE
 #define CRY_LLD_SUPPORTS_SHA256             TRUE
 #define CRY_LLD_SUPPORTS_SHA512             FALSE
-#define CRY_LLD_SUPPORTS_HMAC_SHA256        TRUE
+#define CRY_LLD_SUPPORTS_HMAC_SHA256        FALSE
 #define CRY_LLD_SUPPORTS_HMAC_SHA512        FALSE
 #else
 #define CRY_LLD_SUPPORTS_SHA1               FALSE
@@ -302,6 +306,12 @@ struct CRYDriver {
    * @brief   Current configuration data.
    */
   const CRYConfig           *config;
+#if (CRY_USE_MUTUAL_EXCLUSION == TRUE) || defined(__DOXYGEN__)
+  /**
+   * @brief   Mutex protecting the peripheral.
+   */
+  mutex_t                   mutex;
+#endif
 #if defined(CRY_DRIVER_EXT_FIELDS)
   CRY_DRIVER_EXT_FIELDS
 #endif
@@ -363,11 +373,11 @@ typedef struct {
  */
 typedef struct {
   /**
-   * @brief   Last data to be hashed on finalization.
+   * @brief   Deferred data to be hashed on finalization.
    */
-  uint32_t      last_data;
+  uint8_t       last_data[4];
   /**
-   * @brief   Size, in bits, of the last data.
+   * @brief   Size, in bytes, of the deferred data.
    */
   uint32_t      last_size;
 } SHA256Context;

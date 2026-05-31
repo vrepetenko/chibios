@@ -31,6 +31,25 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
+/**
+ * @name    Standard API handlers
+ * @{
+ */
+#define SB_SVC1_HANDLER         sb_fastc_get_systime
+#define SB_SVC2_HANDLER         sb_fastc_get_frequency
+
+#define SB_SVC129_HANDLER       sb_sysc_exit
+#define SB_SVC130_HANDLER       sb_sysc_sleep
+#define SB_SVC131_HANDLER       sb_sysc_sleep_until_windowed
+#define SB_SVC132_HANDLER       sb_sysc_wait_message
+#define SB_SVC133_HANDLER       sb_sysc_reply_message
+#define SB_SVC134_HANDLER       sb_sysc_wait_one_timeout
+#define SB_SVC135_HANDLER       sb_sysc_wait_any_timeout
+#define SB_SVC136_HANDLER       sb_sysc_wait_all_timeout
+#define SB_SVC137_HANDLER       sb_sysc_broadcast_flags
+#define SB_SVC138_HANDLER       sb_sysc_loadelf
+/** @} */
+
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -44,51 +63,27 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of a syscall handler.
+ * @brief   Type of a structure representing a VRQ handling block.
  */
-typedef void (*port_syscall_t)(struct port_extctx *ectx);
+typedef struct sb_apiblock sb_apiblock_t;
 
 /**
- * @brief   Sandbox Stream interface methods.
- * @note    Is intentionally compatible with HAL streams but we have to
- *          duplicate is because we don't want dependencies with HAL in
- *          this subsystem.
+ * @brief   Structure representing a VRQ handling block.
  */
-struct SandboxStreamVMT {
+struct sb_apiblock {
+#if (CH_CFG_USE_MESSAGES == TRUE) || defined(__DOXYGEN__)
   /**
-   * @brief   Object instance offset.
+   * @brief   Thread sending a message to the sandbox.
    */
-  size_t instance_offset;
+  thread_t                      *msg_tp;
+#endif
+#if (CH_CFG_USE_EVENTS == TRUE) || defined(__DOXYGEN__)
   /**
-   * @brief   Stream write buffer method.
+   * @brief   Sandbox events source.
    */
-  size_t (*write)(void *instance, const uint8_t *bp, size_t n);
-  /**
-   * @brief   Stream read buffer method.
-   */
-  size_t (*read)(void *instance, uint8_t *bp, size_t n);
-  /**
-   * @brief   Channel put method, blocking.
-   */
-  msg_t (*put)(void *instance, uint8_t b);
-  /**
-   * @brief   Channel get method, blocking.
-   */
-  msg_t (*get)(void *instance);
+  event_source_t                es;
+#endif
 };
-
-/**
- * @brief   Sandbox Stream class.
- * @note    Is intentionally compatible with HAL streams but we have to
- *          duplicate is because we don't want dependencies with HAL in
- *          this subsystem.
- */
-typedef struct {
-  /**
-   * @brief Virtual Methods Table.
-   */
-  const struct SandboxStreamVMT *vmt;
-} SandboxStream;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
@@ -101,18 +96,18 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void sb_api_stdio(struct port_extctx *ectxp);
-  void sb_api_exit(struct port_extctx *ctxp);
-  void sb_api_get_systime(struct port_extctx *ctxp);
-  void sb_api_get_frequency(struct port_extctx *ctxp);
-  void sb_api_sleep(struct port_extctx *ctxp);
-  void sb_api_sleep_until_windowed(struct port_extctx *ctxp);
-  void sb_api_wait_message(struct port_extctx *ctxp);
-  void sb_api_reply_message(struct port_extctx *ctxp);
-  void sb_api_wait_one_timeout(struct port_extctx *ctxp);
-  void sb_api_wait_any_timeout(struct port_extctx *ctxp);
-  void sb_api_wait_all_timeout(struct port_extctx *ctxp);
-  void sb_api_broadcast_flags(struct port_extctx *ctxp);
+  void sb_fastc_get_systime(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_fastc_get_frequency(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_exit(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_sleep(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_sleep_until_windowed(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_wait_message(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_reply_message(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_wait_one_timeout(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_wait_any_timeout(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_wait_all_timeout(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_broadcast_flags(sb_class_t *sbp, struct port_extctx *ectxp);
+  void sb_sysc_loadelf(sb_class_t *sbp, struct port_extctx *ectxp);
 #ifdef __cplusplus
 }
 #endif

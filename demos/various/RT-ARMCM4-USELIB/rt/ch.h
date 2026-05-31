@@ -25,11 +25,11 @@
 
 #define CH_H 
 #define __CHIBIOS_RT__ 
-#define CH_KERNEL_STABLE 1
-#define CH_KERNEL_VERSION "7.0.6"
-#define CH_KERNEL_MAJOR 7
+#define CH_KERNEL_STABLE 0
+#define CH_KERNEL_VERSION "8.0.0"
+#define CH_KERNEL_MAJOR 8
 #define CH_KERNEL_MINOR 0
-#define CH_KERNEL_PATCH 6
+#define CH_KERNEL_PATCH 0
 #define FALSE 0
 #define TRUE 1
 #define CHLICENSE_H 
@@ -48,12 +48,12 @@
 #define CH_LICENSE_PARTNER 7
 #define CHVERSION_H 
 #define __CHIBIOS__ 
-#define CH_VERSION_STABLE 1
-#define CH_VERSION "2021.11.5"
-#define CH_VERSION_YEAR 21
-#define CH_VERSION_MONTH 11
-#define CH_VERSION_PATCH 5
-#define CH_VERSION_NICKNAME "Agropoli"
+#define CH_VERSION_STABLE 0
+#define CH_VERSION "2012.1.0"
+#define CH_VERSION_YEAR 12
+#define CH_VERSION_MONTH 1
+#define CH_VERSION_PATCH 0
+#define CH_VERSION_NICKNAME "Lasagna"
 #define CH_VERSION_DATE (((CH_VERSION_YEAR + 2000) * 100) + CH_VERSION_MONTH)
 #define CHCUSTOMER_H 
 #define CH_CUSTOMER_ID_STRING "Santa, North Pole"
@@ -86,8 +86,9 @@
 #define CH_LICENSE_MAX_DEPLOY CH_DEPLOY_UNLIMITED
 #define CHCONF_H 
 #define _CHIBIOS_RT_CONF_ 
-#define _CHIBIOS_RT_CONF_VER_7_0_ 
+#define _CHIBIOS_RT_CONF_VER_8_0_ 
 #define CH_CFG_SMP_MODE FALSE
+#define CH_CFG_HARDENING_LEVEL 0
 #define CH_CFG_ST_RESOLUTION 32
 #define CH_CFG_ST_FREQUENCY 1000
 #define CH_CFG_INTERVALS_SIZE 32
@@ -112,6 +113,7 @@
 #define CH_CFG_USE_MESSAGES_PRIORITY FALSE
 #define CH_CFG_USE_DYNAMIC TRUE
 #define CH_CFG_USE_MAILBOXES TRUE
+#define CH_CFG_USE_MEMCHECKS TRUE
 #define CH_CFG_USE_MEMCORE TRUE
 #define CH_CFG_MEMCORE_SIZE 0
 #define CH_CFG_USE_HEAP TRUE
@@ -139,22 +141,23 @@
 #define CH_DBG_FILL_THREADS FALSE
 #define CH_DBG_THREADS_PROFILING FALSE
 #define CH_CFG_SYSTEM_EXTRA_FIELDS 
-#define CH_CFG_SYSTEM_INIT_HOOK() { }
+#define CH_CFG_SYSTEM_INIT_HOOK() do { } while (false)
 #define CH_CFG_OS_INSTANCE_EXTRA_FIELDS 
-#define CH_CFG_OS_INSTANCE_INIT_HOOK(oip) { }
+#define CH_CFG_OS_INSTANCE_INIT_HOOK(oip) do { } while (false)
 #define CH_CFG_THREAD_EXTRA_FIELDS 
-#define CH_CFG_THREAD_INIT_HOOK(tp) { }
-#define CH_CFG_THREAD_EXIT_HOOK(tp) { }
-#define CH_CFG_CONTEXT_SWITCH_HOOK(ntp,otp) { }
-#define CH_CFG_IRQ_PROLOGUE_HOOK() { }
-#define CH_CFG_IRQ_EPILOGUE_HOOK() { }
-#define CH_CFG_IDLE_ENTER_HOOK() { }
-#define CH_CFG_IDLE_LEAVE_HOOK() { }
-#define CH_CFG_IDLE_LOOP_HOOK() { }
-#define CH_CFG_SYSTEM_TICK_HOOK() { }
-#define CH_CFG_SYSTEM_HALT_HOOK(reason) { }
-#define CH_CFG_TRACE_HOOK(tep) { }
-#define CH_CFG_RUNTIME_FAULTS_HOOK(mask) { }
+#define CH_CFG_THREAD_INIT_HOOK(tp) do { } while (false)
+#define CH_CFG_THREAD_EXIT_HOOK(tp) do { } while (false)
+#define CH_CFG_CONTEXT_SWITCH_HOOK(ntp,otp) do { } while (false)
+#define CH_CFG_IRQ_PROLOGUE_HOOK() do { } while (false)
+#define CH_CFG_IRQ_EPILOGUE_HOOK() do { } while (false)
+#define CH_CFG_IDLE_ENTER_HOOK() do { } while (false)
+#define CH_CFG_IDLE_LEAVE_HOOK() do { } while (false)
+#define CH_CFG_IDLE_LOOP_HOOK() do { } while (false)
+#define CH_CFG_SYSTEM_TICK_HOOK() do { } while (false)
+#define CH_CFG_SYSTEM_HALT_HOOK(reason) do { } while (false)
+#define CH_CFG_TRACE_HOOK(tep) do { } while (false)
+#define CH_CFG_RUNTIME_FAULTS_HOOK(mask) do { } while (false)
+#define CH_CFG_SAFETY_CHECK_HOOK(l,f) do { chSysHalt(f); } while (false)
 #define CHCHECKS_H 
 #define CHRESTRICTIONS_H 
 #define CHEARLY_H 
@@ -179,7 +182,7 @@
 typedef uint32_t port_rtcnt_t;
 typedef uint64_t port_rttime_t;
 typedef uint32_t port_syssts_t;
-typedef uint64_t port_stkalign_t;
+typedef uint64_t port_stkline_t;
 #define PORT_DOES_NOT_PROVIDE_TYPES 
 #define ROMCONST CC_ROMCONST
 #define NOINLINE CC_NO_INLINE
@@ -191,7 +194,7 @@ typedef uint64_t port_stkalign_t;
 typedef port_rtcnt_t rtcnt_t;
 typedef port_rttime_t rttime_t;
 typedef port_syssts_t syssts_t;
-typedef port_stkalign_t stkalign_t;
+typedef port_stkline_t stkline_t;
 typedef uint8_t tmode_t;
 typedef uint8_t tstate_t;
 typedef uint8_t trefs_t;
@@ -207,7 +210,8 @@ typedef unsigned core_id_t;
 typedef struct ch_thread thread_t;
 typedef struct ch_os_instance os_instance_t;
 #define __CH_STRINGIFY(a) #a
-#define __CH_OFFSETOF(st,m) ((size_t)((char *)&((st *)0)->m - (char *)0))
+#define __CH_OFFSETOF(st,m) ((size_t)((char *)(void *)&((st *)0)->m - (char *)0))
+#define __CH_OWNEROF(p,st,m) (st *)(void *)((char *)(void *)p - __CH_OFFSETOF(st, m))
 #define __CH_USED(x) (void)(x)
 #define likely(x) PORT_LIKELY(x)
 #define unlikely(x) PORT_UNLIKELY(x)
@@ -346,177 +350,15 @@ static inline bool chTimeStampIsInRangeX(systimestamp_t stamp,
   return (bool)((systimestamp_t)((systimestamp_t)stamp - (systimestamp_t)start) <
                 (systimestamp_t)((systimestamp_t)end - (systimestamp_t)start));
 }
-#define CHLISTS_H 
-typedef struct ch_list ch_list_t;
-struct ch_list {
-  ch_list_t *next;
-};
-typedef struct ch_queue ch_queue_t;
-struct ch_queue {
-  ch_queue_t *next;
-  ch_queue_t *prev;
-};
-typedef struct ch_priority_queue ch_priority_queue_t;
-struct ch_priority_queue {
-  ch_priority_queue_t *next;
-  ch_priority_queue_t *prev;
-  tprio_t prio;
-};
-typedef struct ch_delta_list ch_delta_list_t;
-struct ch_delta_list {
-  ch_delta_list_t *next;
-  ch_delta_list_t *prev;
-  sysinterval_t delta;
-};
-#define __CH_QUEUE_DATA(name) {(ch_queue_t *)&name, (ch_queue_t *)&name}
-#define CH_QUEUE_DECL(name) ch_queue_t name = __CH_QUEUE_DATA(name)
-static inline void ch_list_init(ch_list_t *lp) {
-  lp->next = lp;
-}
-static inline bool ch_list_isempty(ch_list_t *lp) {
-  return (bool)(lp->next == lp);
-}
-static inline bool ch_list_notempty(ch_list_t *lp) {
-  return (bool)(lp->next != lp);
-}
-static inline void ch_list_link(ch_list_t *lp, ch_list_t *p) {
-  p->next = lp->next;
-  lp->next = p;
-}
-static inline ch_list_t *ch_list_unlink(ch_list_t *lp) {
-  ch_list_t *p = lp->next;
-  lp->next = p->next;
-  return p;
-}
-static inline void ch_queue_init(ch_queue_t *qp) {
-  qp->next = qp;
-  qp->prev = qp;
-}
-static inline bool ch_queue_isempty(const ch_queue_t *qp) {
-  return (bool)(qp->next == qp);
-}
-static inline bool ch_queue_notempty(const ch_queue_t *qp) {
-  return (bool)(qp->next != qp);
-}
-static inline void ch_queue_insert(ch_queue_t *qp, ch_queue_t *p) {
-  p->next = qp;
-  p->prev = qp->prev;
-  p->prev->next = p;
-  qp->prev = p;
-}
-static inline ch_queue_t *ch_queue_fifo_remove(ch_queue_t *qp) {
-  ch_queue_t *p = qp->next;
-  qp->next = p->next;
-  qp->next->prev = qp;
-  return p;
-}
-static inline ch_queue_t *ch_queue_lifo_remove(ch_queue_t *qp) {
-  ch_queue_t *p = qp->prev;
-  qp->prev = p->prev;
-  qp->prev->next = qp;
-  return p;
-}
-static inline ch_queue_t *ch_queue_dequeue(ch_queue_t *p) {
-  p->prev->next = p->next;
-  p->next->prev = p->prev;
-  return p;
-}
-static inline void ch_pqueue_init(ch_priority_queue_t *pqp) {
-  pqp->next = pqp;
-  pqp->prev = pqp;
-  pqp->prio = (tprio_t)0;
-}
-static inline ch_priority_queue_t *ch_pqueue_remove_highest(ch_priority_queue_t *pqp) {
-  ch_priority_queue_t *p = pqp->next;
-  pqp->next = p->next;
-  pqp->next->prev = pqp;
-  return p;
-}
-static inline ch_priority_queue_t *ch_pqueue_insert_behind(ch_priority_queue_t *pqp,
-                                                           ch_priority_queue_t *p) {
-  do {
-    pqp = pqp->next;
-  } while (unlikely(pqp->prio >= p->prio));
-  p->next = pqp;
-  p->prev = pqp->prev;
-  p->prev->next = p;
-  pqp->prev = p;
-  return p;
-}
-static inline ch_priority_queue_t *ch_pqueue_insert_ahead(ch_priority_queue_t *pqp,
-                                                          ch_priority_queue_t *p) {
-  do {
-    pqp = pqp->next;
-  } while (unlikely(pqp->prio > p->prio));
-  p->next = pqp;
-  p->prev = pqp->prev;
-  p->prev->next = p;
-  pqp->prev = p;
-  return p;
-}
-static inline void ch_dlist_init(ch_delta_list_t *dlhp) {
-  dlhp->next = dlhp;
-  dlhp->prev = dlhp;
-  dlhp->delta = (sysinterval_t)-1;
-}
-static inline bool ch_dlist_isempty(ch_delta_list_t *dlhp) {
-  return (bool)(dlhp == dlhp->next);
-}
-static inline bool ch_dlist_notempty(ch_delta_list_t *dlhp) {
-  return (bool)(dlhp != dlhp->next);
-}
-static inline bool ch_dlist_islast(ch_delta_list_t *dlhp,
-                                   ch_delta_list_t *dlp) {
-  return (bool)(dlp->next == dlhp);
-}
-static inline bool ch_dlist_isfirst(ch_delta_list_t *dlhp,
-                                    ch_delta_list_t *dlp) {
-  return (bool)(dlhp->next == dlp);
-}
-static inline void ch_dlist_insert_after(ch_delta_list_t *dlhp,
-                                         ch_delta_list_t *dlp,
-                                         sysinterval_t delta) {
-  dlp->delta = delta;
-  dlp->prev = dlhp;
-  dlp->next = dlp->prev->next;
-  dlp->next->prev = dlp;
-  dlhp->next = dlp;
-}
-static inline void ch_dlist_insert_before(ch_delta_list_t *dlhp,
-                                          ch_delta_list_t *dlp,
-                                          sysinterval_t delta) {
-  dlp->delta = delta;
-  dlp->next = dlhp;
-  dlp->prev = dlp->next->prev;
-  dlp->prev->next = dlp;
-  dlhp->prev = dlp;
-}
-static inline void ch_dlist_insert(ch_delta_list_t *dlhp,
-                                   ch_delta_list_t *dlep,
-                                   sysinterval_t delta) {
-  ch_delta_list_t *dlp;
-  dlp = dlhp->next;
-  while (likely(dlp->delta < delta)) {
-    chDbgAssert(dlp != dlep, "element already in list");
-    delta -= dlp->delta;
-    dlp = dlp->next;
-  }
-  ch_dlist_insert_before(dlp, dlep, delta);
-  dlp->delta -= delta;
-  dlhp->delta = (sysinterval_t)-1;
-}
-static inline ch_delta_list_t *ch_dlist_remove_first(ch_delta_list_t *dlhp) {
-  ch_delta_list_t *dlp = dlhp->next;
-  dlhp->next = dlp->next;
-  dlhp->next->prev = dlhp;
-  return dlp;
-}
-static inline ch_delta_list_t *ch_dlist_dequeue(ch_delta_list_t *dlp) {
-  dlp->prev->next = dlp->next;
-  dlp->next->prev = dlp->prev;
-  return dlp;
-}
 #define CHALIGN_H 
+typedef struct {
+  uint8_t *base;
+  size_t size;
+} memory_area_new_t;
+#define __MEM_AREA_DATA(name,mb,ms) { .base = (void *)(mb), .size = (size_t)(ms) }
+#define MEM_AREA_DECL(name,mb,ms) memory_area_new_t name = __MEM_AREA_DATA(name, mb, ms)
+#define MEM_NATURAL_ALIGN PORT_NATURAL_ALIGN
+#define MEM_IS_VALID_FUNCTION(p) true
 #define MEM_ALIGN_MASK(a) ((size_t)(a) - 1U)
 #define MEM_ALIGN_PREV(p,a) ((size_t)(p) & ~MEM_ALIGN_MASK(a))
 #define MEM_ALIGN_NEXT(p,a) MEM_ALIGN_PREV((size_t)(p) + MEM_ALIGN_MASK(a), (a))
@@ -548,7 +390,7 @@ static inline ch_delta_list_t *ch_dlist_dequeue(ch_delta_list_t *dlp) {
 #define chDbgWriteTrace(up1,up2) 
 #define CHPORT_H 
 #define CHCORE_H 
-#define MPU_H 
+#define MPUV7M_H 
 #define MPU_TYPE_SEPARATED (1U << 0U)
 #define MPU_TYPE_DREGION(n) (((n) >> 8U) & 255U)
 #define MPU_TYPE_IREGION(n) (((n) >> 16U) & 255U)
@@ -644,9 +486,7 @@ static inline ch_delta_list_t *ch_dlist_dequeue(ch_delta_list_t *dlp) {
 #define CORTEX_MAXIMUM_PRIORITY 0U
 #define CORTEX_PRIORITY_SVCALL (CORTEX_MAXIMUM_PRIORITY + CORTEX_FAST_PRIORITIES)
 #define CORTEX_PRIORITY_PENDSV CORTEX_MAX_KERNEL_PRIORITY
-#define CORTEX_PRIO_MASK(n) ((n) << (8 - CORTEX_PRIORITY_BITS))
-#define PORT_USE_SYSCALL FALSE
-#define PORT_SWITCHED_REGIONS_NUMBER 0
+#define CORTEX_PRIO_MASK(n) ((n) << (8U - CORTEX_PRIORITY_BITS))
 #define PORT_ENABLE_GUARD_PAGES FALSE
 #define PORT_USE_GUARD_MPU_REGION MPU_REGION_7
 #define PORT_IDLE_THREAD_STACK_SIZE 64
@@ -654,13 +494,30 @@ static inline ch_delta_list_t *ch_dlist_dequeue(ch_delta_list_t *dlp) {
 #define CORTEX_ENABLE_WFI_IDLE FALSE
 #define CORTEX_FAST_PRIORITIES 2U
 #define CORTEX_SIMPLIFIED_PRIORITY FALSE
-#define CORTEX_PRIGROUP_INIT (7 - CORTEX_PRIORITY_BITS)
+#define CORTEX_PRIGROUP_INIT (7U - CORTEX_PRIORITY_BITS)
+#define PORT_MPU_INITIALIZE FALSE
+#define PORT_MPU_RBAR0_INIT 0U
+#define PORT_MPU_RASR0_INIT 0U
+#define PORT_MPU_RBAR1_INIT 0U
+#define PORT_MPU_RASR1_INIT 0U
+#define PORT_MPU_RBAR2_INIT 0U
+#define PORT_MPU_RASR2_INIT 0U
+#define PORT_MPU_RBAR3_INIT 0U
+#define PORT_MPU_RASR3_INIT 0U
+#define PORT_MPU_RBAR4_INIT 0U
+#define PORT_MPU_RASR4_INIT 0U
+#define PORT_MPU_RBAR5_INIT 0U
+#define PORT_MPU_RASR5_INIT 0U
+#define PORT_MPU_RBAR6_INIT 0U
+#define PORT_MPU_RASR6_INIT 0U
+#define PORT_MPU_RBAR7_INIT 0U
+#define PORT_MPU_RASR7_INIT 0U
 #define PORT_SUPPORTS_RT TRUE
 #define PORT_NATURAL_ALIGN sizeof (void *)
-#define PORT_STACK_ALIGN sizeof (stkalign_t)
-#define PORT_WORKING_AREA_ALIGN ((PORT_ENABLE_GUARD_PAGES == TRUE) ? 32U : PORT_STACK_ALIGN)
+#define PORT_STACK_ALIGN 32U
+#define PORT_WORKING_AREA_ALIGN 32U
 #define PORT_ARCHITECTURE_ARM 
-  #define PORT_ARCHITECTURE_ARM_v7ME
+  #define PORT_ARCHITECTURE_ARM_V7ME
   #define PORT_ARCHITECTURE_NAME "ARMv7E-M"
             #define PORT_CORE_VARIANT_NAME "Cortex-M4"
   #define PORT_INFO "Advanced kernel mode"
@@ -695,12 +552,9 @@ struct port_context {
 #define PORT_IRQ_IS_VALID_PRIORITY(n) (((n) >= 0U) && ((n) < CORTEX_PRIORITY_LEVELS))
 #define PORT_IRQ_IS_VALID_KERNEL_PRIORITY(n) (((n) >= CORTEX_MAX_KERNEL_PRIORITY) && ((n) <= CORTEX_MIN_KERNEL_PRIORITY))
 #define PORT_THD_FUNCTION(tname,arg) void tname(void *arg)
-  #define __PORT_SETUP_CONTEXT_SYSCALL(tp,wtop)
-  #define __PORT_SETUP_CONTEXT_MPU(tp)
-#define PORT_SETUP_CONTEXT(tp,wbase,wtop,pf,arg) do { (tp)->ctx.sp = (struct port_intctx *)(void *) ((uint8_t *)(wtop) - sizeof (struct port_intctx)); (tp)->ctx.sp->r4 = (uint32_t)(pf); (tp)->ctx.sp->r5 = (uint32_t)(arg); (tp)->ctx.sp->lr = (uint32_t)__port_thread_start; __PORT_SETUP_CONTEXT_MPU(tp); __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop); } while (false)
+#define PORT_SETUP_CONTEXT(tp,wbase,wtop,pf,arg) do { (tp)->ctx.sp = (struct port_intctx *)(void *) ((uint8_t *)(wtop) - sizeof (struct port_intctx)); (tp)->ctx.sp->r4 = (uint32_t)(pf); (tp)->ctx.sp->r5 = (uint32_t)(arg); (tp)->ctx.sp->lr = (uint32_t)__port_thread_start; } while (false)
 #define PORT_WA_CTX_SIZE (sizeof (struct port_intctx) + sizeof (struct port_extctx) + sizeof (struct port_extctx))
 #define PORT_WA_SIZE(n) ((size_t)PORT_GUARD_PAGE_SIZE + (size_t)PORT_WA_CTX_SIZE + (size_t)(n) + (size_t)PORT_INT_REQUIRED_STACK)
-  #define PORT_WORKING_AREA(s,n) stkalign_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkalign_t)]
 #define PORT_IRQ_PROLOGUE() 
 #define PORT_IRQ_EPILOGUE() __port_irq_epilogue()
   #define PORT_IRQ_HANDLER(id) void id(void)
@@ -755,6 +609,200 @@ __STATIC_FORCEINLINE rtcnt_t port_rt_get_counter_value(void) {
 }
 #define PORT_CORES_NUMBER 1
 #define CH_PORT_SUPPORTS_RECURSIVE_LOCKS TRUE
+#define CHSAFETY_H 
+#define CH_INTEGRITY_RLIST 1U
+#define CH_INTEGRITY_VTLIST 2U
+#define CH_INTEGRITY_REGISTRY 4U
+#define CH_INTEGRITY_PORT 8U
+#define SFT_IS_VALID_DATA_POINTER(p) (((p) != NULL) && (((uintptr_t)(p) & (PORT_NATURAL_ALIGN - 1U)) == 0U))
+#define chSftAssert(l,c,r) do { if (((l) <= CH_CFG_HARDENING_LEVEL) || (((l) <= 2) && (CH_DBG_ENABLE_ASSERTS != FALSE))) { if (unlikely(!(c))) { CH_CFG_SAFETY_CHECK_HOOK(l, __func__); } } } while (false)
+#define chSftCheckListX(p) 
+#define chSftCheckQueueX(p) 
+  void chSftIntegrityCheckI(unsigned testmask);
+static inline void chSftValidateDataPointerX(int l, const void *p) {
+  chSftAssert(l, SFT_IS_VALID_DATA_POINTER(p), "invalid pointer");
+}
+#define CHLISTS_H 
+typedef struct ch_list ch_list_t;
+struct ch_list {
+  ch_list_t *next;
+};
+typedef struct ch_queue ch_queue_t;
+struct ch_queue {
+  ch_queue_t *next;
+  ch_queue_t *prev;
+};
+typedef struct ch_priority_queue ch_priority_queue_t;
+struct ch_priority_queue {
+  ch_priority_queue_t *next;
+  ch_priority_queue_t *prev;
+  tprio_t prio;
+};
+typedef struct ch_delta_list ch_delta_list_t;
+struct ch_delta_list {
+  ch_delta_list_t *next;
+  ch_delta_list_t *prev;
+  sysinterval_t delta;
+};
+#define __CH_QUEUE_DATA(name) {(ch_queue_t *)&name, (ch_queue_t *)&name}
+#define CH_QUEUE_DECL(name) ch_queue_t name = __CH_QUEUE_DATA(name)
+#define ch_queue_for_each(pos,head) for (pos = (head)->next; pos != (head); pos = pos->next)
+#define ch_queue_for_each_reverse(pos,head) for (pos = (head)->prev; pos != (head); pos = pos->prev)
+#define ch_queue_get_owner(ptr,type,member) __CH_OWNEROF(ptr, type, member)
+#define ch_queue_first_owner(head,type,member) __CH_OWNEROF((head)->next, type, member)
+#define ch_queue_last_owner(head,type,member) __CH_OWNEROF((head)->prev, type, member)
+static inline void ch_list_init(ch_list_t *lp) {
+  lp->next = lp;
+}
+static inline bool ch_list_isempty(ch_list_t *lp) {
+  return (bool)(lp->next == lp);
+}
+static inline bool ch_list_notempty(ch_list_t *lp) {
+  return (bool)(lp->next != lp);
+}
+static inline void ch_list_link(ch_list_t *lp, ch_list_t *p) {
+  p->next = lp->next;
+  lp->next = p;
+}
+static inline ch_list_t *ch_list_unlink(ch_list_t *lp) {
+  ch_list_t *p = lp->next;
+  lp->next = p->next;
+  return p;
+}
+static inline void ch_queue_init(ch_queue_t *qp) {
+  qp->next = qp;
+  qp->prev = qp;
+}
+static inline bool ch_queue_isempty(const ch_queue_t *qp) {
+  return (bool)(qp->next == qp);
+}
+static inline bool ch_queue_notempty(const ch_queue_t *qp) {
+  return (bool)(qp->next != qp);
+}
+static inline void ch_queue_insert(ch_queue_t *qp, ch_queue_t *p) {
+  p->next = qp;
+  p->prev = qp->prev;
+  p->prev->next = p;
+  qp->prev = p;
+}
+static inline ch_queue_t *ch_queue_fifo_remove(ch_queue_t *qp) {
+  ch_queue_t *p = qp->next;
+  qp->next = p->next;
+  qp->next->prev = qp;
+  return p;
+}
+static inline ch_queue_t *ch_queue_lifo_remove(ch_queue_t *qp) {
+  ch_queue_t *p = qp->prev;
+  qp->prev = p->prev;
+  qp->prev->next = qp;
+  return p;
+}
+static inline ch_queue_t *ch_queue_dequeue(ch_queue_t *p) {
+  p->prev->next = p->next;
+  p->next->prev = p->prev;
+  return p;
+}
+static inline void ch_pqueue_init(ch_priority_queue_t *pqp) {
+  pqp->next = pqp;
+  pqp->prev = pqp;
+  pqp->prio = (tprio_t)0;
+}
+static inline ch_priority_queue_t *ch_pqueue_remove_highest(ch_priority_queue_t *pqp) {
+  ch_priority_queue_t *p = pqp->next;
+  pqp->next = p->next;
+  pqp->next->prev = pqp;
+  return p;
+}
+static inline ch_priority_queue_t *ch_pqueue_insert_behind(ch_priority_queue_t *pqp,
+                                                           ch_priority_queue_t *p) {
+  do {
+    ch_priority_queue_t *next = pqp->next;
+    chSftValidateDataPointerX(3, next);
+    chSftAssert(2, next->prev == pqp, "link back");
+    pqp = next;
+  } while (unlikely(pqp->prio >= p->prio));
+  p->next = pqp;
+  p->prev = pqp->prev;
+  p->prev->next = p;
+  pqp->prev = p;
+  return p;
+}
+static inline ch_priority_queue_t *ch_pqueue_insert_ahead(ch_priority_queue_t *pqp,
+                                                          ch_priority_queue_t *p) {
+  do {
+    ch_priority_queue_t *next = pqp->next;
+    chSftValidateDataPointerX(3, next);
+    chSftAssert(2, next->prev == pqp, "link back");
+    pqp = next;
+  } while (unlikely(pqp->prio > p->prio));
+  p->next = pqp;
+  p->prev = pqp->prev;
+  p->prev->next = p;
+  pqp->prev = p;
+  return p;
+}
+static inline void ch_dlist_init(ch_delta_list_t *dlhp) {
+  dlhp->next = dlhp;
+  dlhp->prev = dlhp;
+  dlhp->delta = (sysinterval_t)-1;
+}
+static inline bool ch_dlist_isempty(ch_delta_list_t *dlhp) {
+  return (bool)(dlhp == dlhp->next);
+}
+static inline bool ch_dlist_notempty(ch_delta_list_t *dlhp) {
+  return (bool)(dlhp != dlhp->next);
+}
+static inline bool ch_dlist_islast(ch_delta_list_t *dlhp,
+                                   ch_delta_list_t *dlp) {
+  return (bool)(dlp->next == dlhp);
+}
+static inline bool ch_dlist_isfirst(ch_delta_list_t *dlhp,
+                                    ch_delta_list_t *dlp) {
+  return (bool)(dlhp->next == dlp);
+}
+static inline void ch_dlist_insert_after(ch_delta_list_t *dlhp,
+                                         ch_delta_list_t *dlp,
+                                         sysinterval_t delta) {
+  dlp->delta = delta;
+  dlp->prev = dlhp;
+  dlp->next = dlp->prev->next;
+  dlp->next->prev = dlp;
+  dlhp->next = dlp;
+}
+static inline void ch_dlist_insert_before(ch_delta_list_t *dlhp,
+                                          ch_delta_list_t *dlp,
+                                          sysinterval_t delta) {
+  dlp->delta = delta;
+  dlp->next = dlhp;
+  dlp->prev = dlp->next->prev;
+  dlp->prev->next = dlp;
+  dlhp->prev = dlp;
+}
+static inline void ch_dlist_insert(ch_delta_list_t *dlhp,
+                                   ch_delta_list_t *dlep,
+                                   sysinterval_t delta) {
+  ch_delta_list_t *dlp;
+  dlp = dlhp->next;
+  while (likely(dlp->delta < delta)) {
+    chDbgAssert(dlp != dlep, "element already in list");
+    delta -= dlp->delta;
+    dlp = dlp->next;
+  }
+  ch_dlist_insert_before(dlp, dlep, delta);
+  dlp->delta -= delta;
+  dlhp->delta = (sysinterval_t)-1;
+}
+static inline ch_delta_list_t *ch_dlist_remove_first(ch_delta_list_t *dlhp) {
+  ch_delta_list_t *dlp = dlhp->next;
+  dlhp->next = dlp->next;
+  dlhp->next->prev = dlhp;
+  return dlp;
+}
+static inline ch_delta_list_t *ch_dlist_dequeue(ch_delta_list_t *dlp) {
+  dlp->prev->next = dlp->next;
+  dlp->next->prev = dlp->prev;
+  return dlp;
+}
 #define CHTM_H 
 #define TM_CALIBRATION_LOOP 4U
 typedef struct {
@@ -768,6 +816,7 @@ typedef struct {
   rttime_t cumulative;
 } time_measurement_t;
   void chTMObjectInit(time_measurement_t *tmp);
+  void chTMObjectDispose(time_measurement_t *tmp);
   NOINLINE void chTMStartMeasurementX(time_measurement_t *tmp);
   NOINLINE void chTMStopMeasurementX(time_measurement_t *tmp);
   NOINLINE void chTMChainMeasurementToX(time_measurement_t *tmp1,
@@ -819,6 +868,7 @@ typedef thread_t * thread_reference_t;
 typedef struct ch_threads_queue {
   ch_queue_t queue;
 } threads_queue_t;
+typedef void (*thread_dispose_t)(thread_t *tp);
 struct ch_thread {
   union {
     ch_list_t list;
@@ -826,13 +876,16 @@ struct ch_thread {
     ch_priority_queue_t pqueue;
   } hdr;
   struct port_context ctx;
-  ch_queue_t rqueue;
   os_instance_t *owner;
-  const char *name;
-  stkalign_t *wabase;
+  stkline_t *wabase;
+  stkline_t *waend;
   tstate_t state;
   tmode_t flags;
   trefs_t refs;
+  const char *name;
+  ch_queue_t rqueue;
+  thread_dispose_t dispose;
+  void *object;
   union {
     msg_t rdymsg;
     msg_t exitcode;
@@ -848,7 +901,6 @@ struct ch_thread {
   eventmask_t epending;
   struct ch_mutex *mtxlist;
   tprio_t realprio;
-  void *mpool;
   CH_CFG_THREAD_EXTRA_FIELDS
 };
 typedef struct ch_ready_list {
@@ -857,10 +909,10 @@ typedef struct ch_ready_list {
 } ready_list_t;
 typedef struct ch_os_instance_config {
   const char *name;
-  stkalign_t *mainthread_base;
-  stkalign_t *mainthread_end;
-  stkalign_t *idlethread_base;
-  stkalign_t *idlethread_end;
+  stkline_t *cstack_base;
+  stkline_t *cstack_end;
+  stkline_t *idlestack_base;
+  stkline_t *idlestack_end;
 } os_instance_config_t;
 struct ch_os_instance {
   ready_list_t rlist;
@@ -869,23 +921,25 @@ struct ch_os_instance {
   core_id_t core_id;
   rfcu_t rfcu;
   const os_instance_config_t *config;
+  thread_t idlethread;
   thread_t mainthread;
   system_debug_t dbg;
   CH_CFG_OS_INSTANCE_EXTRA_FIELDS
 };
 typedef struct ch_system {
-  system_state_t state;
+  volatile system_state_t state;
   os_instance_t *instances[PORT_CORES_NUMBER];
   tm_calibration_t tmc;
   CH_CFG_SYSTEM_EXTRA_FIELDS
 } ch_system_t;
+#define CHMEM_H 
+#define CH_MEM_GLOBAL_BSS 
+#define CH_MEM_LOCAL_BSS(c) CH_MEM_GLOBAL_BSS
+#define CH_MEM_PRIVATE_BSS(c) CH_MEM_LOCAL_BSS(c)
+#define CH_MEM_GLOBAL_COHERENT_BSS 
+#define CH_MEM_LOCAL_COHERENT_BSS(c) CH_MEM_GLOBAL_COHERENT_BSS
+#define CH_MEM_PRIVATE_COHERENT_BSS(c) CH_MEM_LOCAL_COHERENT_BSS(c)
 #define CHSYS_H 
-#define CH_INTEGRITY_RLIST 1U
-#define CH_INTEGRITY_VTLIST 2U
-#define CH_INTEGRITY_REGISTRY 4U
-#define CH_INTEGRITY_PORT 8U
-#define CH_SYS_CORE0_MEMORY 
-#define CH_SYS_CORE1_MEMORY 
       #define currcore (&ch0)
 #define CH_IRQ_IS_VALID_PRIORITY(prio) PORT_IRQ_IS_VALID_PRIORITY(prio)
 #define CH_IRQ_IS_VALID_KERNEL_PRIORITY(prio) PORT_IRQ_IS_VALID_KERNEL_PRIORITY(prio)
@@ -907,7 +961,6 @@ extern os_instance_t ch0;
   void chSysWaitSystemState(system_state_t state);
   void chSysInit(void);
   thread_t *chSysGetIdleThreadX(void);
-  bool chSysIntegrityCheckI(unsigned testmask);
   void chSysTimerHandlerI(void);
   syssts_t chSysGetStatusAndLockX(void);
   void chSysRestoreStatusX(syssts_t sts);
@@ -964,6 +1017,10 @@ static inline void chSysUnconditionalUnlock(void) {
   void chInstanceObjectInit(os_instance_t *oip,
                             const os_instance_config_t *oicp);
 #define CHVT_H 
+#define __VIRTUAL_TIMER_DATA() { .dlist = { .next = NULL, .prev = NULL, .delta = (sysinterval_t)0 }, .func = NULL, .par = NULL, .reload = (sysinterval_t)0 }
+#define VIRTUAL_TIMER_DECL(name) virtual_timer_t name = __VIRTUAL_TIMER_DATA()
+  void chVTObjectInit(virtual_timer_t *vtp);
+  void chVTObjectDispose(virtual_timer_t *vtp);
   void chVTDoSetI(virtual_timer_t *vtp, sysinterval_t delay,
                   vtfunc_t vtfunc, void *par);
   void chVTDoSetContinuousI(virtual_timer_t *vtp, sysinterval_t delay,
@@ -973,9 +1030,6 @@ static inline void chSysUnconditionalUnlock(void) {
   void chVTDoTickI(void);
   systimestamp_t chVTGetTimeStampI(void);
   void chVTResetTimeStampI(void);
-static inline void chVTObjectInit(virtual_timer_t *vtp) {
-  vtp->dlist.next = NULL;
-}
 static inline systime_t chVTGetSystemTimeX(void) {
   return currcore->vtlist.systime;
 }
@@ -1069,6 +1123,9 @@ static inline void chVTResetTimeStamp(void) {
   chVTResetTimeStampI();
   chSysUnlock();
 }
+static inline sysinterval_t chVTGetCurrentDelta(void) {
+  return (sysinterval_t)CH_CFG_ST_TIMEDELTA;
+}
 static inline void __vt_object_init(virtual_timers_list_t *vtlp) {
   ch_dlist_init(&vtlp->dlist);
   vtlp->systime = (systime_t)0;
@@ -1100,11 +1157,8 @@ static inline void __vt_object_init(virtual_timers_list_t *vtlp) {
 #define CH_STATE_WTMSG (tstate_t)14
 #define CH_STATE_FINAL (tstate_t)15
 #define CH_STATE_NAMES "READY", "CURRENT", "WTSTART", "SUSPENDED", "QUEUED", "WTSEM", "WTMTX", "WTCOND", "SLEEPING", "WTEXIT", "WTOREVT", "WTANDEVT", "SNDMSGQ", "SNDMSG", "WTMSG", "FINAL"
-#define CH_FLAG_MODE_MASK (tmode_t)3U
-#define CH_FLAG_MODE_STATIC (tmode_t)0U
-#define CH_FLAG_MODE_HEAP (tmode_t)1U
-#define CH_FLAG_MODE_MPOOL (tmode_t)2U
-#define CH_FLAG_TERMINATE (tmode_t)4U
+#define CH_FLAGS_USER_MASK (tmode_t)127U
+#define CH_FLAGS_TERMINATE (tmode_t)128U
 #define firstprio(rlp) ((rlp)->next->prio)
 #define __sch_get_currthread() __instance_get_currthread(currcore)
   void chSchObjectInit(os_instance_t *oip,
@@ -1134,21 +1188,31 @@ static inline void ch_sch_prio_insert(ch_queue_t *qp, ch_queue_t *tp) {
 typedef void (*tfunc_t)(void *p);
 typedef struct {
   const char *name;
-  stkalign_t *wbase;
-  stkalign_t *wend;
+  stkline_t *wbase;
+  stkline_t *wend;
   tprio_t prio;
   tfunc_t funcp;
   void *arg;
+  os_instance_t *owner;
 } thread_descriptor_t;
 #define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
 #define THREADS_QUEUE_DECL(name) threads_queue_t name = __THREADS_QUEUE_DATA(name)
-#define THD_WORKING_AREA_SIZE(n) MEM_ALIGN_NEXT(sizeof(thread_t) + PORT_WA_SIZE(n), PORT_STACK_ALIGN)
-#define THD_WORKING_AREA(s,n) PORT_WORKING_AREA(s, n)
-#define THD_WORKING_AREA_BASE(s) ((stkalign_t *)(s))
-#define THD_WORKING_AREA_END(s) (THD_WORKING_AREA_BASE(s) + (sizeof (s) / sizeof (stkalign_t)))
+#define THD_STACK_SIZE(n) MEM_ALIGN_NEXT(PORT_WA_SIZE(n), PORT_STACK_ALIGN)
+#define THD_STACK(s,n) CC_ALIGN_DATA(PORT_WORKING_AREA_ALIGN) stkline_t s[THD_STACK_SIZE(n) / sizeof (stkline_t)]
+#define THD_STACK_BASE(s) ((stkline_t *)(s))
+#define THD_STACK_END(s) (THD_STACK_BASE(s) + (sizeof (s) / sizeof (stkline_t)))
+#define THD_WORKING_AREA_SIZE(n) (MEM_ALIGN_NEXT(PORT_WA_SIZE(n), PORT_STACK_ALIGN) + MEM_ALIGN_NEXT(sizeof (thread_t), PORT_STACK_ALIGN))
+#define THD_WORKING_AREA(s,n) CC_ALIGN_DATA(PORT_WORKING_AREA_ALIGN) stkline_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkline_t)]
+#define THD_WORKING_AREA_BASE(s) ((stkline_t *)(s))
+#define THD_WORKING_AREA_END(s) (THD_WORKING_AREA_BASE(s) + (sizeof (s) / sizeof (stkline_t)))
 #define THD_FUNCTION(tname,arg) PORT_THD_FUNCTION(tname, arg)
-#define THD_DESCRIPTOR(name,wbase,wend,prio,funcp,arg) { (name), (wbase), (wend), (prio), (funcp), (arg) }
-#define THD_DESCRIPTOR_AFFINITY(name,wbase,wend,prio,funcp,arg,oip) { (name), (wbase), (wend), (prio), (funcp), (arg), (oip) }
+#define __THD_DECL_DATA(tname,twbase,twend,tprio,tfunc,targ,towner) { .name = (tname), .wbase = (stkline_t *)(void *)(twbase), .wend = (stkline_t *)(void *)(twend), .prio = (tprio), .funcp = (tfunc), .arg = (targ), .owner = (towner) }
+#define THD_DECL(var,tname,twbase,twend,tprio,tfunc,targ,towner) thread_descriptor_t var = __THD_DECL_DATA(tname, twbase, twend, tprio, tfunc, targ, towner)
+#define THD_DECL_STATIC(var,tname,twname,tprio,tfunc,targ,towner) thread_descriptor_t var = __THD_DECL_DATA(tname, THD_WORKING_AREA_BASE(twname), THD_WORKING_AREA_END(twname), tprio, tfunc, targ, towner)
+#define __THD_DESC_DATA(tname,twbase,twend,tprio,tfunc,targ,towner,tdispose) { .name = (tname), .wbase = (stkline_t *)(void *)(twbase), .wend = (stkline_t *)(void *)(twend), .prio = (tprio), .funcp = (tfunc), .arg = (targ), .owner = (towner), }
+#define THD_DESC_DECL(var,tname,twbase,twend,tprio,tfunc,targ,towner,tdispose) thread_descriptor_t var = __THD_DESC_DATA(tname, twbase, twend, tprio, tfunc, targ, towner, tdispose)
+#define THD_DESCRIPTOR(tname,wb,we,tprio,tfunc,targ) __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, NULL, NULL)
+#define THD_DESCRIPTOR_AFFINITY(tname,wb,we,tprio,tfunc,targ,oip) __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, oip, NULL)
 #define chThdSleepSeconds(sec) chThdSleep(TIME_S2I(sec))
 #define chThdSleepMilliseconds(msec) chThdSleep(TIME_MS2I(msec))
 #define chThdSleepMicroseconds(usec) chThdSleep(TIME_US2I(usec))
@@ -1156,12 +1220,20 @@ typedef struct {
                                thread_t *tp,
                                const char *name,
                                tprio_t prio);
+  thread_t *chThdObjectInit(thread_t *tp, const thread_descriptor_t *tdp);
+  void chThdObjectDispose(thread_t *tp);
+  thread_t *chThdSpawnSuspendedI(thread_t *tp,
+                                 const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnSuspended(thread_t *tp,
+                                const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnRunningI(thread_t *tp, const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnRunning(thread_t *tp, const thread_descriptor_t *tdp);
   thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp);
   thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp);
   thread_t *chThdCreateI(const thread_descriptor_t *tdp);
   thread_t *chThdCreate(const thread_descriptor_t *tdp);
-  thread_t *chThdCreateStatic(void *wsp, size_t size,
-                              tprio_t prio, tfunc_t pf, void *arg);
+  thread_t *chThdCreateStatic(stkline_t *wbase, size_t wsize,
+                              tprio_t prio, tfunc_t func, void *arg);
   thread_t *chThdStart(thread_t *tp);
   thread_t *chThdAddRef(thread_t *tp);
   void chThdRelease(thread_t *tp);
@@ -1175,6 +1247,8 @@ typedef struct {
   void chThdResumeI(thread_reference_t *trp, msg_t msg);
   void chThdResumeS(thread_reference_t *trp, msg_t msg);
   void chThdResume(thread_reference_t *trp, msg_t msg);
+  void chThdQueueObjectInit(threads_queue_t *tqp);
+  void chThdQueueObjectDispose(threads_queue_t *tqp);
   msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, sysinterval_t timeout);
   void chThdDequeueNextI(threads_queue_t *tqp, msg_t msg);
   void chThdDequeueAllI(threads_queue_t *tqp, msg_t msg);
@@ -1182,20 +1256,29 @@ typedef struct {
   void chThdSleepUntil(systime_t time);
   systime_t chThdSleepUntilWindowed(systime_t prev, systime_t next);
   void chThdYield(void);
+static inline void chThdSetCallbackX(thread_t *tp,
+                                     thread_dispose_t dispose,
+                                     void *object) {
+  tp->dispose = dispose;
+  tp->object = object;
+}
+static inline void *chThdGetObjectX(thread_t *tp) {
+  return tp->object;
+}
 static inline thread_t *chThdGetSelfX(void) {
   return __sch_get_currthread();
 }
 static inline tprio_t chThdGetPriorityX(void) {
   return chThdGetSelfX()->hdr.pqueue.prio;
 }
-static inline stkalign_t *chThdGetWorkingAreaX(thread_t *tp) {
+static inline stkline_t *chThdGetWorkingAreaX(thread_t *tp) {
   return tp->wabase;
 }
 static inline bool chThdTerminatedX(thread_t *tp) {
   return (bool)(tp->state == CH_STATE_FINAL);
 }
 static inline bool chThdShouldTerminateX(void) {
-  return (bool)((chThdGetSelfX()->flags & CH_FLAG_TERMINATE) != (tmode_t)0);
+  return (bool)((chThdGetSelfX()->flags & CH_FLAGS_TERMINATE) != (tmode_t)0);
 }
 static inline thread_t *chThdStartI(thread_t *tp) {
   chDbgAssert(tp->state == CH_STATE_WTSTART, "wrong state");
@@ -1204,9 +1287,6 @@ static inline thread_t *chThdStartI(thread_t *tp) {
 static inline void chThdSleepS(sysinterval_t ticks) {
   chDbgCheck(ticks != TIME_IMMEDIATE);
   (void) chSchGoSleepTimeoutS(CH_STATE_SLEEPING, ticks);
-}
-static inline void chThdQueueObjectInit(threads_queue_t *tqp) {
-  ch_queue_init(&tqp->queue);
 }
 static inline bool chThdQueueIsEmptyI(threads_queue_t *tqp) {
   chDbgCheckClassI();
@@ -1264,7 +1344,7 @@ typedef struct {
   thread_t *chRegNextThread(thread_t *tp);
   thread_t *chRegFindThreadByName(const char *name);
   thread_t *chRegFindThreadByPointer(thread_t *tp);
-  thread_t *chRegFindThreadByWorkingArea(stkalign_t *wa);
+  thread_t *chRegFindThreadByWorkingArea(stkline_t *wa);
 static inline void __reg_object_init(registry_t *rp) {
   ch_queue_init(&rp->queue);
 }
@@ -1285,6 +1365,7 @@ typedef struct ch_semaphore {
 #define __SEMAPHORE_DATA(name,n) {__CH_QUEUE_DATA(name.queue), n}
 #define SEMAPHORE_DECL(name,n) semaphore_t name = __SEMAPHORE_DATA(name, n)
   void chSemObjectInit(semaphore_t *sp, cnt_t n);
+  void chSemObjectDispose(semaphore_t *sp);
   void chSemResetWithMessage(semaphore_t *sp, cnt_t n, msg_t msg);
   void chSemResetWithMessageI(semaphore_t *sp, cnt_t n, msg_t msg);
   msg_t chSemWait(semaphore_t *sp);
@@ -1323,6 +1404,7 @@ struct ch_mutex {
 #define __MUTEX_DATA(name) {__CH_QUEUE_DATA(name.queue), NULL, NULL}
 #define MUTEX_DECL(name) mutex_t name = __MUTEX_DATA(name)
   void chMtxObjectInit(mutex_t *mp);
+  void chMtxObjectDispose(mutex_t *mp);
   void chMtxLock(mutex_t *mp);
   void chMtxLockS(mutex_t *mp);
   bool chMtxTryLock(mutex_t *mp);
@@ -1349,6 +1431,7 @@ typedef struct condition_variable {
 #define __CONDVAR_DATA(name) {__CH_QUEUE_DATA(name.queue)}
 #define CONDVAR_DECL(name) condition_variable_t name = __CONDVAR_DATA(name)
   void chCondObjectInit(condition_variable_t *cp);
+  void chCondObjectDispose(condition_variable_t *cp);
   void chCondSignal(condition_variable_t *cp);
   void chCondSignalI(condition_variable_t *cp);
   void chCondBroadcast(condition_variable_t *cp);
@@ -1374,6 +1457,8 @@ typedef void (*evhandler_t)(eventid_t id);
 #define EVENT_MASK(eid) ((eventmask_t)1 << (eventmask_t)(eid))
 #define __EVENTSOURCE_DATA(name) {(event_listener_t *)(&name)}
 #define EVENTSOURCE_DECL(name) event_source_t name = __EVENTSOURCE_DATA(name)
+  void chEvtObjectInit(event_source_t *esp);
+  void chEvtObjectDispose(event_source_t *esp);
   void chEvtRegisterMaskWithFlagsI(event_source_t *esp,
                                    event_listener_t *elp,
                                    eventmask_t events,
@@ -1399,9 +1484,6 @@ typedef void (*evhandler_t)(eventid_t id);
   eventmask_t chEvtWaitOneTimeout(eventmask_t events, sysinterval_t timeout);
   eventmask_t chEvtWaitAnyTimeout(eventmask_t events, sysinterval_t timeout);
   eventmask_t chEvtWaitAllTimeout(eventmask_t events, sysinterval_t timeout);
-static inline void chEvtObjectInit(event_source_t *esp) {
-  esp->next = (event_listener_t *)esp;
-}
 static inline void chEvtRegisterMask(event_source_t *esp,
                                      event_listener_t *elp,
                                      eventmask_t events) {
@@ -1469,11 +1551,75 @@ static inline void chMsgReleaseS(thread_t *tp, msg_t msg) {
 }
 #define CHLIB_H 
 #define __CHIBIOS_OSLIB__ 
-#define CH_OSLIB_STABLE 1
-#define CH_OSLIB_VERSION "1.3.3"
+#define CH_OSLIB_STABLE 0
+#define CH_OSLIB_VERSION "1.4.0"
 #define CH_OSLIB_MAJOR 1
-#define CH_OSLIB_MINOR 3
-#define CH_OSLIB_PATCH 3
+#define CH_OSLIB_MINOR 4
+#define CH_OSLIB_PATCH 0
+#define CHMEMCHECKS_H 
+typedef struct {
+  uint8_t *base;
+  size_t size;
+} memory_area_t;
+extern const memory_area_t __ch_mem_writable_areas[];
+extern const memory_area_t __ch_mem_readable_areas[];
+extern const memory_area_t __ch_mem_executable_areas[];
+  size_t chMemIsStringWithinX(const memory_area_t *map,
+                              const char *s,
+                              size_t max);
+  size_t chMemIsPointersArrayWithinX(const memory_area_t *map,
+                                     const void *pp[],
+                                     size_t max);
+  bool chMemIsSpaceContainedX(const memory_area_t areas[],
+                              const void *p,
+                              size_t size);
+  bool chMemIsSpaceWritableX(void *p,
+                             size_t size,
+                             unsigned align);
+  bool chMemIsSpaceReadableX(const void *p,
+                             size_t size,
+                             unsigned align);
+  bool chMemIsAddressExecutableX(const void *p);
+static inline bool chMemIsSpaceWithinX(const memory_area_t *map,
+                                       const void *p,
+                                       size_t size) {
+  uintptr_t mem_base = (uintptr_t)map->base;
+  uintptr_t mem_end = mem_base + (uintptr_t)map->size - (uintptr_t)1;
+  uintptr_t base = (uintptr_t)p;
+  uintptr_t end = base + size - (uintptr_t)1;
+  chDbgAssert(mem_base <= mem_end, "invalid container area");
+  return (bool)((base <= end) && (base >= mem_base) && (end <= mem_end));
+}
+static inline bool chMemIsAreaWithinX(const memory_area_t *map1,
+                                      const memory_area_t *map2) {
+  uintptr_t mem_base = (uintptr_t)map1->base;
+  uintptr_t mem_end = mem_base + (uintptr_t)map1->size - (uintptr_t)1;
+  uintptr_t base = (uintptr_t)map2->base;
+  uintptr_t end = base + (uintptr_t)map2->size - (uintptr_t)1;
+  chDbgAssert(mem_base <= mem_end, "invalid container area");
+  return (bool)((base <= end) && (base >= mem_base) && (end <= mem_end));
+}
+static inline bool chMemIsSpaceIntersectingX(const memory_area_t *map,
+                                             const void *p,
+                                             size_t size) {
+  uintptr_t mem_base = (uintptr_t)map->base;
+  uintptr_t mem_end = mem_base + (uintptr_t)map->size - (uintptr_t)1;
+  uintptr_t base = (uintptr_t)p;
+  uintptr_t end = base + (uintptr_t)size - (uintptr_t)1;
+  chDbgAssert((mem_base <= mem_end) && (base <= end), "invalid memory area");
+  return (bool)(((base >= mem_base) && (base <= mem_end)) ||
+                ((end >= mem_base) && (end <= mem_end)));
+}
+static inline bool chMemIsAreaIntersectingX(const memory_area_t *map1,
+                                            const memory_area_t *map2) {
+  uintptr_t mem_base = (uintptr_t)map1->base;
+  uintptr_t mem_end = mem_base + (uintptr_t)map1->size - (uintptr_t)1;
+  uintptr_t base = (uintptr_t)map2->base;
+  uintptr_t end = base + (uintptr_t)map2->size - (uintptr_t)1;
+  chDbgAssert((mem_base <= mem_end) && (base <= end), "invalid memory area");
+  return (bool)(((base >= mem_base) && (base <= mem_end)) ||
+                ((end >= mem_base) && (end <= mem_end)));
+}
 #define CHBSEM_H 
 typedef struct ch_binary_semaphore {
   semaphore_t sem;
@@ -1536,6 +1682,7 @@ typedef struct {
 #define __MAILBOX_DATA(name,buffer,size) { (msg_t *)(buffer), (msg_t *)(buffer) + size, (msg_t *)(buffer), (msg_t *)(buffer), (size_t)0, false, __THREADS_QUEUE_DATA(name.qw), __THREADS_QUEUE_DATA(name.qr), }
 #define MAILBOX_DECL(name,buffer,size) mailbox_t name = __MAILBOX_DATA(name, buffer, size)
   void chMBObjectInit(mailbox_t *mbp, msg_t *buf, size_t n);
+  void chMBObjectDispose(mailbox_t *mbp);
   void chMBReset(mailbox_t *mbp);
   void chMBResetI(mailbox_t *mbp);
   msg_t chMBPostTimeout(mailbox_t *mbp, msg_t msg, sysinterval_t timeout);
@@ -1580,7 +1727,7 @@ extern memcore_t ch_memcore;
   void *chCoreAllocFromTopI(size_t size, unsigned align, size_t offset);
   void *chCoreAllocFromBase(size_t size, unsigned align, size_t offset);
   void *chCoreAllocFromTop(size_t size, unsigned align, size_t offset);
-  size_t chCoreGetStatusX(void);
+  void chCoreGetStatusX(memory_area_t *map);
 static inline void *chCoreAllocAlignedI(size_t size, unsigned align) {
   return chCoreAllocAlignedWithOffsetI(size, align, 0U);
 }
@@ -1609,15 +1756,18 @@ union heap_header {
 };
 struct memory_heap {
   memgetfunc2_t provider;
+  memory_area_t area;
   heap_header_t header;
   mutex_t mtx;
 };
 #define CH_HEAP_AREA(name,size) ALIGNED_VAR(CH_HEAP_ALIGNMENT) uint8_t name[MEM_ALIGN_NEXT((size), CH_HEAP_ALIGNMENT)]
   void __heap_init(void);
   void chHeapObjectInit(memory_heap_t *heapp, void *buf, size_t size);
+  void chHeapObjectDispose(memory_heap_t *heapp);
   void *chHeapAllocAligned(memory_heap_t *heapp, size_t size, unsigned align);
   void chHeapFree(void *p);
   size_t chHeapStatus(memory_heap_t *heapp, size_t *totalp, size_t *largestp);
+  bool chHeapIntegrityCheck(memory_heap_t *heapp);
 static inline void *chHeapAlloc(memory_heap_t *heapp, size_t size) {
   return chHeapAllocAligned(heapp, size, CH_HEAP_ALIGNMENT);
 }
@@ -1644,6 +1794,7 @@ typedef struct {
 #define GUARDEDMEMORYPOOL_DECL(name,size,align) guarded_memory_pool_t name = __GUARDEDMEMORYPOOL_DATA(name, size, align)
   void chPoolObjectInitAligned(memory_pool_t *mp, size_t size,
                                unsigned align, memgetfunc_t provider);
+  void chPoolObjectDispose(memory_pool_t *mp);
   void chPoolLoadArray(memory_pool_t *mp, void *p, size_t n);
   void *chPoolAllocI(memory_pool_t *mp);
   void *chPoolAlloc(memory_pool_t *mp);
@@ -1652,6 +1803,7 @@ typedef struct {
   void chGuardedPoolObjectInitAligned(guarded_memory_pool_t *gmp,
                                       size_t size,
                                       unsigned align);
+  void chGuardedPoolObjectDispose(guarded_memory_pool_t *gmp);
   void chGuardedPoolLoadArray(guarded_memory_pool_t *gmp, void *p, size_t n);
   void *chGuardedPoolAllocTimeoutS(guarded_memory_pool_t *gmp,
                                    sysinterval_t timeout);
@@ -1837,58 +1989,54 @@ static inline void chPipeResume(pipe_t *pp) {
 #define OC_FLAG_LAZYWRITE 0x00000010U
 #define OC_FLAG_FORGET 0x00000020U
 typedef uint32_t oc_flags_t;
-typedef struct ch_oc_hash_header oc_hash_header_t;
-typedef struct ch_oc_lru_header oc_lru_header_t;
-typedef struct ch_oc_object oc_object_t;
-typedef struct ch_objects_cache objects_cache_t;
+typedef struct oc_hash_element oc_hash_element_t;
+typedef struct oc_lru_element oc_lru_element_t;
+typedef struct oc_object oc_object_t;
+typedef struct objects_cache objects_cache_t;
 typedef bool (*oc_readf_t)(objects_cache_t *ocp,
                            oc_object_t *objp,
                            bool async);
 typedef bool (*oc_writef_t)(objects_cache_t *ocp,
                             oc_object_t *objp,
                             bool async);
-struct ch_oc_hash_header {
-  oc_object_t *hash_next;
-  oc_object_t *hash_prev;
+struct oc_hash_element {
+  oc_hash_element_t *next;
+  oc_hash_element_t *prev;
 };
-struct ch_oc_lru_header {
-  oc_object_t *hash_next;
-  oc_object_t *hash_prev;
-  oc_object_t *lru_next;
-  oc_object_t *lru_prev;
+struct oc_lru_element {
+  oc_hash_element_t h;
+  oc_lru_element_t *next;
+  oc_lru_element_t *prev;
 };
-struct ch_oc_object {
-  oc_object_t *hash_next;
-  oc_object_t *hash_prev;
-  oc_object_t *lru_next;
-  oc_object_t *lru_prev;
-  uint32_t obj_group;
+struct oc_object {
+  oc_lru_element_t list;
+  void *obj_owner;
   uint32_t obj_key;
   semaphore_t obj_sem;
   oc_flags_t obj_flags;
   void *dptr;
 };
-struct ch_objects_cache {
+struct objects_cache {
   ucnt_t hashn;
-  oc_hash_header_t *hashp;
+  oc_hash_element_t *hashp;
   ucnt_t objn;
   size_t objsz;
   void *objvp;
-  oc_lru_header_t lru;
+  oc_lru_element_t list;
   semaphore_t lru_sem;
   oc_readf_t readf;
   oc_writef_t writef;
 };
   void chCacheObjectInit(objects_cache_t *ocp,
                          ucnt_t hashn,
-                         oc_hash_header_t *hashp,
+                         oc_hash_element_t *hashp,
                          ucnt_t objn,
                          size_t objsz,
                          void *objvp,
                          oc_readf_t readf,
                          oc_writef_t writef);
   oc_object_t *chCacheGetObject(objects_cache_t *ocp,
-                                uint32_t group,
+                                void *owner,
                                 uint32_t key);
   void chCacheReleaseObjectI(objects_cache_t *ocp,
                              oc_object_t *objp);
@@ -1959,6 +2107,11 @@ static inline void chJobObjectInit(jobs_queue_t *jqp,
   chGuardedPoolObjectInit(&jqp->free, sizeof (job_descriptor_t));
   chGuardedPoolLoadArray(&jqp->free, (void *)jobsbuf, jobsn);
   chMBObjectInit(&jqp->mbx, msgbuf, jobsn);
+}
+static inline void chJobObjectDispose(jobs_queue_t *jqp) {
+  chDbgCheck(jqp != NULL);
+  chGuardedPoolObjectDispose(&jqp->free);
+  chMBObjectDispose(&jqp->mbx);
 }
 static inline job_descriptor_t *chJobGet(jobs_queue_t *jqp) {
   return (job_descriptor_t *)chGuardedPoolAllocTimeout(&jqp->free, TIME_INFINITE);
@@ -2095,25 +2248,25 @@ extern objects_factory_t ch_factory;
                                                void *objp);
   registered_object_t *chFactoryFindObject(const char *name);
   registered_object_t *chFactoryFindObjectByPointer(void *objp);
-  void chFactoryReleaseObject(registered_object_t *rop);
+  ucnt_t chFactoryReleaseObject(registered_object_t *rop);
   dyn_buffer_t *chFactoryCreateBuffer(const char *name, size_t size);
   dyn_buffer_t *chFactoryFindBuffer(const char *name);
-  void chFactoryReleaseBuffer(dyn_buffer_t *dbp);
+  ucnt_t chFactoryReleaseBuffer(dyn_buffer_t *dbp);
   dyn_semaphore_t *chFactoryCreateSemaphore(const char *name, cnt_t n);
   dyn_semaphore_t *chFactoryFindSemaphore(const char *name);
-  void chFactoryReleaseSemaphore(dyn_semaphore_t *dsp);
+  ucnt_t chFactoryReleaseSemaphore(dyn_semaphore_t *dsp);
   dyn_mailbox_t *chFactoryCreateMailbox(const char *name, size_t n);
   dyn_mailbox_t *chFactoryFindMailbox(const char *name);
-  void chFactoryReleaseMailbox(dyn_mailbox_t *dmp);
+  ucnt_t chFactoryReleaseMailbox(dyn_mailbox_t *dmp);
   dyn_objects_fifo_t *chFactoryCreateObjectsFIFO(const char *name,
                                                  size_t objsize,
                                                  size_t objn,
                                                  unsigned objalign);
   dyn_objects_fifo_t *chFactoryFindObjectsFIFO(const char *name);
-  void chFactoryReleaseObjectsFIFO(dyn_objects_fifo_t *dofp);
+  ucnt_t chFactoryReleaseObjectsFIFO(dyn_objects_fifo_t *dofp);
   dyn_pipe_t *chFactoryCreatePipe(const char *name, size_t size);
   dyn_pipe_t *chFactoryFindPipe(const char *name);
-  void chFactoryReleasePipe(dyn_pipe_t *dpp);
+  ucnt_t chFactoryReleasePipe(dyn_pipe_t *dpp);
 static inline void *chFactoryGetObject(registered_object_t *rop) {
   return rop->objp;
 }

@@ -36,12 +36,14 @@
  * @{
  */
 #define CRY_LLD_SUPPORTS_AES                TRUE
+#define CRY_LLD_SUPPORTS_AES_X              TRUE
 #define CRY_LLD_SUPPORTS_AES_ECB            FALSE
 #define CRY_LLD_SUPPORTS_AES_CBC            FALSE
 #define CRY_LLD_SUPPORTS_AES_CFB            FALSE
 #define CRY_LLD_SUPPORTS_AES_CTR            FALSE
 #define CRY_LLD_SUPPORTS_AES_GCM            FALSE
 #define CRY_LLD_SUPPORTS_DES                FALSE
+#define CRY_LLD_SUPPORTS_DES_X              FALSE
 #define CRY_LLD_SUPPORTS_DES_ECB            FALSE
 #define CRY_LLD_SUPPORTS_DES_CBC            FALSE
 #define CRY_LLD_SUPPORTS_SHA1               FALSE
@@ -115,6 +117,12 @@ struct CRYDriver {
    * @brief   Current configuration data.
    */
   const CRYConfig           *config;
+#if (CRY_USE_MUTUAL_EXCLUSION == TRUE) || defined(__DOXYGEN__)
+  /**
+   * @brief   Mutex protecting the peripheral.
+   */
+  mutex_t                   mutex;
+#endif
   /**
    * @brief   Algorithm type of transient key.
    */

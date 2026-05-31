@@ -52,18 +52,6 @@ endif
 # Architecture or project specific options
 #
 
-# Stack size to be allocated to the Cortex-M process stack. This stack is
-# the stack used by the main() thread.
-ifeq ($(USE_PROCESS_STACKSIZE),)
-  USE_PROCESS_STACKSIZE = 0x200
-endif
-
-# Stack size to the allocated to the Cortex-M main/exceptions stack. This
-# stack is used for processing interrupts and exceptions.
-ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
-  USE_EXCEPTIONS_STACKSIZE = 0x200
-endif
-
 # Enables the use of FPU (no, softfp, hard).
 ifeq ($(USE_FPU),)
   USE_FPU = no
@@ -105,19 +93,18 @@ include $(CHIBIOS)/os/hal/boards/RP_PICO_RP2040/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/common/ports/ARMv6-M-RP2/compilers/GCC/mk/port.mk
+include $(CHIBIOS)/os/common/ports/ARMv6-M/compilers/GCC/mk/port_rp2.mk
 # Auto-build files in ./source recursively.
 include $(CHIBIOS)/tools/mk/autobuild.mk
 # Other files (optional).
 include $(CHIBIOS)/os/test/test.mk
 include $(CHIBIOS)/test/rt/rt_test.mk
 include $(CHIBIOS)/test/oslib/oslib_test.mk
-include $(CHIBIOS)/os/various/pico_bindings/pico-sdk.mk
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 include $(CHIBIOS)/os/various/shell/shell.mk
 
-# Define linker script file here
-LDSCRIPT= $(STARTUPLD)/RP2040_RAM.ld
+# Define linker script file here 
+LDSCRIPT= $(STARTUPLD)/RP2040_FLASH.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -153,7 +140,7 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DCRT0_VTOR_INIT=1 -DCRT0_EXTRA_CORES_NUMBER=1 -DPICO_NO_FPGA_CHECK -DNDEBUG
+UDEFS = -DCRT0_VTOR_INIT=1 -DCRT0_EXTRA_CORES_NUMBER=1 -DNDEBUG
 
 # Define ASM defines here
 UADEFS = -DCRT0_VTOR_INIT=1 -DCRT0_EXTRA_CORES_NUMBER=1
@@ -186,6 +173,14 @@ include $(RULESPATH)/rules.mk
 ##############################################################################
 # Custom rules
 #
+
+PICOTOOL ?= picotool
+
+$(BUILDDIR)/$(PROJECT).uf2: $(BUILDDIR)/$(PROJECT).elf
+	$(PICOTOOL) uf2 convert $(BUILDDIR)/$(PROJECT).elf $(BUILDDIR)/$(PROJECT).uf2
+
+upload: $(BUILDDIR)/$(PROJECT).uf2
+	$(PICOTOOL) load -v -x $(BUILDDIR)/$(PROJECT).uf2
 
 #
 # Custom rules
