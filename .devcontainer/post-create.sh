@@ -13,9 +13,10 @@ git submodule update --init --recursive
 python3 -m pip install --break-system-packages --no-cache-dir -r tools/workflows/requirements.txt
 
 # Quick toolchain sanity checks so container setup fails early if something is missing.
-# NOTE: Ubuntu 22.04 ships gcc-arm-none-eabi ~10.x, while the canonical ChibiStudio
-# toolchain is 14.3.1. Builds will generally succeed, but there may be minor
-# version-specific differences (warning flags, optimization behavior, etc.).
+# NOTE: the Ubuntu-packaged gcc-arm-none-eabi (whatever the current base image
+# ships) may differ from the canonical ChibiStudio toolchain (14.3.1). Builds
+# will generally succeed, but there may be minor version-specific differences
+# (warning flags, optimization behavior, etc.).
 arm-none-eabi-gcc --version
 arm-none-eabi-gdb --version
 openocd --version
