@@ -14,8 +14,10 @@ It also serves as the review-guidance file for any automated reviewer.
 
 ## 0. Intake
 - Capture: repo, PR number, author, **base branch**, size (files, +/-), description, linked issue.
-- **Targeting rule:** `stable-*` branches take **bugfixes/regressions only**; `main` takes
-  features and fixes. Flag mis-targeted PRs.
+- **Targeting rule (upstream-first):** ALL changes land on `main` first. The `stable-*`
+  branches only receive **backports of commits already merged on `main`**, selected by the
+  maintainer (typically bugfixes/regressions). PRs targeting `stable-*` directly are
+  redirected to `main`; the stable backport is decided after the `main` merge.
 - Scope sanity: reasonable size, on-topic, not bundling unrelated changes.
 
 ## 1. Fetch
@@ -53,6 +55,21 @@ It also serves as the review-guidance file for any automated reviewer.
 - Post inline comments on the relevant lines plus a summary block with severity-tagged
   findings.
 - Summarize to the maintainer; **the human decides the merge.**
+
+## 6. Backports (stable-*)
+Backports are **manual by design** — the stable branches have diverged from `main`
+(different port layouts, no XHAL, different test trees), so cherry-picks need adaptation
+and judgment; there is no automatic mechanism.
+- **Selection:** the maintainer picks which merged `main` commits get backported and to
+  which `stable-*` branches.
+- **Execution:** cherry-pick onto the target branch, adapt to that branch's layout, then
+  run the mechanical gates **locally** (stylecheck on touched `.c/.h` + a representative
+  build for the touched port) — the stable branches have no CI.
+- The backport commit message references the original `main` commit hash.
+- **Changelog is the visible record:** the change's entry in `readme.txt` on `main` gains a
+  `(backported to <release>)` annotation — one per stable release that received it, e.g.
+  `(backported to 21.11.6).` An entry without annotations has not been backported anywhere.
+- Landing: via PR (review rules apply) or direct maintainer push.
 
 ## Review output template
 Post the review as one summary block (plus inline comments on specific lines where useful),
