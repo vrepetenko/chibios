@@ -37,13 +37,13 @@
  * @name    Thermometer inherited method aliases
  * @{
  */
-#define halThermometerGetChannelsNumber     halSensorGetChannelNumber
-#define halThermometerReadRaw               halSensorReadRaw
-#define halThermometerReadCooked            halSensorReadCooked
-#define halThermometerSetBias               halCalibratedSensorSetBias
-#define halThermometerResetBias             halCalibratedSensorResetBias
-#define halThermometerSetSensitivity        halCalibratedSensorSetSensitivity
-#define halThermometerResetSensitivity      halCalibratedSensorResetSensitivity
+#define thermGetChannelsNumber              halSensorGetChannelNumber
+#define thermReadRaw                        halSensorReadRaw
+#define thermReadCooked                     halSensorReadCooked
+#define thermSetBias                        halCalibratedSensorSetBias
+#define thermResetBias                      halCalibratedSensorResetBias
+#define thermSetSensitivity                 halCalibratedSensorSetSensitivity
+#define thermResetSensitivity               halCalibratedSensorResetSensitivity
 /** @} */
 
 /*===========================================================================*/

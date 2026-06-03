@@ -37,13 +37,13 @@
  * @name    Hygrometer inherited method aliases
  * @{
  */
-#define halHygrometerGetChannelsNumber      halSensorGetChannelNumber
-#define halHygrometerReadRaw                halSensorReadRaw
-#define halHygrometerReadCooked             halSensorReadCooked
-#define halHygrometerSetBias                halCalibratedSensorSetBias
-#define halHygrometerResetBias              halCalibratedSensorResetBias
-#define halHygrometerSetSensitivity         halCalibratedSensorSetSensitivity
-#define halHygrometerResetSensitivity       halCalibratedSensorResetSensitivity
+#define hygroGetChannelsNumber              halSensorGetChannelNumber
+#define hygroReadRaw                        halSensorReadRaw
+#define hygroReadCooked                     halSensorReadCooked
+#define hygroSetBias                        halCalibratedSensorSetBias
+#define hygroResetBias                      halCalibratedSensorResetBias
+#define hygroSetSensitivity                 halCalibratedSensorSetSensitivity
+#define hygroResetSensitivity               halCalibratedSensorResetSensitivity
 /** @} */
 
 /*===========================================================================*/

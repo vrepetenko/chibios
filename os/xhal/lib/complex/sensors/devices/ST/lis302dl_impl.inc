@@ -227,7 +227,7 @@ static msg_t lis302dlApplyConfig(lis302dl_driver_c *self,
  *                              interface.
  * @return                      The number of channels of the sensor.
  */
-static size_t __lis302dl_accelerometer_get_channels_number_impl(void *ip) {
+static size_t __lis302dl_accl_get_channels_number_impl(void *ip) {
   lis302dl_driver_c *self = oopIfGetOwner(lis302dl_driver_c, ip);
 
   osalDbgCheck(ip != NULL);
@@ -243,7 +243,7 @@ static size_t __lis302dl_accelerometer_get_channels_number_impl(void *ip) {
  * @param[out]    data          Pointer to the raw data array.
  * @return                      The operation status.
  */
-static msg_t __lis302dl_accelerometer_read_raw_impl(void *ip, int32_t *data) {
+static msg_t __lis302dl_accl_read_raw_impl(void *ip, int32_t *data) {
   lis302dl_driver_c *self = oopIfGetOwner(lis302dl_driver_c, ip);
   const lis302dl_config_t *config = lis302dlGetConfig(self);
   uint8_t tmp;
@@ -283,7 +283,7 @@ static msg_t __lis302dl_accelerometer_read_raw_impl(void *ip, int32_t *data) {
  * @param[out]    data          Pointer to the cooked data array.
  * @return                      The operation status.
  */
-static msg_t __lis302dl_accelerometer_read_cooked_impl(void *ip, float *data) {
+static msg_t __lis302dl_accl_read_cooked_impl(void *ip, float *data) {
   lis302dl_driver_c *self = oopIfGetOwner(lis302dl_driver_c, ip);
   int32_t raw[LIS302DL_ACC_NUMBER_OF_AXES];
   size_t i;
@@ -296,7 +296,7 @@ static msg_t __lis302dl_accelerometer_read_cooked_impl(void *ip, float *data) {
     return HAL_RET_INV_STATE;
   }
 
-  msg = __lis302dl_accelerometer_read_raw_impl(ip, raw);
+  msg = __lis302dl_accl_read_raw_impl(ip, raw);
   if (msg == HAL_RET_SUCCESS) {
     for (i = 0U; i < LIS302DL_ACC_NUMBER_OF_AXES; i++) {
       data[i] = ((float)raw[i] * self->accsensitivity[i]) -
@@ -316,7 +316,7 @@ static msg_t __lis302dl_accelerometer_read_cooked_impl(void *ip, float *data) {
  * @param[in]     biases        Pointer to a buffer of bias values.
  * @return                      The operation status.
  */
-static msg_t __lis302dl_accelerometer_set_bias_impl(void *ip,
+static msg_t __lis302dl_accl_set_bias_impl(void *ip,
                                                     const float *biases) {
   lis302dl_driver_c *self = oopIfGetOwner(lis302dl_driver_c, ip);
   size_t i;
@@ -343,7 +343,7 @@ static msg_t __lis302dl_accelerometer_set_bias_impl(void *ip,
  *                              interface.
  * @return                      The operation status.
  */
-static msg_t __lis302dl_accelerometer_reset_bias_impl(void *ip) {
+static msg_t __lis302dl_accl_reset_bias_impl(void *ip) {
   lis302dl_driver_c *self = oopIfGetOwner(lis302dl_driver_c, ip);
   size_t i;
 
@@ -370,7 +370,7 @@ static msg_t __lis302dl_accelerometer_reset_bias_impl(void *ip) {
  * @param[in]     sensitivities Pointer to a buffer of sensitivity values.
  * @return                      The operation status.
  */
-static msg_t __lis302dl_accelerometer_set_sensitivity_impl(void *ip,
+static msg_t __lis302dl_accl_set_sensitivity_impl(void *ip,
                                                            const float *sensitivities) {
   lis302dl_driver_c *self = oopIfGetOwner(lis302dl_driver_c, ip);
   size_t i;
@@ -397,7 +397,7 @@ static msg_t __lis302dl_accelerometer_set_sensitivity_impl(void *ip,
  *                              interface.
  * @return                      The operation status.
  */
-static msg_t __lis302dl_accelerometer_reset_sensitivity_impl(void *ip) {
+static msg_t __lis302dl_accl_reset_sensitivity_impl(void *ip) {
   lis302dl_driver_c *self = oopIfGetOwner(lis302dl_driver_c, ip);
   float sensitivity;
   size_t i;
@@ -440,17 +440,17 @@ void *__lis302dl_objinit_impl(void *ip, const void *vmt) {
 
   /* Initialization of interface hal_accelerometer_i.*/
   {
-    static const struct hal_accelerometer_vmt lis302dl_accelerometer_vmt = {
-      .instance_offset      = offsetof(lis302dl_driver_c, accelerometer),
-      .get_channels_number  = __lis302dl_accelerometer_get_channels_number_impl,
-      .read_raw             = __lis302dl_accelerometer_read_raw_impl,
-      .read_cooked          = __lis302dl_accelerometer_read_cooked_impl,
-      .set_bias             = __lis302dl_accelerometer_set_bias_impl,
-      .reset_bias           = __lis302dl_accelerometer_reset_bias_impl,
-      .set_sensitivity      = __lis302dl_accelerometer_set_sensitivity_impl,
-      .reset_sensitivity    = __lis302dl_accelerometer_reset_sensitivity_impl
+    static const struct hal_accelerometer_vmt lis302dl_accl_vmt = {
+      .instance_offset      = offsetof(lis302dl_driver_c, accl),
+      .get_channels_number  = __lis302dl_accl_get_channels_number_impl,
+      .read_raw             = __lis302dl_accl_read_raw_impl,
+      .read_cooked          = __lis302dl_accl_read_cooked_impl,
+      .set_bias             = __lis302dl_accl_set_bias_impl,
+      .reset_bias           = __lis302dl_accl_reset_bias_impl,
+      .set_sensitivity      = __lis302dl_accl_set_sensitivity_impl,
+      .reset_sensitivity    = __lis302dl_accl_reset_sensitivity_impl
     };
-    oopIfObjectInit(&self->accelerometer, &lis302dl_accelerometer_vmt);
+    oopIfObjectInit(&self->accl, &lis302dl_accl_vmt);
   }
 
   /* Initialization code.*/

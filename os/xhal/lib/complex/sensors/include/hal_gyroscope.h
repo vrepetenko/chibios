@@ -37,13 +37,13 @@
  * @name    Gyroscope inherited method aliases
  * @{
  */
-#define halGyroscopeGetAxesNumber           halSensorGetChannelNumber
-#define halGyroscopeReadRaw                 halSensorReadRaw
-#define halGyroscopeReadCooked              halSensorReadCooked
-#define halGyroscopeSetBias                 halCalibratedSensorSetBias
-#define halGyroscopeResetBias               halCalibratedSensorResetBias
-#define halGyroscopeSetSensitivity          halCalibratedSensorSetSensitivity
-#define halGyroscopeResetSensitivity        halCalibratedSensorResetSensitivity
+#define gyroGetAxesNumber                   halSensorGetChannelNumber
+#define gyroReadRaw                         halSensorReadRaw
+#define gyroReadCooked                      halSensorReadCooked
+#define gyroSetBias                         halCalibratedSensorSetBias
+#define gyroResetBias                       halCalibratedSensorResetBias
+#define gyroSetSensitivity                  halCalibratedSensorSetSensitivity
+#define gyroResetSensitivity                halCalibratedSensorResetSensitivity
 /** @} */
 
 /*===========================================================================*/
@@ -145,7 +145,7 @@ extern "C" {
  * @api
  */
 CC_FORCE_INLINE
-static inline msg_t gyroscopeSampleBias(void *ip) {
+static inline msg_t gyroSampleBias(void *ip) {
   hal_gyroscope_i *self = (hal_gyroscope_i *)ip;
 
   return self->vmt->sample_bias(ip);

@@ -13,21 +13,21 @@
     </includes>
     <definitions_early>
       <group description="Thermometer inherited method aliases">
-        <define name="halThermometerGetChannelsNumber"
+        <define name="thermGetChannelsNumber"
           value="halSensorGetChannelNumber" />
-        <define name="halThermometerReadRaw" value="halSensorReadRaw" />
-        <define name="halThermometerReadCooked" value="halSensorReadCooked" />
-        <define name="halThermometerSetBias" value="halCalibratedSensorSetBias" />
-        <define name="halThermometerResetBias"
+        <define name="thermReadRaw" value="halSensorReadRaw" />
+        <define name="thermReadCooked" value="halSensorReadCooked" />
+        <define name="thermSetBias" value="halCalibratedSensorSetBias" />
+        <define name="thermResetBias"
           value="halCalibratedSensorResetBias" />
-        <define name="halThermometerSetSensitivity"
+        <define name="thermSetSensitivity"
           value="halCalibratedSensorSetSensitivity" />
-        <define name="halThermometerResetSensitivity"
+        <define name="thermResetSensitivity"
           value="halCalibratedSensorResetSensitivity" />
       </group>
     </definitions_early>
     <types>
-      <interface name="hal_thermometer" namespace="thermometer"
+      <interface name="hal_thermometer" namespace="therm"
         ancestorname="hal_calibrated_sensor" descr="thermometer">
         <brief>Generic thermometer interface.</brief>
         <details>

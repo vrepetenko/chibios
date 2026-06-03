@@ -63,11 +63,34 @@
  * @name    LIS302DL accelerometer characteristics
  * @{
  */
+/**
+ * @brief       Number of accelerometer axes.
+ */
 #define LIS302DL_ACC_NUMBER_OF_AXES         3U
+
+/**
+ * @brief       Accelerometer 2g full-scale value.
+ */
 #define LIS302DL_ACC_2G                     2.0f
+
+/**
+ * @brief       Accelerometer 8g full-scale value.
+ */
 #define LIS302DL_ACC_8G                     8.0f
+
+/**
+ * @brief       Accelerometer sensitivity in 2g mode.
+ */
 #define LIS302DL_ACC_SENS_2G                18.0f
+
+/**
+ * @brief       Accelerometer sensitivity in 8g mode.
+ */
 #define LIS302DL_ACC_SENS_8G                72.0f
+
+/**
+ * @brief       Accelerometer default bias.
+ */
 #define LIS302DL_ACC_BIAS                   0.0f
 /** @} */
 
@@ -75,7 +98,14 @@
  * @name    LIS302DL SPI command bits
  * @{
  */
+/**
+ * @brief       Multiple-byte SPI transfer bit.
+ */
 #define LIS302DL_MS                         (1U << 6)
+
+/**
+ * @brief       SPI read/write selection bit.
+ */
 #define LIS302DL_RW                         (1U << 7)
 /** @} */
 
@@ -83,13 +113,44 @@
  * @name    LIS302DL register addresses
  * @{
  */
+/**
+ * @brief       WHO_AM_I register address.
+ */
 #define LIS302DL_AD_WHO_AM_I                0x0FU
+
+/**
+ * @brief       Control register 1 address.
+ */
 #define LIS302DL_AD_CTRL_REG1               0x20U
+
+/**
+ * @brief       Control register 2 address.
+ */
 #define LIS302DL_AD_CTRL_REG2               0x21U
+
+/**
+ * @brief       Control register 3 address.
+ */
 #define LIS302DL_AD_CTRL_REG3               0x22U
+
+/**
+ * @brief       Status register address.
+ */
 #define LIS302DL_AD_STATUS_REG              0x27U
+
+/**
+ * @brief       X-axis output register address.
+ */
 #define LIS302DL_AD_OUT_X                   0x29U
+
+/**
+ * @brief       Y-axis output register address.
+ */
 #define LIS302DL_AD_OUT_Y                   0x2BU
+
+/**
+ * @brief       Z-axis output register address.
+ */
 #define LIS302DL_AD_OUT_Z                   0x2DU
 /** @} */
 
@@ -97,10 +158,29 @@
  * @name    LIS302DL CTRL_REG1 register bits
  * @{
  */
+/**
+ * @brief       X-axis enable bit.
+ */
 #define LIS302DL_CTRL_REG1_XEN              (1U << 0)
+
+/**
+ * @brief       Y-axis enable bit.
+ */
 #define LIS302DL_CTRL_REG1_YEN              (1U << 1)
+
+/**
+ * @brief       Z-axis enable bit.
+ */
 #define LIS302DL_CTRL_REG1_ZEN              (1U << 2)
+
+/**
+ * @brief       Full-scale selection mask.
+ */
 #define LIS302DL_CTRL_REG1_FS_MASK          0x20U
+
+/**
+ * @brief       Power-down control bit.
+ */
 #define LIS302DL_CTRL_REG1_PD               (1U << 6)
 /** @} */
 
@@ -108,10 +188,29 @@
  * @name    LIS302DL CTRL_REG2 register bits
  * @{
  */
+/**
+ * @brief       High-pass filter cutoff frequency bit 1.
+ */
 #define LIS302DL_CTRL_REG2_HPCF1            (1U << 0)
+
+/**
+ * @brief       High-pass filter cutoff frequency bit 2.
+ */
 #define LIS302DL_CTRL_REG2_HPCF2            (1U << 1)
+
+/**
+ * @brief       High-pass filter enable for free-fall/wake-up 1.
+ */
 #define LIS302DL_CTRL_REG2_HPFFWU1          (1U << 2)
+
+/**
+ * @brief       High-pass filter enable for free-fall/wake-up 2.
+ */
 #define LIS302DL_CTRL_REG2_HPFFWU2          (1U << 3)
+
+/**
+ * @brief       Filtered data selection bit.
+ */
 #define LIS302DL_CTRL_REG2_FDS              (1U << 4)
 /** @} */
 
@@ -168,20 +267,6 @@
 #error "LIS302DL_SHARED_SPI requires HAL_USE_MUTUAL_EXCLUSION"
 #endif
 
-/**
- * @name    LIS302DL accelerometer method aliases
- * @{
- */
-#define lis302dlAccelerometerGetAxesNumber(devp)halAccelerometerGetAxesNumber(&((devp)->accelerometer))
-#define lis302dlAccelerometerReadRaw(devp, axes)halAccelerometerReadRaw(&((devp)->accelerometer), axes)
-#define lis302dlAccelerometerReadCooked(devp, axes)halAccelerometerReadCooked(&((devp)->accelerometer), axes)
-#define lis302dlAccelerometerSetBias(devp, biases)halAccelerometerSetBias(&((devp)->accelerometer), biases)
-#define lis302dlAccelerometerResetBias(devp)halAccelerometerResetBias(&((devp)->accelerometer))
-#define lis302dlAccelerometerSetSensitivity(devp, sensitivities)halAccelerometerSetSensitivity(&((devp)->accelerometer), sensitivities)
-#define lis302dlAccelerometerResetSensitivity(devp)halAccelerometerResetSensitivity(&((devp)->accelerometer))
-#define lis302dlAccelerometerSetFullScale(devp, fs)lis302dlSetFullScale(devp, fs)
-/** @} */
-
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
@@ -190,36 +275,72 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+/**
+ * @brief       Type of a LIS302DL driver configuration.
+ */
 typedef struct lis302dl_config lis302dl_config_t;
 
+/**
+ * @brief       LIS302DL accelerometer full-scale selections.
+ */
 typedef enum {
-  LIS302DL_ACC_FS_2G = 0x00U,
-  LIS302DL_ACC_FS_8G = 0x20U
+  LIS302DL_ACC_FS_2G = 0x00U,  /**< 2g full-scale range.  */
+  LIS302DL_ACC_FS_8G = 0x20U   /**< 8g full-scale range.  */
 } lis302dl_acc_fs_t;
 
+/**
+ * @brief       LIS302DL accelerometer output data rate selections.
+ */
 typedef enum {
-  LIS302DL_ACC_ODR_100HZ = 0x00U,
-  LIS302DL_ACC_ODR_400HZ = 0x80U
+  LIS302DL_ACC_ODR_100HZ = 0x00U, /**< 100Hz output data rate. */
+  LIS302DL_ACC_ODR_400HZ = 0x80U  /**< 400Hz output data rate. */
 } lis302dl_acc_odr_t;
 
+/**
+ * @brief       LIS302DL accelerometer high-pass filter selections.
+ */
 typedef enum {
-  LIS302DL_ACC_HP_DISABLED = 0x00U,
-  LIS302DL_ACC_HP_0        = 0x10U,
-  LIS302DL_ACC_HP_1        = 0x11U,
-  LIS302DL_ACC_HP_2        = 0x12U,
-  LIS302DL_ACC_HP_3        = 0x13U
+  LIS302DL_ACC_HP_DISABLED = 0x00U, /**< High-pass filter disabled. */
+  LIS302DL_ACC_HP_0        = 0x10U, /**< High-pass filter mode 0.   */
+  LIS302DL_ACC_HP_1        = 0x11U, /**< High-pass filter mode 1.   */
+  LIS302DL_ACC_HP_2        = 0x12U, /**< High-pass filter mode 2.   */
+  LIS302DL_ACC_HP_3        = 0x13U  /**< High-pass filter mode 3.   */
 } lis302dl_acc_hp_t;
 
+/**
+ * @brief       LIS302DL driver configuration structure.
+ */
 struct lis302dl_config {
+  /**
+   * @brief       SPI driver to be used for physical communication.
+   */
   hal_spi_driver_c          *spip;
+  /**
+   * @brief       SPI driver configuration.
+   */
   const hal_spi_config_t    *spicfg;
+  /**
+   * @brief       Accelerometer sensitivity values.
+   */
   const float               *accsensitivity;
+  /**
+   * @brief       Accelerometer bias values.
+   */
   const float               *accbias;
+  /**
+   * @brief       Accelerometer full-scale selection.
+   */
   lis302dl_acc_fs_t         accfullscale;
+  /**
+   * @brief       Accelerometer output data rate selection.
+   */
   lis302dl_acc_odr_t        accodr;
-#if LIS302DL_USE_ADVANCED == TRUE
+#if (LIS302DL_USE_ADVANCED == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief       Accelerometer high-pass filter selection.
+   */
   lis302dl_acc_hp_t         acchighpass;
-#endif
+#endif /* LIS302DL_USE_ADVANCED == TRUE */
 };
 
 /**
@@ -295,7 +416,7 @@ struct lis302dl_driver {
   /**
    * @brief       Implemented interface @p hal_accelerometer_i.
    */
-  hal_accelerometer_i       accelerometer;
+  hal_accelerometer_i       accl;
   /**
    * @brief       Accelerometer subsystem axes number.
    */

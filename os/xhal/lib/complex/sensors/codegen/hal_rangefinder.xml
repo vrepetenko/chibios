@@ -13,21 +13,21 @@
     </includes>
     <definitions_early>
       <group description="Rangefinder inherited method aliases">
-        <define name="halRangefinderGetChannelsNumber"
+        <define name="rngfGetChannelsNumber"
           value="halSensorGetChannelNumber" />
-        <define name="halRangefinderReadRaw" value="halSensorReadRaw" />
-        <define name="halRangefinderReadCooked" value="halSensorReadCooked" />
-        <define name="halRangefinderSetBias" value="halCalibratedSensorSetBias" />
-        <define name="halRangefinderResetBias"
+        <define name="rngfReadRaw" value="halSensorReadRaw" />
+        <define name="rngfReadCooked" value="halSensorReadCooked" />
+        <define name="rngfSetBias" value="halCalibratedSensorSetBias" />
+        <define name="rngfResetBias"
           value="halCalibratedSensorResetBias" />
-        <define name="halRangefinderSetSensitivity"
+        <define name="rngfSetSensitivity"
           value="halCalibratedSensorSetSensitivity" />
-        <define name="halRangefinderResetSensitivity"
+        <define name="rngfResetSensitivity"
           value="halCalibratedSensorResetSensitivity" />
       </group>
     </definitions_early>
     <types>
-      <interface name="hal_rangefinder" namespace="rangefinder"
+      <interface name="hal_rangefinder" namespace="rngf"
         ancestorname="hal_calibrated_sensor" descr="rangefinder">
         <brief>Generic rangefinder interface.</brief>
         <details>

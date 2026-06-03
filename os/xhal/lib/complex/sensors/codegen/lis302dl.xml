@@ -29,40 +29,92 @@
         </define>
       </group>
       <group description="LIS302DL accelerometer characteristics">
-        <define name="LIS302DL_ACC_NUMBER_OF_AXES" value="3U" />
-        <define name="LIS302DL_ACC_2G" value="2.0f" />
-        <define name="LIS302DL_ACC_8G" value="8.0f" />
-        <define name="LIS302DL_ACC_SENS_2G" value="18.0f" />
-        <define name="LIS302DL_ACC_SENS_8G" value="72.0f" />
-        <define name="LIS302DL_ACC_BIAS" value="0.0f" />
+        <define name="LIS302DL_ACC_NUMBER_OF_AXES" value="3U">
+          <brief>Number of accelerometer axes.</brief>
+        </define>
+        <define name="LIS302DL_ACC_2G" value="2.0f">
+          <brief>Accelerometer 2g full-scale value.</brief>
+        </define>
+        <define name="LIS302DL_ACC_8G" value="8.0f">
+          <brief>Accelerometer 8g full-scale value.</brief>
+        </define>
+        <define name="LIS302DL_ACC_SENS_2G" value="18.0f">
+          <brief>Accelerometer sensitivity in 2g mode.</brief>
+        </define>
+        <define name="LIS302DL_ACC_SENS_8G" value="72.0f">
+          <brief>Accelerometer sensitivity in 8g mode.</brief>
+        </define>
+        <define name="LIS302DL_ACC_BIAS" value="0.0f">
+          <brief>Accelerometer default bias.</brief>
+        </define>
       </group>
       <group description="LIS302DL SPI command bits">
-        <define name="LIS302DL_MS" value="(1U &lt;&lt; 6)" />
-        <define name="LIS302DL_RW" value="(1U &lt;&lt; 7)" />
+        <define name="LIS302DL_MS" value="(1U &lt;&lt; 6)">
+          <brief>Multiple-byte SPI transfer bit.</brief>
+        </define>
+        <define name="LIS302DL_RW" value="(1U &lt;&lt; 7)">
+          <brief>SPI read/write selection bit.</brief>
+        </define>
       </group>
       <group description="LIS302DL register addresses">
-        <define name="LIS302DL_AD_WHO_AM_I" value="0x0FU" />
-        <define name="LIS302DL_AD_CTRL_REG1" value="0x20U" />
-        <define name="LIS302DL_AD_CTRL_REG2" value="0x21U" />
-        <define name="LIS302DL_AD_CTRL_REG3" value="0x22U" />
-        <define name="LIS302DL_AD_STATUS_REG" value="0x27U" />
-        <define name="LIS302DL_AD_OUT_X" value="0x29U" />
-        <define name="LIS302DL_AD_OUT_Y" value="0x2BU" />
-        <define name="LIS302DL_AD_OUT_Z" value="0x2DU" />
+        <define name="LIS302DL_AD_WHO_AM_I" value="0x0FU">
+          <brief>WHO_AM_I register address.</brief>
+        </define>
+        <define name="LIS302DL_AD_CTRL_REG1" value="0x20U">
+          <brief>Control register 1 address.</brief>
+        </define>
+        <define name="LIS302DL_AD_CTRL_REG2" value="0x21U">
+          <brief>Control register 2 address.</brief>
+        </define>
+        <define name="LIS302DL_AD_CTRL_REG3" value="0x22U">
+          <brief>Control register 3 address.</brief>
+        </define>
+        <define name="LIS302DL_AD_STATUS_REG" value="0x27U">
+          <brief>Status register address.</brief>
+        </define>
+        <define name="LIS302DL_AD_OUT_X" value="0x29U">
+          <brief>X-axis output register address.</brief>
+        </define>
+        <define name="LIS302DL_AD_OUT_Y" value="0x2BU">
+          <brief>Y-axis output register address.</brief>
+        </define>
+        <define name="LIS302DL_AD_OUT_Z" value="0x2DU">
+          <brief>Z-axis output register address.</brief>
+        </define>
       </group>
       <group description="LIS302DL CTRL_REG1 register bits">
-        <define name="LIS302DL_CTRL_REG1_XEN" value="(1U &lt;&lt; 0)" />
-        <define name="LIS302DL_CTRL_REG1_YEN" value="(1U &lt;&lt; 1)" />
-        <define name="LIS302DL_CTRL_REG1_ZEN" value="(1U &lt;&lt; 2)" />
-        <define name="LIS302DL_CTRL_REG1_FS_MASK" value="0x20U" />
-        <define name="LIS302DL_CTRL_REG1_PD" value="(1U &lt;&lt; 6)" />
+        <define name="LIS302DL_CTRL_REG1_XEN" value="(1U &lt;&lt; 0)">
+          <brief>X-axis enable bit.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG1_YEN" value="(1U &lt;&lt; 1)">
+          <brief>Y-axis enable bit.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG1_ZEN" value="(1U &lt;&lt; 2)">
+          <brief>Z-axis enable bit.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG1_FS_MASK" value="0x20U">
+          <brief>Full-scale selection mask.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG1_PD" value="(1U &lt;&lt; 6)">
+          <brief>Power-down control bit.</brief>
+        </define>
       </group>
       <group description="LIS302DL CTRL_REG2 register bits">
-        <define name="LIS302DL_CTRL_REG2_HPCF1" value="(1U &lt;&lt; 0)" />
-        <define name="LIS302DL_CTRL_REG2_HPCF2" value="(1U &lt;&lt; 1)" />
-        <define name="LIS302DL_CTRL_REG2_HPFFWU1" value="(1U &lt;&lt; 2)" />
-        <define name="LIS302DL_CTRL_REG2_HPFFWU2" value="(1U &lt;&lt; 3)" />
-        <define name="LIS302DL_CTRL_REG2_FDS" value="(1U &lt;&lt; 4)" />
+        <define name="LIS302DL_CTRL_REG2_HPCF1" value="(1U &lt;&lt; 0)">
+          <brief>High-pass filter cutoff frequency bit 1.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG2_HPCF2" value="(1U &lt;&lt; 1)">
+          <brief>High-pass filter cutoff frequency bit 2.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG2_HPFFWU1" value="(1U &lt;&lt; 2)">
+          <brief>High-pass filter enable for free-fall/wake-up 1.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG2_HPFFWU2" value="(1U &lt;&lt; 3)">
+          <brief>High-pass filter enable for free-fall/wake-up 2.</brief>
+        </define>
+        <define name="LIS302DL_CTRL_REG2_FDS" value="(1U &lt;&lt; 4)">
+          <brief>Filtered data selection bit.</brief>
+        </define>
       </group>
     </definitions_early>
     <configs>
@@ -92,80 +144,68 @@
 #if (LIS302DL_SHARED_SPI == TRUE) && (HAL_USE_MUTUAL_EXCLUSION != TRUE)
 #error "LIS302DL_SHARED_SPI requires HAL_USE_MUTUAL_EXCLUSION"
 #endif]]></verbatim>
-      <group description="LIS302DL accelerometer method aliases">
-        <define name="lis302dlAccelerometerGetAxesNumber"
-          value="halAccelerometerGetAxesNumber(&amp;((devp)-&gt;accelerometer))">
-          <param name="devp" />
-        </define>
-        <define name="lis302dlAccelerometerReadRaw"
-          value="halAccelerometerReadRaw(&amp;((devp)-&gt;accelerometer), axes)">
-          <param name="devp" />
-          <param name="axes" />
-        </define>
-        <define name="lis302dlAccelerometerReadCooked"
-          value="halAccelerometerReadCooked(&amp;((devp)-&gt;accelerometer), axes)">
-          <param name="devp" />
-          <param name="axes" />
-        </define>
-        <define name="lis302dlAccelerometerSetBias"
-          value="halAccelerometerSetBias(&amp;((devp)-&gt;accelerometer), biases)">
-          <param name="devp" />
-          <param name="biases" />
-        </define>
-        <define name="lis302dlAccelerometerResetBias"
-          value="halAccelerometerResetBias(&amp;((devp)-&gt;accelerometer))">
-          <param name="devp" />
-        </define>
-        <define name="lis302dlAccelerometerSetSensitivity"
-          value="halAccelerometerSetSensitivity(&amp;((devp)-&gt;accelerometer), sensitivities)">
-          <param name="devp" />
-          <param name="sensitivities" />
-        </define>
-        <define name="lis302dlAccelerometerResetSensitivity"
-          value="halAccelerometerResetSensitivity(&amp;((devp)-&gt;accelerometer))">
-          <param name="devp" />
-        </define>
-        <define name="lis302dlAccelerometerSetFullScale"
-          value="lis302dlSetFullScale(devp, fs)">
-          <param name="devp" />
-          <param name="fs" />
-        </define>
-      </group>
     </definitions_late>
     <types>
       <typedef name="lis302dl_config_t">
+        <brief>Type of a LIS302DL driver configuration.</brief>
         <basetype ctype="struct lis302dl_config" />
       </typedef>
       <verbatim><![CDATA[
+/**
+ * @brief       LIS302DL accelerometer full-scale selections.
+ */
 typedef enum {
-  LIS302DL_ACC_FS_2G = 0x00U,
-  LIS302DL_ACC_FS_8G = 0x20U
+  LIS302DL_ACC_FS_2G = 0x00U,  /**< 2g full-scale range.  */
+  LIS302DL_ACC_FS_8G = 0x20U   /**< 8g full-scale range.  */
 } lis302dl_acc_fs_t;
 
+/**
+ * @brief       LIS302DL accelerometer output data rate selections.
+ */
 typedef enum {
-  LIS302DL_ACC_ODR_100HZ = 0x00U,
-  LIS302DL_ACC_ODR_400HZ = 0x80U
+  LIS302DL_ACC_ODR_100HZ = 0x00U, /**< 100Hz output data rate. */
+  LIS302DL_ACC_ODR_400HZ = 0x80U  /**< 400Hz output data rate. */
 } lis302dl_acc_odr_t;
 
+/**
+ * @brief       LIS302DL accelerometer high-pass filter selections.
+ */
 typedef enum {
-  LIS302DL_ACC_HP_DISABLED = 0x00U,
-  LIS302DL_ACC_HP_0        = 0x10U,
-  LIS302DL_ACC_HP_1        = 0x11U,
-  LIS302DL_ACC_HP_2        = 0x12U,
-  LIS302DL_ACC_HP_3        = 0x13U
+  LIS302DL_ACC_HP_DISABLED = 0x00U, /**< High-pass filter disabled. */
+  LIS302DL_ACC_HP_0        = 0x10U, /**< High-pass filter mode 0.   */
+  LIS302DL_ACC_HP_1        = 0x11U, /**< High-pass filter mode 1.   */
+  LIS302DL_ACC_HP_2        = 0x12U, /**< High-pass filter mode 2.   */
+  LIS302DL_ACC_HP_3        = 0x13U  /**< High-pass filter mode 3.   */
 } lis302dl_acc_hp_t;
-
-struct lis302dl_config {
-  hal_spi_driver_c          *spip;
-  const hal_spi_config_t    *spicfg;
-  const float               *accsensitivity;
-  const float               *accbias;
-  lis302dl_acc_fs_t         accfullscale;
-  lis302dl_acc_odr_t        accodr;
-#if LIS302DL_USE_ADVANCED == TRUE
-  lis302dl_acc_hp_t         acchighpass;
-#endif
-};]]></verbatim>
+]]></verbatim>
+      <struct name="lis302dl_config">
+        <brief>LIS302DL driver configuration structure.</brief>
+        <fields>
+          <field name="spip" ctype="hal_spi_driver_c$I*$N">
+            <brief>SPI driver to be used for physical communication.</brief>
+          </field>
+          <field name="spicfg" ctype="const hal_spi_config_t$I*$N">
+            <brief>SPI driver configuration.</brief>
+          </field>
+          <field name="accsensitivity" ctype="const float$I*$N">
+            <brief>Accelerometer sensitivity values.</brief>
+          </field>
+          <field name="accbias" ctype="const float$I*$N">
+            <brief>Accelerometer bias values.</brief>
+          </field>
+          <field name="accfullscale" ctype="lis302dl_acc_fs_t">
+            <brief>Accelerometer full-scale selection.</brief>
+          </field>
+          <field name="accodr" ctype="lis302dl_acc_odr_t">
+            <brief>Accelerometer output data rate selection.</brief>
+          </field>
+          <condition check="LIS302DL_USE_ADVANCED == TRUE">
+            <field name="acchighpass" ctype="lis302dl_acc_hp_t">
+              <brief>Accelerometer high-pass filter selection.</brief>
+            </field>
+          </condition>
+        </fields>
+      </struct>
       <class type="regular" name="lis302dl_driver" namespace="lis302dl"
         ancestorname="hal_base_driver" descr="LIS302DL driver">
         <brief>LIS302DL accelerometer chip driver class.</brief>

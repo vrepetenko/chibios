@@ -13,20 +13,20 @@
     </includes>
     <definitions_early>
       <group description="Barometer inherited method aliases">
-        <define name="halBarometerGetChannelsNumber"
+        <define name="baroGetChannelsNumber"
           value="halSensorGetChannelNumber" />
-        <define name="halBarometerReadRaw" value="halSensorReadRaw" />
-        <define name="halBarometerReadCooked" value="halSensorReadCooked" />
-        <define name="halBarometerSetBias" value="halCalibratedSensorSetBias" />
-        <define name="halBarometerResetBias" value="halCalibratedSensorResetBias" />
-        <define name="halBarometerSetSensitivity"
+        <define name="baroReadRaw" value="halSensorReadRaw" />
+        <define name="baroReadCooked" value="halSensorReadCooked" />
+        <define name="baroSetBias" value="halCalibratedSensorSetBias" />
+        <define name="baroResetBias" value="halCalibratedSensorResetBias" />
+        <define name="baroSetSensitivity"
           value="halCalibratedSensorSetSensitivity" />
-        <define name="halBarometerResetSensitivity"
+        <define name="baroResetSensitivity"
           value="halCalibratedSensorResetSensitivity" />
       </group>
     </definitions_early>
     <types>
-      <interface name="hal_barometer" namespace="barometer"
+      <interface name="hal_barometer" namespace="baro"
         ancestorname="hal_calibrated_sensor" descr="barometer">
         <brief>Generic barometer interface.</brief>
         <details>

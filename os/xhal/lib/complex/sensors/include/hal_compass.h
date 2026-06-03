@@ -37,13 +37,13 @@
  * @name    Compass inherited method aliases
  * @{
  */
-#define halCompassGetAxesNumber             halSensorGetChannelNumber
-#define halCompassReadRaw                   halSensorReadRaw
-#define halCompassReadCooked                halSensorReadCooked
-#define halCompassSetBias                   halCalibratedSensorSetBias
-#define halCompassResetBias                 halCalibratedSensorResetBias
-#define halCompassSetSensitivity            halCalibratedSensorSetSensitivity
-#define halCompassResetSensitivity          halCalibratedSensorResetSensitivity
+#define compGetAxesNumber                   halSensorGetChannelNumber
+#define compReadRaw                         halSensorReadRaw
+#define compReadCooked                      halSensorReadCooked
+#define compSetBias                         halCalibratedSensorSetBias
+#define compResetBias                       halCalibratedSensorResetBias
+#define compSetSensitivity                  halCalibratedSensorSetSensitivity
+#define compResetSensitivity                halCalibratedSensorResetSensitivity
 /** @} */
 
 /*===========================================================================*/

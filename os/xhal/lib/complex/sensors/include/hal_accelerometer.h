@@ -37,13 +37,13 @@
  * @name    Accelerometer inherited method aliases
  * @{
  */
-#define halAccelerometerGetAxesNumber       halSensorGetChannelNumber
-#define halAccelerometerReadRaw             halSensorReadRaw
-#define halAccelerometerReadCooked          halSensorReadCooked
-#define halAccelerometerSetBias             halCalibratedSensorSetBias
-#define halAccelerometerResetBias           halCalibratedSensorResetBias
-#define halAccelerometerSetSensitivity      halCalibratedSensorSetSensitivity
-#define halAccelerometerResetSensitivity    halCalibratedSensorResetSensitivity
+#define acclGetAxesNumber                   halSensorGetChannelNumber
+#define acclReadRaw                         halSensorReadRaw
+#define acclReadCooked                      halSensorReadCooked
+#define acclSetBias                         halCalibratedSensorSetBias
+#define acclResetBias                       halCalibratedSensorResetBias
+#define acclSetSensitivity                  halCalibratedSensorSetSensitivity
+#define acclResetSensitivity                halCalibratedSensorResetSensitivity
 /** @} */
 
 /*===========================================================================*/

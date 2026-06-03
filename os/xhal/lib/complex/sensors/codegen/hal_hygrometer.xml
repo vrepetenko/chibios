@@ -13,20 +13,20 @@
     </includes>
     <definitions_early>
       <group description="Hygrometer inherited method aliases">
-        <define name="halHygrometerGetChannelsNumber"
+        <define name="hygroGetChannelsNumber"
           value="halSensorGetChannelNumber" />
-        <define name="halHygrometerReadRaw" value="halSensorReadRaw" />
-        <define name="halHygrometerReadCooked" value="halSensorReadCooked" />
-        <define name="halHygrometerSetBias" value="halCalibratedSensorSetBias" />
-        <define name="halHygrometerResetBias" value="halCalibratedSensorResetBias" />
-        <define name="halHygrometerSetSensitivity"
+        <define name="hygroReadRaw" value="halSensorReadRaw" />
+        <define name="hygroReadCooked" value="halSensorReadCooked" />
+        <define name="hygroSetBias" value="halCalibratedSensorSetBias" />
+        <define name="hygroResetBias" value="halCalibratedSensorResetBias" />
+        <define name="hygroSetSensitivity"
           value="halCalibratedSensorSetSensitivity" />
-        <define name="halHygrometerResetSensitivity"
+        <define name="hygroResetSensitivity"
           value="halCalibratedSensorResetSensitivity" />
       </group>
     </definitions_early>
     <types>
-      <interface name="hal_hygrometer" namespace="hygrometer"
+      <interface name="hal_hygrometer" namespace="hygro"
         ancestorname="hal_calibrated_sensor" descr="hygrometer">
         <brief>Generic hygrometer interface.</brief>
         <details>

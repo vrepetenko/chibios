@@ -37,13 +37,13 @@
  * @name    Barometer inherited method aliases
  * @{
  */
-#define halBarometerGetChannelsNumber       halSensorGetChannelNumber
-#define halBarometerReadRaw                 halSensorReadRaw
-#define halBarometerReadCooked              halSensorReadCooked
-#define halBarometerSetBias                 halCalibratedSensorSetBias
-#define halBarometerResetBias               halCalibratedSensorResetBias
-#define halBarometerSetSensitivity          halCalibratedSensorSetSensitivity
-#define halBarometerResetSensitivity        halCalibratedSensorResetSensitivity
+#define baroGetChannelsNumber               halSensorGetChannelNumber
+#define baroReadRaw                         halSensorReadRaw
+#define baroReadCooked                      halSensorReadCooked
+#define baroSetBias                         halCalibratedSensorSetBias
+#define baroResetBias                       halCalibratedSensorResetBias
+#define baroSetSensitivity                  halCalibratedSensorSetSensitivity
+#define baroResetSensitivity                halCalibratedSensorResetSensitivity
 /** @} */
 
 /*===========================================================================*/

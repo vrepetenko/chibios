@@ -37,13 +37,13 @@
  * @name    Rangefinder inherited method aliases
  * @{
  */
-#define halRangefinderGetChannelsNumber     halSensorGetChannelNumber
-#define halRangefinderReadRaw               halSensorReadRaw
-#define halRangefinderReadCooked            halSensorReadCooked
-#define halRangefinderSetBias               halCalibratedSensorSetBias
-#define halRangefinderResetBias             halCalibratedSensorResetBias
-#define halRangefinderSetSensitivity        halCalibratedSensorSetSensitivity
-#define halRangefinderResetSensitivity      halCalibratedSensorResetSensitivity
+#define rngfGetChannelsNumber               halSensorGetChannelNumber
+#define rngfReadRaw                         halSensorReadRaw
+#define rngfReadCooked                      halSensorReadCooked
+#define rngfSetBias                         halCalibratedSensorSetBias
+#define rngfResetBias                       halCalibratedSensorResetBias
+#define rngfSetSensitivity                  halCalibratedSensorSetSensitivity
+#define rngfResetSensitivity                halCalibratedSensorResetSensitivity
 /** @} */
 
 /*===========================================================================*/

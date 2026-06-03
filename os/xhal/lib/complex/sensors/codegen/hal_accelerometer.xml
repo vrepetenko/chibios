@@ -13,21 +13,21 @@
     </includes>
     <definitions_early>
       <group description="Accelerometer inherited method aliases">
-        <define name="halAccelerometerGetAxesNumber"
+        <define name="acclGetAxesNumber"
           value="halSensorGetChannelNumber" />
-        <define name="halAccelerometerReadRaw" value="halSensorReadRaw" />
-        <define name="halAccelerometerReadCooked" value="halSensorReadCooked" />
-        <define name="halAccelerometerSetBias" value="halCalibratedSensorSetBias" />
-        <define name="halAccelerometerResetBias"
+        <define name="acclReadRaw" value="halSensorReadRaw" />
+        <define name="acclReadCooked" value="halSensorReadCooked" />
+        <define name="acclSetBias" value="halCalibratedSensorSetBias" />
+        <define name="acclResetBias"
           value="halCalibratedSensorResetBias" />
-        <define name="halAccelerometerSetSensitivity"
+        <define name="acclSetSensitivity"
           value="halCalibratedSensorSetSensitivity" />
-        <define name="halAccelerometerResetSensitivity"
+        <define name="acclResetSensitivity"
           value="halCalibratedSensorResetSensitivity" />
       </group>
     </definitions_early>
     <types>
-      <interface name="hal_accelerometer" namespace="accelerometer"
+      <interface name="hal_accelerometer" namespace="accl"
         ancestorname="hal_calibrated_sensor" descr="accelerometer">
         <brief>Generic accelerometer interface.</brief>
         <details>

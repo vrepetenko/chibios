@@ -13,19 +13,19 @@
     </includes>
     <definitions_early>
       <group description="Gyroscope inherited method aliases">
-        <define name="halGyroscopeGetAxesNumber" value="halSensorGetChannelNumber" />
-        <define name="halGyroscopeReadRaw" value="halSensorReadRaw" />
-        <define name="halGyroscopeReadCooked" value="halSensorReadCooked" />
-        <define name="halGyroscopeSetBias" value="halCalibratedSensorSetBias" />
-        <define name="halGyroscopeResetBias" value="halCalibratedSensorResetBias" />
-        <define name="halGyroscopeSetSensitivity"
+        <define name="gyroGetAxesNumber" value="halSensorGetChannelNumber" />
+        <define name="gyroReadRaw" value="halSensorReadRaw" />
+        <define name="gyroReadCooked" value="halSensorReadCooked" />
+        <define name="gyroSetBias" value="halCalibratedSensorSetBias" />
+        <define name="gyroResetBias" value="halCalibratedSensorResetBias" />
+        <define name="gyroSetSensitivity"
           value="halCalibratedSensorSetSensitivity" />
-        <define name="halGyroscopeResetSensitivity"
+        <define name="gyroResetSensitivity"
           value="halCalibratedSensorResetSensitivity" />
       </group>
     </definitions_early>
     <types>
-      <interface name="hal_gyroscope" namespace="gyroscope"
+      <interface name="hal_gyroscope" namespace="gyro"
         ancestorname="hal_calibrated_sensor" descr="gyroscope">
         <brief>Generic gyroscope interface.</brief>
         <details>
@@ -36,7 +36,7 @@
         <consts>
         </consts>
         <methods>
-          <method name="gyroscopeSampleBias" shortname="sample_bias"
+          <method name="gyroSampleBias" shortname="sample_bias"
             ctype="msg_t">
             <brief>Gyroscope bias sampling procedure.</brief>
             <note><![CDATA[During this procedure the gyroscope must be kept in
