@@ -100,6 +100,14 @@ Stage C dimensions (deep):
   findings.
 - **Keep it digestible:** post only the current stage's findings (see §2); prefer a
   handful of inline comments over long prose; one summary block per pass.
+- **Stay scoped to the PR:** do not discuss unrelated or base-branch problems in PR
+  comments — handle those through separate channels. If CI is red for a reason not
+  caused by the PR, say only that it is a known project-side issue being addressed;
+  no details about the unrelated problem.
+- **Make findings reproducible:** when reporting style findings, include the local
+  reproduction hint so the author can self-check before pushing:
+  `python3 tools/style/stylecheck.py <file>` (findings are printed as `style:`/
+  `error:` lines; the tool always exits 0 — read the output, not the exit code).
 - Summarize to the maintainer; **the human decides the merge.**
 
 ## 6. Backports (stable-*)
