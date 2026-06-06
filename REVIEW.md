@@ -94,6 +94,12 @@ Stage C dimensions (deep):
   **advisory-LGTM** only when stages C and D completed clean (a pass stopped at A or B
   can never be an advisory-LGTM).
 - For small, clear issues, offer to draft/push a fix to the PR branch.
+- **Trivial ping-pong escalation:** when a PR keeps cycling on trivial items only
+  (should-fix/nit findings carried across two or more fix rounds while the
+  substantive work is done), the reviewer proactively offers to push the remaining
+  fixes to the PR branch instead of requesting another round. On the author's
+  confirmation, push the fixes (clearly attributed commits), comment exactly what
+  was pushed, and re-verify. Always ask first — it is the contributor's branch.
 
 ## 5. Post & handoff
 - Post inline comments on the relevant lines plus a summary block with severity-tagged
