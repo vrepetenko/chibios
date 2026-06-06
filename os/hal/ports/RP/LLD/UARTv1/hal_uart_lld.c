@@ -250,6 +250,12 @@ void uart_lld_stop(UARTDriver *uartp) {
  */
 void uart_lld_start_send(UARTDriver *uartp, size_t n, const void *txbuf) {
 
+  /* The RP PL011 UART has no transmission-complete interrupt; physical end
+     of transmission cannot be detected without polling BUSY. The txend2_cb
+     callback is therefore unsupported on this LLD.*/
+  osalDbgAssert(uartp->config->txend2_cb == NULL,
+                "txend2_cb not supported on RP UARTv1");
+
   uartp->txbufp = (const uint8_t *)txbuf;
   uartp->txsize = n;
   uartp->txidx  = 0U;
@@ -410,14 +416,23 @@ void uart_lld_serve_interrupt(UARTDriver *uartp) {
       /* Disable TX interrupt.*/
       uartp->uart->UARTIMSC &= ~UART_UARTIMSC_TXIM;
 
+#if UART_USE_WAIT == TRUE
+      /* The uartSendFullTimeout() API (early == false) waits for the
+         physical end of transmission, which this LLD cannot signal — its
+         waiter would never be resumed. The asynchronous uartStartSend()
+         has no waiter (threadtx == NULL) and is fully supported; this
+         guard fires only on the unsupported uartSendFullTimeout() case.*/
+      osalDbgAssert((uartp->early == true) || (uartp->threadtx == NULL),
+                    "uartSendFullTimeout not supported on RP UARTv1");
+#endif
+
       /* Buffer transmit complete callback.*/
       _uart_tx1_isr_code(uartp);
 
-      /* Physical end of transmission — wait for BUSY to clear would
-         require polling; signal tx2 immediately as the FIFO has been
-         fully loaded. For true physical-end detection a separate
-         mechanism would be needed.*/
-      _uart_tx2_isr_code(uartp);
+      /* The physical end of transmission (txend2_cb, uartSendFullTimeout)
+         is not signalled: the PL011 has no transmission-complete interrupt
+         and polling BUSY from the ISR is prohibited. Both are rejected by
+         assertions; see the notes in hal_uart_lld.h.*/
     }
   }
 
