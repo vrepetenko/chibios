@@ -33,8 +33,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          # github.sha on pull_request events is the MERGE commit (PR merged
+          # into the CURRENT base branch); its first parent is the current base
+          # tip. Diffing against it yields exactly the PR's own changes.
+          # Do NOT use github.event.pull_request.base.sha here: it is the base
+          # tip recorded at PR-creation time, so base-branch commits made since
+          # then would leak into the changed-file list and fail PRs on
+          # pre-existing findings in files they never touched.
           HEAD_SHA="${{ github.sha }}"
+          BASE_SHA="$(git rev-parse "${HEAD_SHA}^1")"
 
           mapfile -t CHANGED < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- '*.c' '*.h')
 
