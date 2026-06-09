@@ -85,6 +85,9 @@ See .devcontainer/README.md for included tools and usage.
        registry switch for the FMC-capable devices (G473/G483/G474/G484),
        in all four G4 port copies (github PR #14)(backported to
        21.11.6).
+- FIX: Missing SPI2 RCC macros and DMAMUX identifiers in the STM32C0xx
+       HAL and XHAL ports, SPI2 was unusable on the devices that have it (forum bug
+       report, github PR #12).
 - FIX: RT: Fixed chThdCreateFromMemoryPool() rejects valid fixed memory pools
        due to overly strict alignment assertion (bug github #3)
        (backported to 21.11.6).
