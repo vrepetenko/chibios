@@ -86,8 +86,12 @@ See .devcontainer/README.md for included tools and usage.
        in all four G4 port copies (github PR #14)(backported to
        21.11.6).
 - FIX: Missing SPI2 RCC macros and DMAMUX identifiers in the STM32C0xx
-       HAL and XHAL ports, SPI2 was unusable on the devices that have it (forum bug
-       report, github PR #12).
+       HAL and XHAL ports, SPI2 was unusable on the devices that have it (forum
+       bug report, github PR #12).
+- FIX: Missing STM32_ADC_ADC2_IRQ_HOOK invocations in the STM32 ADCv6 and
+       ADCv7 drivers (forum bug report, github PR #11).
+- NEW: Add ADDITIONAL_OUTFILES to the ARMCMx GCC build rules (forum bug
+       report, github PR #10).
 - FIX: RT: Fixed chThdCreateFromMemoryPool() rejects valid fixed memory pools
        due to overly strict alignment assertion (bug github #3)
        (backported to 21.11.6).
