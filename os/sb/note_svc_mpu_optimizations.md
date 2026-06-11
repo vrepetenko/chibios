@@ -153,6 +153,12 @@ of the two that benefits fastcalls).
 Caveat: this is a guest-visible ABI break, sandbox binaries must be
 rebuilt. Needs a config option or an SB ABI version bump.
 
+Required hardening (recorded in the security note, point 3): the number
+becomes a 32-bit guest-controlled value instead of a one-byte immediate,
+so the handler must clamp it (`uxtb`, ~1 cycle) before any table
+indexing — without the clamp, the dispatch's OOB-impossible-by-
+construction property is lost and it becomes a guest-indexed `blx`.
+
 ## 3. MPU regions as a shared table pointer (preferred design)
 
 Design decision (2026-06-11), superseding the earlier "drop store-back +

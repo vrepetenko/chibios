@@ -5,25 +5,10 @@ isolation, i.e. trigger arbitrary privileged code execution or crash the
 supervisor. Covers the ALT ports (`os/common/ports/ARMv7-M-ALT`,
 `ARMv8-M-ML-ALT`) and `os/sb/host`. Date: 2026-06-11.
 
-Related: [note_svc_mpu_optimizations.md](note_svc_mpu_optimizations.md)
-(the shared-memory region API interacts directly with point 1 below).
-Its point 3 region-table design (per-SB shared tables + a const
-all-disabled default table, pointer-equality switch) has two security
-effects worth recording here: (a) an SB -> kernel switch always loads the
-default table, so no privileged thread ever runs with a dead sandbox's
-regions programmed — the "regions only grant, never restrict" AP rule
-becomes defense-in-depth instead of a correctness requirement; (b) the
-switch code compares table pointers only, so **revoking** a shared region
-from a running SB must write the live MPU registers in the same critical
-section as the table update, or the sandbox retains access until the next
-domain crossing.
-
-Its point 1 (dedicated context-switch IRQ) is also security-relevant: the
-switch handler becomes unreachable from unprivileged mode by construction
-(NVIC/STIR are in the SCS, privileged-only regardless of MPU, provided
-CCR.USERSETMPEND stays 0 — assert it), and SVC_Handler shrinks to
-guest-facing code only with no immediate fetch on any path, reducing the
-attack surface of the single guest-reachable kernel entry.
+Related: [note_svc_mpu_optimizations.md](note_svc_mpu_optimizations.md) —
+the shared-memory region API interacts directly with point 1 below; the
+security effects of the design decisions recorded there are collected in
+the "Design-decision impacts" section at the end of this note.
 
 ## Defenses currently in place (sound)
 
@@ -40,7 +25,10 @@ attack surface of the single guest-reachable kernel entry.
   `cmp r0, #0x80`; syscall path does `subs #128` into a 128-entry table.
   SVC immediates are one byte, so 0..127 and 128..255 map exactly onto the
   two 128-entry tables. Unimplemented slots default to `sb_undef_handler`
-  returning `ENOSYS`.
+  returning `ENOSYS`. Caveat: "by construction" holds only because the
+  number originates from a one-byte SVC immediate — the planned R12 ABI
+  makes it a 32-bit guest-controlled value and requires an explicit clamp
+  (see point 3 below).
 - **Buffer arguments validated against the sandbox's own regions.**
   `sb_is_valid_read_range` / `sb_is_valid_write_range` / `sb_check_string`
   (`host/sbregions.c`) walk `sbp->regions[]`, require `sb_reg_is_memory`,
@@ -52,16 +40,35 @@ attack surface of the single guest-reachable kernel entry.
   termination. Faults taken in unprivileged thread mode are converted by
   `sbexc.S` (`.Lexit_thd`) into `chThdExit`/`__sb_abort`, so a sandbox
   crash is a clean termination, not a supervisor crash.
+- **VRQ delivery defers while privileged — no guest code mid-syscall.**
+  `sbVRQTriggerI`/`sbVRQTriggerS` check the privilege state and, when
+  the sandbox thread is in privileged mode (a syscall in progress,
+  running or blocked), do *not* push a guest context — they only wake the
+  thread (`host/sbvrq.c`, the `chThdResumeI` branches); the guest frame
+  is built at syscall exit by `__sb_vrq_check_pending`. A VRQ handler
+  therefore cannot run between a syscall's validation and its use of the
+  validated data: the single-threaded model holds for the entire syscall
+  duration.
+- **Privilege cannot be re-acquired through restored frames.** nPRIV
+  lives in CONTROL, which is never restored from guest-influenced state,
+  and exception return cannot clear it; freshly built VRQ frames get a
+  sanitized `xpsr = 0x01000000` (`vrq_initctx`). The "make the kernel
+  restore a guest-controlled frame" path cannot elevate.
 
 ## Margins / hardening points
 
 ### 1. TOCTOU / double-fetch (highest priority, gated by shared-memory API)
 
-All range checks are validate-then-use. The single-threaded-sandbox
-assumption holds *within one SB*, but is broken by:
+All range checks are validate-then-use. Within one SB this is safe: guest
+code cannot run while a syscall is in flight (VRQ delivery defers while
+privileged, see Defenses), so the validated memory cannot be mutated by
+the sandbox itself. The breakers are external writers only:
 
-- a region writable by both the sandbox and a peripheral/DMA engine;
-- VRQ preemption re-entering the sandbox between check and use;
+- a region writable by both the sandbox and a peripheral/DMA engine —
+  including the *software* instance of it: the async-VFS worker thread
+  operating on guest buffers concurrently with guest code (see
+  [note_sb_async_vfs.md](note_sb_async_vfs.md), which applies the
+  copy-in-once contract to metadata and DMA semantics to data buffers);
 - **the planned shared-memory region API** (another SB or the host mutating
   a validated buffer mid-syscall).
 
@@ -74,24 +81,41 @@ copy-in to a private privileged buffer once, validate and use the copy,
 never re-dereference guest memory after the check. Bake this into the API
 contract from the start.
 
-### 2. Syscall number read from guest code memory
+### 2. VIO native-handle surface (escape-relevant, tracked in open_points)
+
+Not covered by the range checks above: the VIO layer passes direct
+validated native handles across the boundary (VETH model), with
+validation that is intentionally structural, not ownership-aware, and
+open "enforce fault instead" TODOs in `vio/sbvio_spi.c` /
+`vio/sbvio_uart.c`. A forged or stale native handle is a classic escape
+vector; this surface ranks with point 1 in priority. Detailed items live
+under open_points "Host VIO" — recorded here so this assessment is not
+read as covering a surface it does not.
+
+### 3. Syscall number read from guest code memory
 
 The ALT handler recovers the SVC number with a privileged
 `ldrb [stacked_pc, #-2]` — a privileged read at a guest-influenced address.
 Not exploitable for escape (PC was just executed, within the code region),
 but it is a privileged access derived from guest state. Moving the number
 to R12 (optimization #2 in the optimizations note) removes the surface and
-is faster — security and performance agree.
+is faster — security and performance agree. **Required with the R12 ABI:**
+R12 is a 32-bit guest-controlled value, unlike the one-byte immediate, so
+the handler must clamp it (`uxtb`, ~1 cycle) before any table indexing —
+without the clamp, the OOB-impossible-by-construction property in the
+defenses above is lost and the dispatch becomes a guest-indexed `blx`.
 
-### 3. FPCA / lazy-stacking invariant is convention, not enforced
+### 4. FPCA / lazy-stacking invariant is convention, not enforced
 
 `__port_do_syscall_entry` / `__port_do_syscall_return` require that syscall
 code does not change FPCA state, or the return uses the wrong frame shape.
 A handler that touches the FPU could corrupt the return frame (supervisor
 crash, not escape). Add a compile-time / debug assertion instead of relying
-on reviewers.
+on reviewers. Note the invariant's exact statement depends on the
+configured mode: `PORT_USE_FPU_FAST_SWITCHING >= 2` deliberately forces
+FPCA on at thread start (`sbhost.c`, the `__get_FPSCR()` read).
 
-### 4. Privileged stack overflow is guard-page-dependent
+### 5. Privileged stack overflow is guard-page-dependent
 
 Entry skips overflow checking on the privileged frame ("created on the
 privileged PSP so no need to check"). True only while the guard page backs
@@ -101,17 +125,45 @@ path resolution, lwIP) are the realistic consumers. v8-M sets PSPLIM; on
 privileged stack base for every sandbox config. A privileged overflow that
 misses the guard is direct supervisor-memory corruption.
 
-### 5. VRQ injection vs. syscall-return window
+### 6. VRQ injection vs. syscall-return window
 
 The `vrq.isr` / `SB_VRQ_ISR_DISABLED` masking discipline prevents a VRQ
-being injected during the return transition. `sbVRQTriggerFromISR` fires
-asynchronously, so the masking atomicity across the entry -> dispatch ->
-return sequence needs explicit re-review (see open_points "Host").
+being injected during the return transition. `sbVRQTriggerI` fires
+asynchronously from ISRs, so the masking atomicity across the entry ->
+dispatch -> return sequence needs explicit re-review (see open_points
+"Host").
+
+## Design-decision impacts (2026-06-11)
+
+Security effects of the designs decided in
+[note_svc_mpu_optimizations.md](note_svc_mpu_optimizations.md):
+
+- **MPU region-table design (its point 3)**: (a) an SB -> kernel switch
+  always loads the const all-disabled default table, so no privileged
+  thread ever runs with a dead sandbox's regions programmed — the
+  "regions only grant, never restrict" AP rule becomes defense-in-depth
+  instead of a correctness requirement; (b) the switch code compares
+  table pointers only, so **revoking** a shared region from a running SB
+  must write the live MPU registers in the same critical section as the
+  table update, or the sandbox retains access until the next domain
+  crossing.
+- **Dedicated context-switch IRQ (its point 1)**: the switch handler
+  becomes unreachable from unprivileged mode by construction (NVIC/STIR
+  are in the SCS, privileged-only regardless of MPU, provided
+  CCR.USERSETMPEND stays 0 — assert it), and SVC_Handler shrinks to
+  guest-facing code only with no immediate fetch on any path, reducing
+  the attack surface of the single guest-reachable kernel entry.
+- **R12 syscall-number ABI (its point 2)**: removes the privileged read
+  at a guest-influenced address (point 3 above) but requires the explicit
+  clamp before table indexing, also point 3 above.
 
 ## Bottom line
 
-Architecture is fundamentally sound; the escape surface is small. The
-concentrated risk is TOCTOU on memory the sandbox does not exclusively own,
-which the shared-memory API activates — hence the copy-in-once discipline.
-Items 2-5 are supervisor-integrity (crash-resistance) hardening rather than
-escape vectors, with #4 the one to verify concretely per-config.
+Architecture is fundamentally sound and the strongest property is that
+guest code cannot run while a syscall is in flight, so TOCTOU is not live
+today for a self-contained SB. The concentrated risks are the two
+guest-facing surfaces: memory the sandbox does not exclusively own (DMA
+today, the shared-memory API tomorrow — hence the copy-in-once
+discipline) and the VIO native-handle model (point 2). Items 3-6 are
+supervisor-integrity (crash-resistance) hardening rather than escape
+vectors, with #5 the one to verify concretely per-config.
