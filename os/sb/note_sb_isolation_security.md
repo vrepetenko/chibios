@@ -7,6 +7,23 @@ supervisor. Covers the ALT ports (`os/common/ports/ARMv7-M-ALT`,
 
 Related: [note_svc_mpu_optimizations.md](note_svc_mpu_optimizations.md)
 (the shared-memory region API interacts directly with point 1 below).
+Its point 3 region-table design (per-SB shared tables + a const
+all-disabled default table, pointer-equality switch) has two security
+effects worth recording here: (a) an SB -> kernel switch always loads the
+default table, so no privileged thread ever runs with a dead sandbox's
+regions programmed — the "regions only grant, never restrict" AP rule
+becomes defense-in-depth instead of a correctness requirement; (b) the
+switch code compares table pointers only, so **revoking** a shared region
+from a running SB must write the live MPU registers in the same critical
+section as the table update, or the sandbox retains access until the next
+domain crossing.
+
+Its point 1 (dedicated context-switch IRQ) is also security-relevant: the
+switch handler becomes unreachable from unprivileged mode by construction
+(NVIC/STIR are in the SCS, privileged-only regardless of MPU, provided
+CCR.USERSETMPEND stays 0 — assert it), and SVC_Handler shrinks to
+guest-facing code only with no immediate fetch on any path, reducing the
+attack surface of the single guest-reachable kernel entry.
 
 ## Defenses currently in place (sound)
 

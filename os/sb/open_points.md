@@ -16,7 +16,8 @@ remaining technical points across the SB subsystems.
 - Decide whether sandbox memory-range violations in host services should keep returning `CH_RET_EFAULT` or escalate to a sandbox fault/termination policy.
 - Add more host-side validation tests for multi-image bring-up, because incorrect flashing order can produce misleading startup failures during debug.
 - Evaluate whether a host-side integration demo/test should be added for the working host + SB1 + SB2 configuration used during VETH/lwIP bring-up.
-- Evaluate the SVC/MPU context switch optimizations and the planned shared-memory region API analyzed in [note_svc_mpu_optimizations.md](note_svc_mpu_optimizations.md).
+- Evaluate the SVC/MPU context switch optimizations and the planned shared-memory region API analyzed in [note_svc_mpu_optimizations.md](note_svc_mpu_optimizations.md). Preferred MPU design decided 2026-06-11: thread context holds a pointer to a region table (per-SB shared table, const all-disabled default table for ordinary threads), switch-in compares table pointers only and burst-loads via the RBAR/RASR alias registers, no store-back. Writers of a live table must update the live registers in the same critical section (revocation especially).
+- Preferred SVC design decided 2026-06-11 (same note, point 1): move the context switch off SVC to a software-pended unused NVIC IRQ (opt-in per platform; trigger is `str` to STIR + 2-byte spin loop, handler skips 2 bytes on the stacked PC — no DSB/ISB). SVC becomes SB-only; the `svc 1` syscall return loses the discrimination fetch on every syscall, kernel-side only. Fallback for IRQ-constrained platforms: shared SVC with the `movs r0, #0` register convention. Complemented by the syscall-number-in-R12 ABI change for the entry side.
 
 ## Host isolation / escape resistance
 
