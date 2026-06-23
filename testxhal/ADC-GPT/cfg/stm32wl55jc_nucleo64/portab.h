@@ -25,20 +25,26 @@
 #ifndef PORTAB_H
 #define PORTAB_H
 
-#define PORTAB_LINE_LED1            LINE_LED_GREEN
-#define PORTAB_LED_OFF              PAL_LOW
-#define PORTAB_LED_ON               PAL_HIGH
+#define PORTAB_LINE_LED1                    LINE_LED_GREEN
+#define PORTAB_LED_OFF                      PAL_LOW
+#define PORTAB_LED_ON                       PAL_HIGH
 
-#define PORTAB_LINE_BUTTON          LINE_BUTTON
-#define PORTAB_BUTTON_PRESSED       PAL_HIGH
+#define PORTAB_LINE_BUTTON                  LINE_BUTTON_1
+#define PORTAB_BUTTON_PRESSED               PAL_LOW
 
-#define PORTAB_SIO1                 LPSIOD1
+#define PORTAB_ADC1                         ADCD1
+#define PORTAB_GPT1                         GPTD1
+#define PORTAB_GPT1_PERIOD                  100U
 
-#define MFS_BANK_SIZE               4096U
-#define MFS_BANK0_START             252U
-#define MFS_BANK0_SECTORS           2U
-#define MFS_BANK1_START             254U
-#define MFS_BANK1_SECTORS           2U
+#define ADC_GRP1_NUM_CHANNELS               2U
+#define ADC_GRP2_NUM_CHANNELS               2U
+#define ADC_GRP3_NUM_CHANNELS               2U
+#define ADC_GRP1                            0U
+#define ADC_GRP2                            1U
+#define ADC_GRP3                            2U
+
+extern const hal_adc_config_t portab_adccfg1;
+extern const hal_gpt_config_t portab_gptcfg1;
 
 #ifdef __cplusplus
 extern "C" {

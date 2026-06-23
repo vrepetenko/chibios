@@ -25,20 +25,7 @@
 #ifndef PORTAB_H
 #define PORTAB_H
 
-#define PORTAB_LINE_LED1            LINE_LED_GREEN
-#define PORTAB_LED_OFF              PAL_LOW
-#define PORTAB_LED_ON               PAL_HIGH
-
-#define PORTAB_LINE_BUTTON          LINE_BUTTON
-#define PORTAB_BUTTON_PRESSED       PAL_HIGH
-
-#define PORTAB_SIO1                 LPSIOD1
-
-#define MFS_BANK_SIZE               4096U
-#define MFS_BANK0_START             252U
-#define MFS_BANK0_SECTORS           2U
-#define MFS_BANK1_START             254U
-#define MFS_BANK1_SECTORS           2U
+#define PORTAB_LINE_LED1                    LINE_LED_GREEN
 
 #ifdef __cplusplus
 extern "C" {
