@@ -97,6 +97,13 @@
 /** @} */
 
 /**
+ * @name    RCC_PLL1CFGR register helpers
+ * @{
+ */
+#define RCC_PLL1CFGR_PLL1MBOOST_FIELD(n)    ((n) << RCC_PLL1CFGR_PLL1MBOOST_Pos)
+/** @} */
+
+/**
  * @name    PWR_VOSR register helpers
  * @{
  */
@@ -278,6 +285,14 @@
 #define STM32_PWR_PDCRI                     (0U)
 #endif
 
+#if !defined(STM32_PWR_PUCRJ) || defined(__DOXYGEN__)
+#define STM32_PWR_PUCRJ                     (0U)
+#endif
+
+#if !defined(STM32_PWR_PDCRJ) || defined(__DOXYGEN__)
+#define STM32_PWR_PDCRJ                     (0U)
+#endif
+
 /** @} */
 
 /**
@@ -290,6 +305,45 @@
 #define STM32_PLL_STARTUP_TIME              (800U * STM32_RELAXED_TIMEOUT_FACTOR)
 #define STM32_SYSCLK_SWITCH_TIME            (50U * STM32_RELAXED_TIMEOUT_FACTOR)
 /** @} */
+
+/**
+ * @brief   EPOD boost enable threshold.
+ */
+#define STM32_BOOSTEN_THRESHOLD             55000000U
+
+/* BOOSTEN is derived from the selected clock tree, not from mcuconf.h. */
+#if (STM32_CFG_PWR_VOSR & PWR_VOSR_BOOSTEN) != 0U
+#error "PWR_VOSR_BOOSTEN must not be specified in STM32_CFG_PWR_VOSR"
+#endif
+
+/* EPOD boost-related settings. */
+#if (STM32_SYSCLK_FREQ > STM32_BOOSTEN_THRESHOLD) || defined(__DOXYGEN__)
+#define STM32_BOOSTER_ENABLED               TRUE
+#else
+#define STM32_BOOSTER_ENABLED               FALSE
+#endif
+
+/**
+ * @brief   PLL1MBOOST setting for the EPOD booster clock.
+ */
+#if (STM32_BOOSTER_ENABLED == TRUE) || defined(__DOXYGEN__)
+#if (STM32_PLL1IN_ENABLED != TRUE) && !defined(__DOXYGEN__)
+#error "PLL1 input clock required for EPOD booster"
+#endif
+#if (STM32_PLL1IN_FREQ < 4000000U) && !defined(__DOXYGEN__)
+#error "STM32_PLL1IN frequency too low for EPOD booster"
+#elif (STM32_PLL1IN_FREQ <= 16000000U) || defined(__DOXYGEN__)
+#define STM32_PLL1MBOOST_BITS               RCC_PLL1CFGR_PLL1MBOOST_FIELD(0U)
+#elif STM32_PLL1IN_FREQ <= 32000000U
+#define STM32_PLL1MBOOST_BITS               RCC_PLL1CFGR_PLL1MBOOST_FIELD(1U)
+#elif STM32_PLL1IN_FREQ <= 64000000U
+#define STM32_PLL1MBOOST_BITS               RCC_PLL1CFGR_PLL1MBOOST_FIELD(2U)
+#else
+#error "STM32_PLL1IN frequency too high for EPOD booster"
+#endif
+#else
+#define STM32_PLL1MBOOST_BITS               0U
+#endif
 
 /**
  * @brief   Flash wait-state settings.
@@ -401,7 +455,7 @@
 /**
  * @brief   Maximum allowed SDMMC kernel clock frequency.
  */
-#define STM32_SDMMC_MAXCLK                  208000000U
+#define STM32_SDMMC_MAXCLK                  STM32_SDMMCCLK_MAX
 
 /*===========================================================================*/
 /* Driver data structures and types.                                         */

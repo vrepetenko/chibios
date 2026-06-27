@@ -235,10 +235,10 @@
 #define STM32_TAMP_IER_MASK                 0x003C0007
 
 /*===========================================================================*/
-/* STM32U575xx.                                                              */
+/* STM32U575xx, STM32U585xx.                                                 */
 /*===========================================================================*/
 
-#if defined(STM32U575xx) || defined(__DOXYGEN__)
+#if defined(STM32U575xx) || defined(STM32U585xx) || defined(__DOXYGEN__)
 
 /* ADC attributes.*/
 #define STM32_HAS_ADC1                      TRUE
@@ -280,7 +280,7 @@
 #define STM32_HAS_GPIOF                     TRUE
 #define STM32_HAS_GPIOG                     TRUE
 #define STM32_HAS_GPIOH                     TRUE
-#define STM32_HAS_GPIOI                     FALSE
+#define STM32_HAS_GPIOI                     TRUE
 #define STM32_HAS_GPIOJ                     FALSE
 #define STM32_HAS_GPIOK                     FALSE
 #define STM32_GPIO_EN_MASK                  (RCC_AHB2ENR1_GPIOAEN |         \
@@ -290,7 +290,8 @@
                                              RCC_AHB2ENR1_GPIOEEN |         \
                                              RCC_AHB2ENR1_GPIOFEN |         \
                                              RCC_AHB2ENR1_GPIOGEN |         \
-                                             RCC_AHB2ENR1_GPIOHEN)
+                                             RCC_AHB2ENR1_GPIOHEN |         \
+                                             RCC_AHB2ENR1_GPIOIEN)
 
 /* I2C attributes.*/
 #define STM32_I2C_SINGLE_IRQ                FALSE
@@ -433,7 +434,7 @@
 /* DCMI attributes.*/
 #define STM32_HAS_DCMI                      TRUE
 
-#endif /* defined(STM32U575xx) */
+#endif /* defined(STM32U575xx) || defined(STM32U585xx) */
 
 /** @} */
 

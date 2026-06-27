@@ -153,6 +153,7 @@ const halclkcfg_t hal_clkcfg_default = {
   .plls = {
     [0] = {
       .cfgr             = STM32_PLL1IN_BITS    | STM32_PLL1REF_BITS  |
+                          STM32_PLL1MBOOST_BITS |
 #if STM32_PLL1P_ENABLED == TRUE
                           RCC_PLL1CFGR_PLL1PEN |
 #endif
@@ -299,8 +300,14 @@ __STATIC_INLINE void hal_lld_set_static_pwr(void) {
   halRegWrite32X(&PWR->PDCRG,    STM32_PWR_PDCRG,    true);
   halRegWrite32X(&PWR->PUCRH,    STM32_PWR_PUCRH,    true);
   halRegWrite32X(&PWR->PDCRH,    STM32_PWR_PDCRH,    true);
+#if STM32_HAS_GPIOI
   halRegWrite32X(&PWR->PUCRI,    STM32_PWR_PUCRI,    true);
   halRegWrite32X(&PWR->PDCRI,    STM32_PWR_PDCRI,    true);
+#endif
+#if STM32_HAS_GPIOJ
+  halRegWrite32X(&PWR->PUCRJ,    STM32_PWR_PUCRJ,    true);
+  halRegWrite32X(&PWR->PDCRJ,    STM32_PWR_PDCRJ,    true);
+#endif
 }
 
 /**
@@ -441,6 +448,16 @@ static bool hal_lld_clock_configure(const halclkcfg_t *ccp) {
   hal_lld_pll_setup(0U, &ccp->plls[0]);
   hal_lld_pll_setup(1U, &ccp->plls[1]);
   hal_lld_pll_setup(2U, &ccp->plls[2]);
+
+#if STM32_BOOSTER_ENABLED == TRUE
+  halRegWrite32X(&PWR->VOSR, ccp->pwr_vosr | PWR_VOSR_BOOSTEN, true);
+  if (halRegWaitAllSet32X(&PWR->VOSR,
+                          PWR_VOSR_BOOSTRDY,
+                          STM32_REGULATORS_TRANSITION_TIME,
+                          NULL)) {
+    return true;
+  }
+#endif
 
   cr = ccp->rcc_cr | RCC_CR_MSISON;
   halRegWrite32X(&RCC->CR, cr, true);

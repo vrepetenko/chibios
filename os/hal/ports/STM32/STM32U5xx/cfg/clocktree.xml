@@ -73,6 +73,18 @@
       <define name="RCC_BDCR_LSCOSEL_LSI" value="RCC_BDCR_LSCOEN" />
       <define name="RCC_BDCR_LSCOSEL_LSE"
               value="(RCC_BDCR_LSCOEN | RCC_BDCR_LSCOSEL)" />
+      <define name="RCC_PLL1CFGR_PLL1RGE_4TO8"
+              value="(2U &lt;&lt; RCC_PLL1CFGR_PLL1RGE_Pos)" />
+      <define name="RCC_PLL1CFGR_PLL1RGE_8TO16"
+              value="(3U &lt;&lt; RCC_PLL1CFGR_PLL1RGE_Pos)" />
+      <define name="RCC_PLL2CFGR_PLL2RGE_4TO8"
+              value="(2U &lt;&lt; RCC_PLL2CFGR_PLL2RGE_Pos)" />
+      <define name="RCC_PLL2CFGR_PLL2RGE_8TO16"
+              value="(3U &lt;&lt; RCC_PLL2CFGR_PLL2RGE_Pos)" />
+      <define name="RCC_PLL3CFGR_PLL3RGE_4TO8"
+              value="(2U &lt;&lt; RCC_PLL3CFGR_PLL3RGE_Pos)" />
+      <define name="RCC_PLL3CFGR_PLL3RGE_8TO16"
+              value="(3U &lt;&lt; RCC_PLL3CFGR_PLL3RGE_Pos)" />
     </definitions>
     <configs>
       <config name="CLOCK_DYNAMIC" type="bool" default="FALSE"
@@ -92,12 +104,12 @@
         <description>Selects the external audio clock frequency.</description>
       </config>
       <config name="MSIS_RANGE" type="set"
-              default="RCC_ICSCR1_MSISRANGE_RANGE4_4M"
+              default="RCC_ICSCR1_MSISRANGE_RANGE0_48M"
               values="RCC_ICSCR1_MSISRANGE_RANGE0_48M RCC_ICSCR1_MSISRANGE_RANGE1_24M RCC_ICSCR1_MSISRANGE_RANGE2_16M RCC_ICSCR1_MSISRANGE_RANGE3_12M RCC_ICSCR1_MSISRANGE_RANGE4_4M RCC_ICSCR1_MSISRANGE_RANGE5_2M RCC_ICSCR1_MSISRANGE_RANGE6_1333K RCC_ICSCR1_MSISRANGE_RANGE7_1M RCC_ICSCR1_MSISRANGE_RANGE8_3072K RCC_ICSCR1_MSISRANGE_RANGE9_1536K RCC_ICSCR1_MSISRANGE_RANGE10_1024K RCC_ICSCR1_MSISRANGE_RANGE11_768K RCC_ICSCR1_MSISRANGE_RANGE12_400K RCC_ICSCR1_MSISRANGE_RANGE13_200K RCC_ICSCR1_MSISRANGE_RANGE14_133K RCC_ICSCR1_MSISRANGE_RANGE15_100K">
         <description>Selects the MSIS frequency range.</description>
       </config>
       <config name="MSIK_RANGE" type="set"
-              default="RCC_ICSCR1_MSIKRANGE_RANGE4_4M"
+              default="RCC_ICSCR1_MSIKRANGE_RANGE0_48M"
               values="RCC_ICSCR1_MSIKRANGE_RANGE0_48M RCC_ICSCR1_MSIKRANGE_RANGE1_24M RCC_ICSCR1_MSIKRANGE_RANGE2_16M RCC_ICSCR1_MSIKRANGE_RANGE3_12M RCC_ICSCR1_MSIKRANGE_RANGE4_4M RCC_ICSCR1_MSIKRANGE_RANGE5_2M RCC_ICSCR1_MSIKRANGE_RANGE6_1333K RCC_ICSCR1_MSIKRANGE_RANGE7_1M RCC_ICSCR1_MSIKRANGE_RANGE8_3072K RCC_ICSCR1_MSIKRANGE_RANGE9_1536K RCC_ICSCR1_MSIKRANGE_RANGE10_1024K RCC_ICSCR1_MSIKRANGE_RANGE11_768K RCC_ICSCR1_MSIKRANGE_RANGE12_400K RCC_ICSCR1_MSIKRANGE_RANGE13_200K RCC_ICSCR1_MSIKRANGE_RANGE14_133K RCC_ICSCR1_MSIKRANGE_RANGE15_100K">
         <description>Selects the MSIK frequency range.</description>
       </config>
@@ -202,6 +214,7 @@
       <limit name="PCLK3" min="no" max="yes" />
       <limit name="ADCCLK" min="no" max="yes" />
       <limit name="USBCLK" min="yes" max="yes" />
+      <limit name="SDMMCCLK" min="no" max="yes" />
       <limit name="FLASH_0WS" min="no" max="yes" />
       <limit name="FLASH_1WS" min="no" max="yes" />
       <limit name="FLASH_2WS" min="no" max="yes" />
@@ -241,6 +254,7 @@
         <limit name="PCLK3" max="160000000" />
         <limit name="ADCCLK" max="55000000" />
         <limit name="USBCLK" min="47880000" max="48120000" />
+        <limit name="SDMMCCLK" max="208000000" />
         <limit name="FLASH_0WS">
           <case when="((STM32_FLASH_ACR &amp; FLASH_ACR_LPM) == 0)" max="32000000" />
           <default max="10000000" />
@@ -327,6 +341,7 @@
         <limit name="PCLK3" max="110000000" />
         <limit name="ADCCLK" max="55000000" />
         <limit name="USBCLK" min="47880000" max="48120000" />
+        <limit name="SDMMCCLK" max="208000000" />
         <limit name="FLASH_0WS">
           <case when="((STM32_FLASH_ACR &amp; FLASH_ACR_LPM) == 0)" max="30000000" />
           <default max="10000000" />
@@ -413,6 +428,7 @@
         <limit name="PCLK3" max="55000000" />
         <limit name="ADCCLK" max="55000000" />
         <limit name="USBCLK" min="47880000" max="48120000" />
+        <limit name="SDMMCCLK" max="208000000" />
         <limit name="FLASH_0WS">
           <case when="((STM32_FLASH_ACR &amp; FLASH_ACR_LPM) == 0)" max="24000000" />
           <default max="10000000" />
@@ -499,6 +515,7 @@
         <limit name="PCLK3" max="25000000" />
         <limit name="ADCCLK" max="25000000" />
         <limit name="USBCLK" min="47880000" max="48120000" />
+        <limit name="SDMMCCLK" max="208000000" />
         <limit name="FLASH_0WS">
           <case when="((STM32_FLASH_ACR &amp; FLASH_ACR_LPM) == 0)" max="12000000" />
           <default max="8000000" />
@@ -578,7 +595,8 @@
       <description>16 MHz high speed internal oscillator</description>
       <bits target="CR" enabled="(RCC_CR_HSION | RCC_CR_HSIKERON)" disabled="0U" />
     </source>
-    <source point="HSI48" enable="manual" dynamic="yes" frequency="48000000U">
+    <source point="HSI48" enable="manual" default="TRUE" dynamic="yes"
+            frequency="48000000U">
       <description>48 MHz high speed internal oscillator</description>
       <bits target="CR" enabled="RCC_CR_HSI48ON" disabled="0U" />
     </source>
@@ -690,7 +708,7 @@
       <description>PLL1 reference clock</description>
       <limits ref="PLLIN" />
       <divider name="PLL1M" input="PLL1IN">
-        <value min="1" max="16" default="1">
+        <value min="1" max="16" default="3">
           <bits value="((%N% - 1U) &lt;&lt; RCC_PLL1CFGR_PLL1M_Pos) | (((STM32_PLL1REF_FREQ) &gt; 8000000U) ? RCC_PLL1CFGR_PLL1RGE_8TO16 : RCC_PLL1CFGR_PLL1RGE_4TO8)" />
         </value>
       </divider>
@@ -699,7 +717,7 @@
       <description>PLL1 VCO clock</description>
       <limits ref="PLLVCO" />
       <multiplier name="PLL1N" input="PLL1REF">
-        <value min="4" max="136" default="32">
+        <value min="4" max="136" default="10">
           <bits value="((%N% - 1U) &lt;&lt; RCC_PLL1DIVR_PLL1N_Pos)" />
         </value>
       </multiplier>
@@ -708,7 +726,7 @@
       <description>PLL1 P output clock</description>
       <limits ref="PLLP" />
       <divider name="PLL1P" input="PLL1VCO">
-        <value min="1" max="128" default="4">
+        <value min="1" max="128" default="1">
           <bits value="((%N% - 1U) &lt;&lt; RCC_PLL1DIVR_PLL1P_Pos)" />
         </value>
       </divider>
@@ -717,7 +735,7 @@
       <description>PLL1 Q output clock</description>
       <limits ref="PLLQ" />
       <divider name="PLL1Q" input="PLL1VCO">
-        <value min="1" max="128" default="4">
+        <value min="1" max="128" default="1">
           <bits value="((%N% - 1U) &lt;&lt; RCC_PLL1DIVR_PLL1Q_Pos)" />
         </value>
       </divider>
@@ -726,7 +744,7 @@
       <description>PLL1 R output clock</description>
       <limits ref="PLLR" />
       <divider name="PLL1R" input="PLL1VCO">
-        <set values="1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82 84 86 88 90 92 94 96 98 100 102 104 106 108 110 112 114 116 118 120 122 124 126 128" default="4">
+        <set values="1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82 84 86 88 90 92 94 96 98 100 102 104 106 108 110 112 114 116 118 120 122 124 126 128" default="1">
           <bits value="((%N% - 1U) &lt;&lt; RCC_PLL1DIVR_PLL1R_Pos)" />
         </set>
       </divider>
@@ -843,10 +861,10 @@
       <description>system clock</description>
       <limits ref="SYSCLK" />
       <mux name="SW" field="RCC_CFGR1_SW" offset="0U">
-        <input point="MSIS" encoding="0U" default="yes" />
+        <input point="MSIS" encoding="0U" />
         <input point="HSI16" encoding="1U" />
         <input point="HSE" encoding="2U" />
-        <input point="PLL1P" encoding="3U" />
+        <input point="PLL1R" encoding="3U" default="yes" />
       </mux>
     </clock>
     <clock point="HCLK" enable="always" dynamic="yes">
@@ -1176,9 +1194,10 @@
     </clock>
     <clock point="SDMMC" enable="auto" dynamic="no">
       <description>SDMMC clock</description>
+      <limits ref="SDMMCCLK" />
       <mux name="SDMMC" field="RCC_CCIPR2_SDMMCSEL" offset="14U">
-        <input point="ICLK" encoding="0U" default="yes" />
-        <input point="PLL1P" encoding="1U" />
+        <input point="ICLK" encoding="0U" />
+        <input point="PLL1P" encoding="1U" default="yes" />
       </mux>
     </clock>
     <clock point="SDMMC1" enable="auto" dynamic="no">
