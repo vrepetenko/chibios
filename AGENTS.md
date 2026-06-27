@@ -47,7 +47,7 @@
 
 ## Repository
 - Repository is git, hosted at github.com/chibios-upstream/chibios. Use git commands; there is no `.svn` directory.
-- `ext` and `tools/ftl` are git submodules (relative URLs). Run `git submodule update --init --recursive` after cloning, or the template/codegen paths under `tools/ftl` will be empty.
+- The repository is self-contained; `tools/ftl` is regular tracked content, not a submodule. Do not use `git -C tools/ftl ...` as a separate repository workflow.
 - Branch model: `main` plus `stable-*` maintenance branches; releases are `ver_*` tags. Branch and tag protection is enabled — do not force-push or move tags.
 - Ask for confirmation before touching non-versioned files.
 - Generated `build/` and `.dep/` outputs are git-ignored; avoid a blanket `git add -A` in freshly built demo/test trees and clean derived outputs before committing.
